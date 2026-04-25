@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATING
+  CLOSED_WON
+  CLOSED_LOST
+  DISQUALIFIED
+}
+
+enum LeadSource {
+  LANDING_PAGE
+  WHATSAPP
+  INSTAGRAM
+  GOOGLE_ADS
+  REFERRAL
+  DIRECT
+}
+
+enum BudgetRange {
+  UP_TO_500K
+  RANGE_500K_1M
+  RANGE_1M_2M
+  RANGE_2M_5M
+  ABOVE_5M
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  PENTHOUSE
+  LAND
+  COMMERCIAL
+  CONDO
+}
+
+enum PropertyStatus {
+  DRAFT
+  AVAILABLE
+  RESERVED
+  SOLD
+  OFF_MARKET
+}
+
+enum InteractionChannel {
+  WHATSAPP
+  EMAIL
+  PHONE
+  VISIT
+  VIDEO_CALL
+  NOTE
+}
+
+enum InteractionDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum Region {
+  GUARUJA
+  SANTOS
+  SAO_VICENTE
+  PRAIA_GRANDE
+  BERTIOGA
+  UBATUBA
+  CARAGUATATUBA
+  SAO_SEBASTIAO
+  ILHABELA
+}
+
+// ─── Lead ─────────────────────────────────────────────────────────────────────
+
+model Lead {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name     String
+  email    String  @unique
+  phone    String
+  whatsapp String?
+
+  status        LeadStatus   @default(NEW)
+  source        LeadSource   @default(LANDING_PAGE)
+  budgetRange   BudgetRange
+  regions       Region[]
+  propertyTypes PropertyType[]
+  notes         String?
+
+  // UTM / rastreamento
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  referrerUrl String?
+
+  // CRM
+  assignedTo String?
+  score      Int     @default(0)
+
+  interactions Interaction[]
+  interests    PropertyInterest[]
+
+  @@index([status])
+  @@index([budgetRange])
+  @@index([createdAt])
+}
+
+// ─── Property ─────────────────────────────────────────────────────────────────
+
+model Property {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title        String
+  slug         String         @unique
+  description  String?        @db.Text
+  status       PropertyStatus @default(DRAFT)
+  type         PropertyType
+  featured     Boolean        @default(false)
+
+  // Localização
+  region       Region
+  city         String
+  neighborhood String
+  address      String?
+  latitude     Decimal?       @db.Decimal(10, 8)
+  longitude    Decimal?       @db.Decimal(11, 8)
+
+  // Características
+  bedrooms     Int?
+  bathrooms    Int?
+  suites       Int?
+  parkingSpots Int?
+  areaTotal    Decimal?       @db.Decimal(10, 2)
+  areaUsable   Decimal?       @db.Decimal(10, 2)
+
+  // Financeiro
+  priceAsk  Decimal?          @db.Decimal(15, 2)
+  priceRent Decimal?          @db.Decimal(15, 2)
+  condoFee  Decimal?          @db.Decimal(10, 2)
+  iptu      Decimal?          @db.Decimal(10, 2)
+
+  // Mídia
+  coverImage String?
+  images     PropertyImage[]
+
+  // SEO & enriquecimento
+  metaTitle       String?
+  metaDescription String?
+  highlights      String[]
+  amenities       String[]
+
+  interests PropertyInterest[]
+
+  @@index([region, status])
+  @@index([type, status])
+  @@index([priceAsk])
+  @@index([featured])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  url        String
+  altText    String?
+  order      Int      @default(0)
+  isCover    Boolean  @default(false)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+}
+
+// ─── Interaction ──────────────────────────────────────────────────────────────
+
+model Interaction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  channel     InteractionChannel
+  direction   InteractionDirection @default(OUTBOUND)
+  summary     String               @db.Text
+  nextStep    String?
+  nextStepAt  DateTime?
+  performedBy String
+
+  @@index([leadId])
+  @@index([createdAt])
+}
+
+// ─── PropertyInterest ─────────────────────────────────────────────────────────
+
+model PropertyInterest {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  leadId     String
+  propertyId String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  notes      String?
+
+  @@unique([leadId, propertyId])
+  @@index([leadId])
+  @@index([propertyId])
+}
