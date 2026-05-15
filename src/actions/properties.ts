@@ -1,0 +1,133 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/slugify";
+import { propertyFormSchema, type PropertyActionResult } from "@/types/property";
+import { PropertyStatus, PropertyType, Region } from "@prisma/client";
+
+function splitLines(raw?: string): string[] {
+  if (!raw) return [];
+  return raw.split("\n").map((l) => l.trim()).filter(Boolean);
+}
+
+function toNum(v?: string): number | undefined {
+  if (!v || v.trim() === "") return undefined;
+  const n = Number(v);
+  return isNaN(n) ? undefined : n;
+}
+
+async function uniqueSlug(base: string): Promise<string> {
+  const existing = await prisma.property.findUnique({ where: { slug: base } });
+  if (!existing) return base;
+  const ts = Date.now().toString(36);
+  return `${base}-${ts}`;
+}
+
+export async function createProperty(
+  raw: unknown
+): Promise<PropertyActionResult> {
+  const parsed = propertyFormSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const d = parsed.data;
+  const slug = await uniqueSlug(d.slug || slugify(d.title));
+
+  try {
+    const property = await prisma.property.create({
+      data: {
+        title:        d.title,
+        slug,
+        type:         d.type,
+        status:       d.status,
+        isIsca:       d.isIsca,
+        featured:     d.featured,
+        region:       d.region,
+        cep:          d.cep?.replace(/\D/g, "") || undefined,
+        city:         d.city,
+        neighborhood: d.neighborhood,
+        address:      d.address,
+        bedrooms:     toNum(d.bedrooms),
+        bathrooms:    toNum(d.bathrooms),
+        suites:       toNum(d.suites),
+        parkingSpots: toNum(d.parkingSpots),
+        areaTotal:    toNum(d.areaTotal),
+        areaUsable:   toNum(d.areaUsable),
+        priceAsk:     toNum(d.priceAsk),
+        priceRent:    toNum(d.priceRent),
+        condoFee:     toNum(d.condoFee),
+        iptu:         toNum(d.iptu),
+        description: d.description,
+        images:      splitLines(d.imagesRaw),
+        highlights: {
+          create: (d.highlightIds ?? []).map((highlightId) => ({ highlightId })),
+        },
+        amenities: {
+          create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
+        },
+        seoTitle:     d.seoTitle,
+        seoDescription: d.seoDescription,
+      },
+    });
+
+    revalidatePath("/admin/properties");
+    return { success: true, id: property.id };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Erro desconhecido";
+    return { success: false, error: msg };
+  }
+}
+
+export async function updatePropertyStatus(
+  id: string,
+  status: PropertyStatus
+): Promise<void> {
+  await prisma.property.update({ where: { id }, data: { status } });
+  revalidatePath("/admin/properties");
+}
+
+export async function deleteProperty(id: string): Promise<void> {
+  await prisma.property.delete({ where: { id } });
+  revalidatePath("/admin/properties");
+}
+
+// Leitura para o listing — não é Server Action mas fica no mesmo arquivo por conveniência
+export type PropertyRow = {
+  id: string;
+  title: string;
+  type: PropertyType;
+  status: PropertyStatus;
+  city: string;
+  neighborhood: string;
+  priceAsk: string | null;
+  isIsca: boolean;
+  featured: boolean;
+  region: Region;
+  createdAt: Date;
+  _count: { interests: number };
+};
+
+export async function getProperties(filters?: {
+  status?: PropertyStatus;
+  type?: PropertyType;
+  isIsca?: boolean;
+  region?: Region;
+}): Promise<PropertyRow[]> {
+  return prisma.property.findMany({
+    where: {
+      ...(filters?.status  && { status:  filters.status  }),
+      ...(filters?.type    && { type:    filters.type    }),
+      ...(filters?.region  && { region:  filters.region  }),
+      ...(filters?.isIsca !== undefined && { isIsca: filters.isIsca }),
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true, title: true, type: true, status: true,
+      city: true, neighborhood: true, region: true,
+      priceAsk: true, isIsca: true, featured: true, createdAt: true,
+      _count: { select: { interests: true } },
+    },
+  }) as unknown as PropertyRow[];
+}

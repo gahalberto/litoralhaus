@@ -26,7 +26,7 @@ export async function submitLead(formData: unknown): Promise<ActionResult> {
         budgetRange,
         regions,
         notes,
-        status: "NEW",
+        status: "NOVO",
       },
       create: {
         name,

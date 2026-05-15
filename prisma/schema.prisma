@@ -8,15 +8,19 @@ datasource db {
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
+enum UserRole {
+  ADMIN
+  CORRETOR
+}
+
 enum LeadStatus {
-  NEW
-  CONTACTED
-  QUALIFIED
-  PROPOSAL_SENT
-  NEGOTIATING
-  CLOSED_WON
-  CLOSED_LOST
-  DISQUALIFIED
+  NOVO
+  EM_CONTATO
+  QUALIFICADO
+  VISITA_AGENDADA
+  PROPOSTA
+  FECHADO_GANHO
+  FECHADO_PERDIDO
 }
 
 enum LeadSource {
@@ -46,11 +50,9 @@ enum PropertyType {
 }
 
 enum PropertyStatus {
-  DRAFT
-  AVAILABLE
-  RESERVED
-  SOLD
-  OFF_MARKET
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
 }
 
 enum InteractionChannel {
@@ -79,6 +81,26 @@ enum Region {
   ILHABELA
 }
 
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(CORRETOR)
+  active   Boolean  @default(true)
+  avatar   String?
+
+  assignedLeads Lead[]
+
+  @@index([role])
+  @@index([active])
+}
+
 // ─── Lead ─────────────────────────────────────────────────────────────────────
 
 model Lead {
@@ -91,29 +113,29 @@ model Lead {
   phone    String
   whatsapp String?
 
-  status        LeadStatus   @default(NEW)
+  status        LeadStatus   @default(NOVO)
   source        LeadSource   @default(LANDING_PAGE)
   budgetRange   BudgetRange
   regions       Region[]
   propertyTypes PropertyType[]
   notes         String?
 
-  // UTM / rastreamento
   utmSource   String?
   utmMedium   String?
   utmCampaign String?
   utmTerm     String?
   referrerUrl String?
 
-  // CRM
-  assignedTo String?
-  score      Int     @default(0)
+  assignedUserId String?
+  assignedUser   User?   @relation(fields: [assignedUserId], references: [id], onDelete: SetNull)
+  score          Int     @default(0)
 
   interactions Interaction[]
   interests    PropertyInterest[]
 
   @@index([status])
   @@index([budgetRange])
+  @@index([assignedUserId])
   @@index([createdAt])
 }
 
@@ -124,62 +146,95 @@ model Property {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  title        String
-  slug         String         @unique
-  description  String?        @db.Text
-  status       PropertyStatus @default(DRAFT)
-  type         PropertyType
-  featured     Boolean        @default(false)
+  // Identificação
+  title       String
+  slug        String         @unique
+  description String?        @db.Text
+  status      PropertyStatus @default(DISPONIVEL)
+  type        PropertyType
+  featured    Boolean        @default(false)
+  isIsca      Boolean        @default(false)
 
   // Localização
   region       Region
+  cep          String?
   city         String
   neighborhood String
   address      String?
-  latitude     Decimal?       @db.Decimal(10, 8)
-  longitude    Decimal?       @db.Decimal(11, 8)
+  latitude     Decimal?  @db.Decimal(10, 8)
+  longitude    Decimal?  @db.Decimal(11, 8)
 
   // Características
   bedrooms     Int?
   bathrooms    Int?
   suites       Int?
   parkingSpots Int?
-  areaTotal    Decimal?       @db.Decimal(10, 2)
-  areaUsable   Decimal?       @db.Decimal(10, 2)
+  areaTotal    Decimal?  @db.Decimal(10, 2)
+  areaUsable   Decimal?  @db.Decimal(10, 2)
 
   // Financeiro
-  priceAsk  Decimal?          @db.Decimal(15, 2)
-  priceRent Decimal?          @db.Decimal(15, 2)
-  condoFee  Decimal?          @db.Decimal(10, 2)
-  iptu      Decimal?          @db.Decimal(10, 2)
+  priceAsk  Decimal?  @db.Decimal(15, 2)
+  priceRent Decimal?  @db.Decimal(15, 2)
+  condoFee  Decimal?  @db.Decimal(10, 2)
+  iptu      Decimal?  @db.Decimal(10, 2)
 
-  // Mídia
-  coverImage String?
-  images     PropertyImage[]
+  // Mídia (URLs diretas — uma por item)
+  images String[]
 
-  // SEO & enriquecimento
-  metaTitle       String?
-  metaDescription String?
-  highlights      String[]
-  amenities       String[]
+  // Diferenciais (relações com catálogo)
+  highlights PropertyHighlight[]
+  amenities  PropertyAmenity[]
+
+  // SEO
+  seoTitle       String?
+  seoDescription String?
 
   interests PropertyInterest[]
 
   @@index([region, status])
   @@index([type, status])
-  @@index([priceAsk])
+  @@index([isIsca])
   @@index([featured])
+  @@index([priceAsk])
 }
 
-model PropertyImage {
-  id         String   @id @default(cuid())
-  propertyId String
-  url        String
-  altText    String?
-  order      Int      @default(0)
-  isCover    Boolean  @default(false)
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+// ─── Catálogo de Destaques ────────────────────────────────────────────────────
 
+model Highlight {
+  id        String   @id @default(cuid())
+  label     String   @unique
+  createdAt DateTime @default(now())
+
+  properties PropertyHighlight[]
+}
+
+model PropertyHighlight {
+  propertyId  String
+  highlightId String
+  property    Property  @relation(fields: [propertyId],  references: [id], onDelete: Cascade)
+  highlight   Highlight @relation(fields: [highlightId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, highlightId])
+  @@index([propertyId])
+}
+
+// ─── Catálogo de Comodidades ──────────────────────────────────────────────────
+
+model Amenity {
+  id        String   @id @default(cuid())
+  label     String   @unique
+  createdAt DateTime @default(now())
+
+  properties PropertyAmenity[]
+}
+
+model PropertyAmenity {
+  propertyId String
+  amenityId  String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId],  references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
   @@index([propertyId])
 }
 
