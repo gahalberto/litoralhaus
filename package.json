@@ -7,7 +7,9 @@
     "build": "prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed:local": "npx tsx prisma/seed.ts",
+    "seed:prod": "node -e \"require('https').request({hostname:'litoralhaus.com.br',path:'/api/seed',method:'POST',headers:{'x-seed-secret':process.env.SEED_SECRET}},r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>console.log(JSON.parse(d)))}).end()\""
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
