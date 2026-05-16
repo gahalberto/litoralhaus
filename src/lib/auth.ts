@@ -11,7 +11,13 @@ export type SessionPayload = {
 
 function secret(): Uint8Array {
   const s = process.env.SESSION_SECRET;
-  if (!s) throw new Error("SESSION_SECRET não configurado");
+  if (!s) {
+    throw new Error(
+      "A variável de ambiente SESSION_SECRET não está configurada. " +
+      "Adicione-a no painel do Vercel (Settings → Environment Variables) " +
+      "com o valor de: openssl rand -hex 32"
+    );
+  }
   return new TextEncoder().encode(s);
 }
 
