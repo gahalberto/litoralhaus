@@ -149,7 +149,7 @@ export default async function ImoveisPage({
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
         {/* Header */}
-        <div className="border-b border-border px-6 pt-28 pb-8">
+        <div className="border-b border-border px-6 pt-20 pb-6">
           <div className="mx-auto max-w-6xl">
             <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.3em] text-amber-500/80 dark:text-amber-400/70">
               Portfólio
