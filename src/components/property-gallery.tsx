@@ -30,7 +30,7 @@ export function PropertyGallery({ images, title }: { images: string[]; title: st
   return (
     <div className="space-y-2">
       {/* Imagem principal */}
-      <div className="relative w-full overflow-hidden bg-stone-100 dark:bg-stone-900" style={{ aspectRatio: "4/3", maxHeight: 520 }}>
+      <div className="relative aspect-4/3 w-full overflow-hidden bg-stone-100 dark:bg-stone-900">
         <Image
           src={cloudinaryOptimized(images[active], 1200)}
           alt={`${title} — foto ${active + 1}`}

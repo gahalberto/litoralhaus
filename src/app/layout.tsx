@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster }       from "@/components/ui/sonner";
+import { AgentJsonLd }   from "@/components/json-ld";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -96,39 +97,6 @@ export const metadata: Metadata = {
   category: "real estate",
 };
 
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "RealEstateAgent",
-  name: "Litoral Haus",
-  url: BASE_URL,
-  logo: `${BASE_URL}/logo.png`,
-  description:
-    "Curadoria de imóveis de médio e alto padrão no litoral de São Paulo — Guarujá, Santos e região.",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Guarujá",
-    addressRegion: "SP",
-    addressCountry: "BR",
-  },
-  areaServed: [
-    { "@type": "City", name: "Guarujá" },
-    { "@type": "City", name: "Santos" },
-    { "@type": "City", name: "Bertioga" },
-    { "@type": "City", name: "São Vicente" },
-  ],
-  knowsAbout: [
-    "Imóveis de médio e alto padrão",
-    "Investimento imobiliário litoral SP",
-    "Apartamentos frente mar",
-    "Casas litoral paulista",
-  ],
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer service",
-    availableLanguage: "Portuguese",
-  },
-};
-
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -149,10 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={cn(cormorant.variable, inter.variable, geist.variable, "h-full antialiased")}
     >
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
+        <AgentJsonLd />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}

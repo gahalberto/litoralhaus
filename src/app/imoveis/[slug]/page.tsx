@@ -7,6 +7,11 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 import { PropertyGallery } from "@/components/property-gallery";
 import { InterestForm } from "@/components/interest-form";
+import { PropertyJsonLd } from "@/components/json-ld";
+
+const BASE = "https://litoralhaus.com.br";
+
+// ─── Metadata dinâmica ────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -17,16 +22,58 @@ export async function generateMetadata({
   const p = await getPublicPropertyBySlug(slug);
   if (!p) return { title: "Imóvel não encontrado" };
 
+  const canonicalUrl = `${BASE}/imoveis/${slug}`;
+
+  // Título otimizado: tipo + bairro + cidade
+  const title =
+    p.seoTitle ||
+    `${PROPERTY_TYPE_LABELS[p.type]} ${p.neighborhood} ${REGION_LABELS[p.region]} | Litoral Haus`;
+
+  // Descrição: primeiro parágrafo real da descrição ou gerada
+  const rawDesc =
+    p.seoDescription ||
+    (p.description ? p.description.split("\n")[0].slice(0, 155) : null) ||
+    `${PROPERTY_TYPE_LABELS[p.type]} à venda em ${p.neighborhood}, ${p.city}. ${
+      p.bedrooms ? `${p.bedrooms} dormitórios. ` : ""
+    }${p.areaTotal ? `${Number(p.areaTotal).toLocaleString("pt-BR")} m². ` : ""}${
+      p.priceAsk ? formatPrice(p.priceAsk) + "." : ""
+    } Litoral Haus.`;
+
+  const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
+
   return {
-    title: p.seoTitle || p.title,
-    description: p.seoDescription || p.description?.slice(0, 160) || undefined,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: p.seoTitle || p.title,
-      description: p.seoDescription || undefined,
-      images: p.images[0] ? [{ url: p.images[0] }] : undefined,
+      type:        "website",
+      locale:      "pt_BR",
+      url:          canonicalUrl,
+      siteName:    "Litoral Haus",
+      title,
+      description,
+      images: p.images[0]
+        ? [{ url: p.images[0], width: 1200, height: 900, alt: p.title }]
+        : [],
+    },
+    twitter: {
+      card:        "summary_large_image",
+      title,
+      description,
+      images:       p.images[0] ? [p.images[0]] : [],
+    },
+    robots: {
+      index:  true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   };
 }
+
+// ─── Página ───────────────────────────────────────────────────────────────────
 
 export default async function PropertyPage({
   params,
@@ -48,16 +95,32 @@ export default async function PropertyPage({
 
   return (
     <>
+      <PropertyJsonLd
+        slug={p.slug}
+        title={p.title}
+        description={p.description}
+        type={p.type}
+        city={p.city}
+        neighborhood={p.neighborhood}
+        region={p.region}
+        priceAsk={p.priceAsk ? String(p.priceAsk) : null}
+        priceRent={p.priceRent ? String(p.priceRent) : null}
+        bedrooms={p.bedrooms}
+        bathrooms={p.bathrooms}
+        areaTotal={p.areaTotal ? String(p.areaTotal) : null}
+        images={p.images}
+      />
+
       <Navbar />
       <div className="min-h-screen bg-stone-950">
         {/* Breadcrumb */}
         <div className="border-b border-stone-800 px-6 pt-20 pb-4">
           <div className="mx-auto max-w-6xl">
-            <nav className="flex items-center gap-2 font-inter text-xs text-stone-500">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-inter text-xs text-stone-500">
               <Link href="/" className="hover:text-stone-300">Home</Link>
-              <span>/</span>
+              <span aria-hidden>/</span>
               <Link href="/imoveis" className="hover:text-stone-300">Imóveis</Link>
-              <span>/</span>
+              <span aria-hidden>/</span>
               <span className="truncate max-w-64 text-stone-400">{p.title}</span>
             </nav>
           </div>
@@ -65,8 +128,8 @@ export default async function PropertyPage({
 
         <div className="mx-auto max-w-6xl px-6 py-10">
           <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
-            {/* Coluna principal */}
-            <div className="space-y-10">
+            {/* Coluna principal — min-w-0 impede que o grid 1fr estoure o viewport */}
+            <div className="min-w-0 space-y-10">
               {/* Galeria */}
               <PropertyGallery images={p.images} title={p.title} />
 
@@ -175,7 +238,6 @@ export default async function PropertyPage({
             {/* Sidebar sticky */}
             <div>
               <div className="sticky top-24 space-y-6 border border-stone-800 p-6">
-                {/* Preço */}
                 <div>
                   {p.priceAsk && (
                     <>
@@ -197,7 +259,6 @@ export default async function PropertyPage({
 
                 <div className="h-px bg-stone-800" />
 
-                {/* Formulário de interesse */}
                 <div>
                   <p className="mb-4 font-inter text-xs uppercase tracking-widest text-stone-500">
                     Tenho interesse
