@@ -7,22 +7,22 @@ import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Imóveis de Alto Padrão no Guarujá e Litoral de São Paulo",
+  title: "Imóveis no Guarujá e Litoral de São Paulo | Médio e Alto Padrão",
   description:
-    "Acesso antecipado aos imóveis mais exclusivos do litoral paulista. Curadoria, inteligência de mercado e assessoria completa para compradores e investidores exigentes.",
+    "Curadoria de imóveis de médio e alto padrão no litoral paulista. Inteligência de mercado e assessoria completa para compradores, famílias e investidores.",
   openGraph: {
-    title: "Litoral Haus | Imóveis de Alto Padrão no Guarujá e Litoral SP",
+    title: "Litoral Haus | Imóveis no Guarujá e Litoral SP",
     description:
-      "Acesso antecipado aos imóveis mais exclusivos do litoral paulista. Cadastre seu perfil de investidor.",
+      "Imóveis de médio e alto padrão no litoral paulista. Encontre seu imóvel ideal com curadoria e atendimento personalizado.",
   },
 };
 
 const landingPageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "Litoral Haus — Imóveis de Alto Padrão no Litoral Paulista",
+  name: "Litoral Haus — Imóveis no Litoral Paulista",
   description:
-    "Landing page de captação de leads para imóveis de alto padrão no Guarujá, Santos e litoral de São Paulo.",
+    "Curadoria de imóveis de médio e alto padrão no Guarujá, Santos e litoral de São Paulo.",
   url: "https://litoralhaus.com.br",
   speakable: {
     "@type": "SpeakableSpecification",

@@ -32,7 +32,7 @@ export function Navbar() {
               Litoral Haus
             </span>
             <span className="hidden rounded bg-amber-400/10 px-1.5 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-amber-400 sm:inline">
-              Alto Padrão
+              Litoral SP
             </span>
           </a>
 

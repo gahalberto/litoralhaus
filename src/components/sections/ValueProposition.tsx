@@ -52,10 +52,10 @@ export function ValueProposition() {
             </em>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl font-inter text-base font-light leading-relaxed text-stone-400">
-            O litoral de São Paulo concentra uma das maiores demandas reprimidas por
-            imóveis de alto padrão do país. Nossa missão é conectar investidores e
-            compradores exigentes às melhores oportunidades — com a velocidade e a
-            precisão que esse mercado exige.
+            O litoral de São Paulo concentra uma das maiores demandas por imóveis
+            residenciais do país. Nossa missão é conectar compradores, famílias e
+            investidores às melhores oportunidades do médio e alto padrão — com a
+            inteligência e a agilidade que esse mercado exige.
           </p>
         </div>
 

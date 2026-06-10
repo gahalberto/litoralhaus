@@ -14,8 +14,8 @@ export function Footer() {
               Litoral Haus
             </p>
             <p className="mt-3 font-inter text-xs font-light leading-relaxed text-stone-500">
-              Curadoria de imóveis de alto padrão no litoral de São Paulo.
-              Inteligência de mercado para decisões de investimento exigentes.
+              Curadoria de imóveis de médio e alto padrão no litoral de São Paulo.
+              Atendimento personalizado para compradores, famílias e investidores.
             </p>
           </div>
 

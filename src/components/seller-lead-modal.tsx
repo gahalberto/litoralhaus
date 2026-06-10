@@ -73,7 +73,7 @@ export function SellerLeadModal({ open, onOpenChange }: SellerLeadModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border border-stone-800 bg-stone-950 p-0 sm:max-w-lg">
         {/* Accent line */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+        <div className="h-px w-full bg-linear-to-r from-transparent via-amber-400 to-transparent" />
 
         <div className="px-8 pb-10 pt-8">
           <DialogHeader className="mb-8 space-y-3">
@@ -81,7 +81,7 @@ export function SellerLeadModal({ open, onOpenChange }: SellerLeadModalProps) {
               Captação Exclusiva
             </p>
             <DialogTitle className="font-cormorant text-3xl font-light leading-snug text-stone-50">
-              Venda seu imóvel de alto padrão com inteligência.
+              Venda seu imóvel no litoral com inteligência.
             </DialogTitle>
             <DialogDescription className="font-inter text-sm font-light leading-relaxed text-stone-400">
               Avaliamos seu imóvel, conectamos com investidores qualificados e cuidamos de todo o processo. Sem esforço da sua parte.

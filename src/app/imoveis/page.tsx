@@ -8,9 +8,9 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
-  title: "Imóveis de Alto Padrão no Litoral de São Paulo",
+  title: "Imóveis no Litoral de São Paulo | Médio e Alto Padrão",
   description:
-    "Encontre apartamentos, casas e coberturas de luxo no Guarujá, Santos e litoral paulista. Curadoria exclusiva Litoral Haus.",
+    "Encontre apartamentos, casas e coberturas de médio e alto padrão no Guarujá, Santos e litoral paulista. Curadoria Litoral Haus.",
 };
 
 const PRICE_RANGES = [

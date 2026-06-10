@@ -30,22 +30,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Litoral Haus | Imóveis de Alto Padrão no Litoral de São Paulo",
+    default: "Litoral Haus | Imóveis no Litoral de São Paulo",
     template: "%s | Litoral Haus",
   },
   description:
-    "Curadoria exclusiva de imóveis de alto padrão no Guarujá, Santos e litoral paulista. Inteligência de mercado e atendimento personalizado para compradores e investidores exigentes.",
+    "Curadoria de imóveis de médio e alto padrão no Guarujá, Santos e litoral paulista. Inteligência de mercado e atendimento personalizado para compradores, famílias e investidores.",
   keywords: [
-    "imóveis de alto padrão no Guarujá",
+    "imóveis no Guarujá",
+    "imóveis médio padrão litoral SP",
+    "imóveis alto padrão litoral SP",
     "investimento imobiliário litoral SP",
     "Litoral Haus",
     "apartamento frente mar Guarujá",
-    "casas de luxo Santos SP",
+    "casas Santos SP",
     "imóveis litoral São Paulo",
     "comprar apartamento Guarujá",
-    "imóveis alto padrão litoral paulista",
-    "investimento imóvel praia SP",
-    "imobiliária Guarujá alto padrão",
+    "imobiliária Guarujá",
+    "imóveis Guarujá médio padrão",
+    "apartamento litoral São Paulo",
   ],
   authors: [{ name: "Litoral Haus", url: BASE_URL }],
   creator: "Litoral Haus",
@@ -66,23 +68,23 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: BASE_URL,
     siteName: "Litoral Haus",
-    title: "Litoral Haus | Imóveis de Alto Padrão no Litoral de São Paulo",
+    title: "Litoral Haus | Imóveis no Litoral de São Paulo",
     description:
-      "Curadoria exclusiva de imóveis de alto padrão no Guarujá, Santos e litoral paulista. Inteligência de mercado para investidores exigentes.",
+      "Curadoria de imóveis de médio e alto padrão no Guarujá, Santos e litoral paulista. Inteligência de mercado para compradores e investidores.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Litoral Haus — Imóveis de Alto Padrão no Litoral Paulista",
+        alt: "Litoral Haus — Imóveis no Litoral Paulista",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Litoral Haus | Imóveis de Alto Padrão no Litoral de São Paulo",
+    title: "Litoral Haus | Imóveis no Litoral de São Paulo",
     description:
-      "Curadoria exclusiva de imóveis de alto padrão no Guarujá, Santos e litoral paulista.",
+      "Curadoria de imóveis de médio e alto padrão no Guarujá, Santos e litoral paulista.",
     images: ["/og-image.jpg"],
   },
   alternates: {
@@ -101,7 +103,7 @@ const organizationSchema = {
   url: BASE_URL,
   logo: `${BASE_URL}/logo.png`,
   description:
-    "Curadoria exclusiva de imóveis de alto padrão no litoral de São Paulo — Guarujá, Santos e região.",
+    "Curadoria de imóveis de médio e alto padrão no litoral de São Paulo — Guarujá, Santos e região.",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Guarujá",
@@ -115,10 +117,10 @@ const organizationSchema = {
     { "@type": "City", name: "São Vicente" },
   ],
   knowsAbout: [
-    "Imóveis de alto padrão",
+    "Imóveis de médio e alto padrão",
     "Investimento imobiliário litoral SP",
     "Apartamentos frente mar",
-    "Casas de luxo litoral paulista",
+    "Casas litoral paulista",
   ],
   contactPoint: {
     "@type": "ContactPoint",

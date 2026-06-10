@@ -29,7 +29,7 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto max-w-4xl">
         <p className="mb-6 font-inter text-xs font-medium uppercase tracking-[0.3em] text-amber-400/80">
-          Litoral Paulista · Curadoria Exclusiva
+          Litoral Paulista · Médio e Alto Padrão
         </p>
 
         <h1 className="font-cormorant text-5xl font-light leading-[1.1] text-stone-50 sm:text-6xl md:text-7xl">
@@ -40,9 +40,9 @@ export function Hero() {
         </h1>
 
         <p className="mx-auto mt-8 max-w-2xl font-inter text-lg font-light leading-relaxed text-stone-300/80">
-          Reunimos inteligência de mercado, curadoria rigorosa e acesso
-          privilegiado aos ativos mais exclusivos do Guarujá, Santos e litoral
-          paulista — antes que cheguem ao mercado aberto.
+          Reunimos inteligência de mercado, curadoria rigorosa e atendimento
+          personalizado para encontrar o imóvel certo no Guarujá, Santos e
+          litoral paulista — do médio ao alto padrão.
         </p>
 
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -62,7 +62,7 @@ export function Hero() {
 
         <div className="mt-20 grid grid-cols-3 divide-x divide-stone-700/60 border-t border-stone-700/60 pt-10">
           {[
-            { value: "R$ 1M+", label: "Ticket médio" },
+            { value: "R$ 300k+", label: "A partir de" },
             { value: "Guarujá · Santos", label: "Regiões prioritárias" },
             { value: "Acesso antecipado", label: "Antes do lançamento público" },
           ].map((stat) => (
