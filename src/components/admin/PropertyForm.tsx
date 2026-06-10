@@ -97,6 +97,48 @@ const inputCls =
 
 const selectCls = cn(inputCls, "cursor-pointer appearance-none");
 
+function formatBRL(raw: string) {
+  const n = Number(raw);
+  if (!raw || isNaN(n)) return "";
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function CurrencyInput({
+  value,
+  onChange,
+  placeholder,
+  className,
+}: {
+  value: string | undefined;
+  onChange: (v: string | undefined) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  const [display, setDisplay] = useState(() => formatBRL(value ?? ""));
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, "");
+    setDisplay(raw === "" ? "" : Number(raw).toLocaleString("pt-BR"));
+    onChange(raw === "" ? undefined : raw);
+  }
+
+  function handleBlur() {
+    setDisplay(formatBRL(value ?? ""));
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={display}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      className={className}
+    />
+  );
+}
+
 // ─── Componente principal ──────────────────────────────────────────────────────
 
 interface PropertyFormProps {
@@ -386,10 +428,20 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
       >
         <FieldGroup cols={2}>
           <Field label="Preço de Venda (R$)" error={errors.priceAsk?.message}>
-            <input {...register("priceAsk")} type="number" step="1000" placeholder="Ex: 2500000" className={inputCls} />
+            <CurrencyInput
+              value={watch("priceAsk")}
+              onChange={(v) => setValue("priceAsk", v, { shouldValidate: true })}
+              placeholder="R$ 2.500.000"
+              className={inputCls}
+            />
           </Field>
           <Field label="Preço de Locação (R$)">
-            <input {...register("priceRent")} type="number" step="100" placeholder="Ex: 12000" className={inputCls} />
+            <CurrencyInput
+              value={watch("priceRent")}
+              onChange={(v) => setValue("priceRent", v, { shouldValidate: false })}
+              placeholder="R$ 12.000"
+              className={inputCls}
+            />
           </Field>
           <Field label="Condomínio (R$)">
             <input {...register("condoFee")} type="number" step="10" className={inputCls} />
