@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { SellerLeadModal } from "@/components/seller-lead-modal";
 
 export function Navbar() {
@@ -35,13 +36,21 @@ export function Navbar() {
             </span>
           </a>
 
-          {/* CTA */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="rounded-none border border-stone-600 px-5 py-2 font-inter text-xs font-medium uppercase tracking-widest text-stone-300 transition-all duration-200 hover:border-amber-400 hover:text-amber-400"
-          >
-            Anuncie seu Imóvel
-          </button>
+          {/* Nav links + CTA */}
+          <div className="flex items-center gap-6">
+            <Link
+              href="/imoveis"
+              className="hidden font-inter text-xs uppercase tracking-widest text-stone-400 transition-colors hover:text-stone-100 sm:block"
+            >
+              Imóveis
+            </Link>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="rounded-none border border-stone-600 px-5 py-2 font-inter text-xs font-medium uppercase tracking-widest text-stone-300 transition-all duration-200 hover:border-amber-400 hover:text-amber-400"
+            >
+              Anuncie seu Imóvel
+            </button>
+          </div>
         </div>
       </header>
 

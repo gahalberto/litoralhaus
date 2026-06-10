@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { ValueProposition } from "@/components/sections/ValueProposition";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
+import { FeaturedProperties } from "@/components/sections/FeaturedProperties";
 import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/navbar";
 
@@ -45,6 +46,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <ValueProposition />
+        <FeaturedProperties />
         <LeadCaptureForm />
       </main>
       <Footer />
