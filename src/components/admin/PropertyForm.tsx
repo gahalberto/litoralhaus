@@ -21,7 +21,8 @@ import { Label }         from "@/components/ui/label";
 import { Textarea }      from "@/components/ui/textarea";
 import { Switch }        from "@/components/ui/switch";
 import { Separator }     from "@/components/ui/separator";
-import { CatalogPicker } from "@/components/admin/CatalogPicker";
+import { CatalogPicker }   from "@/components/admin/CatalogPicker";
+import { ImageUploader }   from "@/components/admin/ImageUploader";
 import { createHighlight, createAmenity, type CatalogItem } from "@/actions/catalog";
 import { cn }            from "@/lib/utils";
 
@@ -549,19 +550,12 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
       {/* ── Mídia ── */}
       <Section
         title="Mídia"
-        description="URLs das imagens. A primeira será a capa."
+        description="Arraste ou selecione as fotos. A primeira será a capa."
       >
-        <Field
-          label="URLs das Imagens"
-          hint="Uma URL por linha. A primeira imagem será a capa do anúncio."
-        >
-          <Textarea
-            {...register("imagesRaw")}
-            rows={5}
-            placeholder={"https://cdn.exemplo.com/foto1.jpg\nhttps://cdn.exemplo.com/foto2.jpg"}
-            className="font-mono text-xs"
-          />
-        </Field>
+        <ImageUploader
+          value={(watch("imagesRaw") ?? "").split("\n").filter(Boolean)}
+          onChange={(urls) => setValue("imagesRaw", urls.join("\n"), { shouldValidate: false })}
+        />
       </Section>
 
       {/* ── Erros globais + Submit ── */}
