@@ -11,21 +11,21 @@ export async function FeaturedProperties() {
     <section
       id="imoveis"
       aria-label="Imóveis em destaque"
-      className="bg-stone-950 px-6 py-24"
+      className="bg-background px-6 py-24"
     >
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex items-end justify-between">
           <div>
-            <p className="mb-3 font-inter text-xs uppercase tracking-[0.3em] text-amber-400/70">
+            <p className="mb-3 font-inter text-xs uppercase tracking-[0.3em] text-amber-600/80 dark:text-amber-400/70">
               Portfólio Exclusivo
             </p>
-            <h2 className="font-cormorant text-4xl font-light text-stone-50 sm:text-5xl">
+            <h2 className="font-cormorant text-4xl font-light text-foreground sm:text-5xl">
               Imóveis em destaque
             </h2>
           </div>
           <Link
             href="/imoveis"
-            className="hidden font-inter text-xs uppercase tracking-widest text-stone-400 transition-colors hover:text-amber-400 sm:block"
+            className="hidden font-inter text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-amber-600 dark:hover:text-amber-400 sm:block"
           >
             Ver todos →
           </Link>
@@ -40,7 +40,7 @@ export async function FeaturedProperties() {
         <div className="mt-10 text-center sm:hidden">
           <Link
             href="/imoveis"
-            className="font-inter text-xs uppercase tracking-widest text-stone-400 hover:text-amber-400"
+            className="font-inter text-xs uppercase tracking-widest text-muted-foreground hover:text-amber-600 dark:hover:text-amber-400"
           >
             Ver todos os imóveis →
           </Link>

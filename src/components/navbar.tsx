@@ -19,19 +19,19 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 border-b ${
           scrolled
-            ? "border-b border-stone-800/80 bg-stone-950/90 backdrop-blur-md"
-            : "bg-transparent"
+            ? "border-border bg-background/95 backdrop-blur-md shadow-sm"
+            : "border-border/40 bg-background/80 backdrop-blur-md"
         }`}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           {/* Logo */}
           <a href="/" className="flex items-center gap-3">
-            <span className="font-cormorant text-xl font-light tracking-wider text-stone-50">
+            <span className="font-cormorant text-xl font-light tracking-wider text-foreground">
               Litoral Haus
             </span>
-            <span className="hidden rounded bg-amber-400/10 px-1.5 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-amber-400 sm:inline">
+            <span className="hidden rounded bg-amber-500/10 px-1.5 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-amber-600 dark:bg-amber-400/10 dark:text-amber-400 sm:inline">
               Litoral SP
             </span>
           </a>
@@ -40,13 +40,13 @@ export function Navbar() {
           <div className="flex items-center gap-6">
             <Link
               href="/imoveis"
-              className="hidden font-inter text-xs uppercase tracking-widest text-stone-400 transition-colors hover:text-stone-100 sm:block"
+              className="hidden font-inter text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:block"
             >
               Imóveis
             </Link>
             <button
               onClick={() => setModalOpen(true)}
-              className="rounded-none border border-stone-600 px-5 py-2 font-inter text-xs font-medium uppercase tracking-widest text-stone-300 transition-all duration-200 hover:border-amber-400 hover:text-amber-400"
+              className="border border-border px-5 py-2 font-inter text-xs font-medium uppercase tracking-widest text-foreground transition-all duration-200 hover:border-amber-500 hover:text-amber-600 dark:hover:border-amber-400 dark:hover:text-amber-400"
             >
               Anuncie seu Imóvel
             </button>
