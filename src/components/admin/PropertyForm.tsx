@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { PropertyType, PropertyStatus, Region } from "@prisma/client";
 
 import { propertyFormSchema, type PropertyFormData } from "@/types/property";
-import { createProperty } from "@/actions/properties";
+import { createProperty, updateProperty } from "@/actions/properties";
 import { slugify } from "@/lib/slugify";
 import { fetchCep, formatCep } from "@/lib/cep";
 import {
@@ -141,14 +141,18 @@ function CurrencyInput({
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 
+type InitialData = PropertyFormData & { id: string };
+
 interface PropertyFormProps {
-  highlights: CatalogItem[];
-  amenities:  CatalogItem[];
+  highlights:   CatalogItem[];
+  amenities:    CatalogItem[];
+  initialData?: InitialData;
 }
 
-export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
+export function PropertyForm({ highlights, amenities, initialData }: PropertyFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const isEdit = !!initialData;
 
   const {
     register,
@@ -159,7 +163,7 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
     formState: { errors },
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertyFormSchema),
-    defaultValues: {
+    defaultValues: initialData ?? {
       status:       PropertyStatus.DISPONIVEL,
       type:         PropertyType.APARTMENT,
       region:       Region.GUARUJA,
@@ -170,11 +174,11 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
     },
   });
 
-  // Auto-gera slug a partir do título
+  // Auto-gera slug a partir do título (só no cadastro)
   const title = watch("title");
   useEffect(() => {
-    if (title) setValue("slug", slugify(title), { shouldValidate: false });
-  }, [title, setValue]);
+    if (!isEdit && title) setValue("slug", slugify(title), { shouldValidate: false });
+  }, [title, setValue, isEdit]);
 
   // CEP auto-fill
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -199,8 +203,12 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
   }, [cepValue, setValue]);
 
   // Seleção de destaques e comodidades
-  const [selectedHighlights, setSelectedHighlights] = useState<string[]>([]);
-  const [selectedAmenities,  setSelectedAmenities]  = useState<string[]>([]);
+  const [selectedHighlights, setSelectedHighlights] = useState<string[]>(
+    initialData?.highlightIds ?? []
+  );
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
+    initialData?.amenityIds ?? []
+  );
 
   const isIsca   = watch("isIsca");
   const featured = watch("featured");
@@ -209,11 +217,10 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
 
   function onSubmit(data: PropertyFormData) {
     startTransition(async () => {
-      const result = await createProperty({
-        ...data,
-        highlightIds: selectedHighlights,
-        amenityIds:   selectedAmenities,
-      });
+      const payload = { ...data, highlightIds: selectedHighlights, amenityIds: selectedAmenities };
+      const result = isEdit
+        ? await updateProperty(initialData.id, payload)
+        : await createProperty(payload);
       if (!result.success) {
         setError("root", { message: result.error });
         return;
@@ -579,7 +586,7 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
           disabled={isPending}
           className="min-w-40 rounded-none border border-amber-400 bg-amber-400 font-inter text-xs font-medium uppercase tracking-widest text-stone-950 hover:bg-transparent hover:text-amber-600 dark:hover:text-amber-400"
         >
-          {isPending ? "Salvando..." : "Cadastrar Imóvel"}
+          {isPending ? "Salvando..." : isEdit ? "Salvar Alterações" : "Cadastrar Imóvel"}
         </Button>
       </div>
     </form>

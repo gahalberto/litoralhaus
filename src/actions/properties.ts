@@ -88,6 +88,78 @@ export async function updatePropertyStatus(
   revalidatePath("/admin/properties");
 }
 
+export async function getPropertyById(id: string) {
+  return prisma.property.findUnique({
+    where: { id },
+    include: {
+      highlights: { select: { highlightId: true } },
+      amenities:  { select: { amenityId:  true } },
+    },
+  });
+}
+
+export async function updateProperty(
+  id: string,
+  raw: unknown
+): Promise<PropertyActionResult> {
+  const parsed = propertyFormSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const d = parsed.data;
+
+  try {
+    await prisma.$transaction([
+      prisma.propertyHighlight.deleteMany({ where: { propertyId: id } }),
+      prisma.propertyAmenity.deleteMany({ where: { propertyId: id } }),
+      prisma.property.update({
+        where: { id },
+        data: {
+          title:        d.title,
+          slug:         d.slug || slugify(d.title),
+          type:         d.type,
+          status:       d.status,
+          isIsca:       d.isIsca,
+          featured:     d.featured,
+          region:       d.region,
+          cep:          d.cep?.replace(/\D/g, "") || undefined,
+          city:         d.city,
+          neighborhood: d.neighborhood,
+          address:      d.address,
+          bedrooms:     toNum(d.bedrooms),
+          bathrooms:    toNum(d.bathrooms),
+          suites:       toNum(d.suites),
+          parkingSpots: toNum(d.parkingSpots),
+          areaTotal:    toNum(d.areaTotal),
+          areaUsable:   toNum(d.areaUsable),
+          priceAsk:     toNum(d.priceAsk),
+          priceRent:    toNum(d.priceRent),
+          condoFee:     toNum(d.condoFee),
+          iptu:         toNum(d.iptu),
+          description:  d.description,
+          images:       splitLines(d.imagesRaw),
+          highlights: {
+            create: (d.highlightIds ?? []).map((highlightId) => ({ highlightId })),
+          },
+          amenities: {
+            create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
+          },
+          seoTitle:       d.seoTitle,
+          seoDescription: d.seoDescription,
+        },
+      }),
+    ]);
+
+    revalidatePath("/admin/properties");
+    revalidatePath(`/admin/properties/${id}/edit`);
+    return { success: true, id };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Erro desconhecido";
+    return { success: false, error: msg };
+  }
+}
+
 export async function deleteProperty(id: string): Promise<void> {
   await prisma.property.delete({ where: { id } });
   revalidatePath("/admin/properties");

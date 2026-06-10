@@ -117,7 +117,7 @@ export default async function PropertiesPage({
           <table className="w-full min-w-215 border-collapse">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                {["Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Leads"].map((h) => (
+                {["Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Leads", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left font-inter text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
@@ -196,6 +196,16 @@ export default async function PropertiesPage({
                       <span className="font-inter text-xs tabular-nums text-muted-foreground">
                         {p._count.interests}
                       </span>
+                    </td>
+
+                    {/* Ações */}
+                    <td className="px-5 py-3">
+                      <Link
+                        href={`/admin/properties/${p.id}/edit`}
+                        className="font-inter text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Editar
+                      </Link>
                     </td>
                   </tr>
                 );
