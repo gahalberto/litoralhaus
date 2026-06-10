@@ -112,16 +112,16 @@ export default async function PropertyPage({
       />
 
       <Navbar />
-      <div className="min-h-screen bg-stone-950">
+      <div className="min-h-screen bg-background text-foreground">
         {/* Breadcrumb */}
-        <div className="border-b border-stone-800 px-6 pt-20 pb-4">
+        <div className="border-b border-border px-6 pt-20 pb-4">
           <div className="mx-auto max-w-6xl">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-inter text-xs text-stone-500">
-              <Link href="/" className="hover:text-stone-300">Home</Link>
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-inter text-xs text-muted-foreground">
+              <Link href="/" className="hover:text-foreground">Home</Link>
               <span aria-hidden>/</span>
-              <Link href="/imoveis" className="hover:text-stone-300">Imóveis</Link>
+              <Link href="/imoveis" className="hover:text-foreground">Imóveis</Link>
               <span aria-hidden>/</span>
-              <span className="truncate max-w-64 text-stone-400">{p.title}</span>
+              <span className="truncate max-w-64 text-foreground/70">{p.title}</span>
             </nav>
           </div>
         </div>
@@ -135,13 +135,13 @@ export default async function PropertyPage({
 
               {/* Título e localização */}
               <div>
-                <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-amber-400/70">
+                <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-amber-600/80 dark:text-amber-400/70">
                   {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
                 </p>
-                <h1 className="font-cormorant text-3xl font-light leading-snug text-stone-50 sm:text-4xl">
+                <h1 className="font-cormorant text-3xl font-light leading-snug text-foreground sm:text-4xl">
                   {p.title}
                 </h1>
-                <p className="mt-2 font-inter text-sm text-stone-500">
+                <p className="mt-2 font-inter text-sm text-muted-foreground">
                   {[p.address, p.neighborhood, p.city].filter(Boolean).join(", ")}
                 </p>
               </div>
@@ -149,16 +149,16 @@ export default async function PropertyPage({
               {/* Características */}
               {specs.length > 0 && (
                 <div>
-                  <h2 className="mb-5 font-inter text-[10px] uppercase tracking-widest text-stone-500">
+                  <h2 className="mb-5 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                     Características
                   </h2>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                     {specs.map((s) => (
-                      <div key={s.label} className="border border-stone-800 p-4">
-                        <p className="font-cormorant text-2xl font-light text-stone-100">
+                      <div key={s.label} className="border border-border p-4">
+                        <p className="font-cormorant text-2xl font-light text-foreground">
                           {s.value}{s.unit}
                         </p>
-                        <p className="mt-0.5 font-inter text-[10px] uppercase tracking-widest text-stone-600">
+                        <p className="mt-0.5 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                           {s.label}
                         </p>
                       </div>
@@ -170,10 +170,10 @@ export default async function PropertyPage({
               {/* Descrição */}
               {p.description && (
                 <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-stone-500">
+                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                     Sobre o imóvel
                   </h2>
-                  <div className="space-y-3 font-inter text-sm font-light leading-relaxed text-stone-400 whitespace-pre-line">
+                  <div className="space-y-3 font-inter text-sm font-light leading-relaxed text-foreground/70 whitespace-pre-line">
                     {p.description}
                   </div>
                 </div>
@@ -182,12 +182,12 @@ export default async function PropertyPage({
               {/* Diferenciais */}
               {p.highlights.length > 0 && (
                 <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-stone-500">
+                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                     Diferenciais
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {p.highlights.map((h) => (
-                      <span key={h.highlight.label} className="border border-stone-700 px-3 py-1.5 font-inter text-xs text-stone-400">
+                      <span key={h.highlight.label} className="border border-border px-3 py-1.5 font-inter text-xs text-muted-foreground">
                         {h.highlight.label}
                       </span>
                     ))}
@@ -198,12 +198,12 @@ export default async function PropertyPage({
               {/* Comodidades */}
               {p.amenities.length > 0 && (
                 <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-stone-500">
+                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                     Comodidades
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {p.amenities.map((a) => (
-                      <span key={a.amenity.label} className="border border-stone-700 px-3 py-1.5 font-inter text-xs text-stone-400">
+                      <span key={a.amenity.label} className="border border-border px-3 py-1.5 font-inter text-xs text-muted-foreground">
                         {a.amenity.label}
                       </span>
                     ))}
@@ -214,20 +214,20 @@ export default async function PropertyPage({
               {/* Financeiro */}
               {(p.condoFee || p.iptu) && (
                 <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-stone-500">
+                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
                     Custos mensais
                   </h2>
                   <div className="flex gap-8">
                     {p.condoFee && (
                       <div>
-                        <p className="font-cormorant text-xl font-light text-stone-100">{formatPrice(p.condoFee)}</p>
-                        <p className="font-inter text-[10px] uppercase tracking-widest text-stone-600">Condomínio/mês</p>
+                        <p className="font-cormorant text-xl font-light text-foreground">{formatPrice(p.condoFee)}</p>
+                        <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">Condomínio/mês</p>
                       </div>
                     )}
                     {p.iptu && (
                       <div>
-                        <p className="font-cormorant text-xl font-light text-stone-100">{formatPrice(p.iptu)}</p>
-                        <p className="font-inter text-[10px] uppercase tracking-widest text-stone-600">IPTU/ano</p>
+                        <p className="font-cormorant text-xl font-light text-foreground">{formatPrice(p.iptu)}</p>
+                        <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">IPTU/ano</p>
                       </div>
                     )}
                   </div>
@@ -237,30 +237,30 @@ export default async function PropertyPage({
 
             {/* Sidebar sticky */}
             <div>
-              <div className="sticky top-24 space-y-6 border border-stone-800 p-6">
+              <div className="sticky top-24 space-y-6 border border-border bg-card p-6">
                 <div>
                   {p.priceAsk && (
                     <>
-                      <p className="font-inter text-[10px] uppercase tracking-widest text-stone-600">Preço de venda</p>
-                      <p className="mt-1 font-cormorant text-4xl font-light text-stone-50">
+                      <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">Preço de venda</p>
+                      <p className="mt-1 font-cormorant text-4xl font-light text-foreground">
                         {formatPrice(p.priceAsk)}
                       </p>
                     </>
                   )}
                   {p.priceRent && (
-                    <p className={`font-inter text-sm text-stone-400 ${p.priceAsk ? "mt-1" : "mt-0"}`}>
+                    <p className={`font-inter text-sm text-muted-foreground ${p.priceAsk ? "mt-1" : "mt-0"}`}>
                       Locação: {formatPrice(p.priceRent)}/mês
                     </p>
                   )}
                   {!p.priceAsk && !p.priceRent && (
-                    <p className="font-inter text-sm text-stone-600">Consulte o preço</p>
+                    <p className="font-inter text-sm text-muted-foreground">Consulte o preço</p>
                   )}
                 </div>
 
-                <div className="h-px bg-stone-800" />
+                <div className="h-px bg-border" />
 
                 <div>
-                  <p className="mb-4 font-inter text-xs uppercase tracking-widest text-stone-500">
+                  <p className="mb-4 font-inter text-xs uppercase tracking-widest text-muted-foreground">
                     Tenho interesse
                   </p>
                   <InterestForm propertyId={p.id} />

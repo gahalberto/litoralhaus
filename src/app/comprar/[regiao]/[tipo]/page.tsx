@@ -11,6 +11,7 @@ import { getPublicProperties, getAvailableRegions, getNeighborhoods } from "@/li
 import { REGION_LABELS } from "@/lib/property-config";
 import { REGION_SLUG, TYPE_SLUG, REGION_TO_SLUG, TYPE_TO_SLUG, TYPE_LABEL_PLURAL } from "@/lib/seo-slugs";
 import { PropertyCard } from "@/components/property-card";
+import { FeaturedPropertyCard } from "@/components/featured-property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -117,9 +118,13 @@ export default async function ComprarRegiaoTipoPage({
             </p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {properties.map((p) => (
-                <PropertyCard key={p.id} p={p} />
-              ))}
+              {properties.map((p) =>
+                p.featured ? (
+                  <FeaturedPropertyCard key={p.id} p={p} />
+                ) : (
+                  <PropertyCard key={p.id} p={p} />
+                )
+              )}
             </div>
           )}
         </div>
