@@ -6,18 +6,109 @@ import {
   getAvailableRegions,
   getNeighborhoods,
 } from "@/lib/public-properties";
-import { PRICE_RANGES } from "@/lib/property-config";
+import { PRICE_RANGES, REGION_LABELS } from "@/lib/property-config";
 import { PropertyCard } from "@/components/property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Imóveis no Litoral de São Paulo | Médio e Alto Padrão",
-  description:
-    "Encontre apartamentos, casas e coberturas de médio e alto padrão no Guarujá, Santos e litoral paulista. Curadoria Litoral Haus.",
+// ─── SEO helpers ────────────────────────────────────────────────────────────
+
+const TYPE_PLURAL: Record<PropertyType, string> = {
+  APARTMENT: "Apartamentos",
+  HOUSE:     "Casas",
+  PENTHOUSE: "Coberturas",
+  LAND:      "Terrenos",
+  COMMERCIAL:"Imóveis comerciais",
+  CONDO:     "Condomínios",
 };
+
+// Locative preposition for each region
+const REGION_LOCATIVE: Record<Region, string> = {
+  GUARUJA:       "no Guarujá",
+  SANTOS:        "em Santos",
+  SAO_VICENTE:   "em São Vicente",
+  PRAIA_GRANDE:  "na Praia Grande",
+  BERTIOGA:      "em Bertioga",
+  UBATUBA:       "em Ubatuba",
+  CARAGUATATUBA: "em Caraguatatuba",
+  SAO_SEBASTIAO: "em São Sebastião",
+  ILHABELA:      "em Ilhabela",
+};
+
+function buildHeading({
+  type,
+  region,
+  neighborhood,
+}: {
+  type?:         PropertyType;
+  region?:       Region;
+  neighborhood?: string;
+}): string {
+  const typePart   = type ? TYPE_PLURAL[type] : "Imóveis";
+  const verb       = type !== "LAND" ? " à venda" : "";
+
+  if (neighborhood && region) {
+    return `${typePart}${verb} no ${neighborhood} — ${REGION_LABELS[region]}`;
+  }
+  if (neighborhood) {
+    return `${typePart}${verb} no ${neighborhood}`;
+  }
+  if (region) {
+    return `${typePart}${verb} ${REGION_LOCATIVE[region]}`;
+  }
+  return `${typePart} no Litoral de São Paulo`;
+}
+
+function buildDescription({
+  type,
+  region,
+  neighborhood,
+  count,
+}: {
+  type?:         PropertyType;
+  region?:       Region;
+  neighborhood?: string;
+  count:         number;
+}): string {
+  const typePart = type ? TYPE_PLURAL[type].toLowerCase() : "imóveis";
+  const place = neighborhood && region
+    ? `no ${neighborhood}, ${REGION_LABELS[region]}`
+    : neighborhood
+    ? `no ${neighborhood}`
+    : region
+    ? REGION_LOCATIVE[region]
+    : "no litoral paulista";
+
+  return `${count} ${typePart} disponíveis ${place}. Curadoria de médio e alto padrão no Guarujá, Santos e litoral de São Paulo — Litoral Haus.`;
+}
+
+// ─── Dynamic metadata ────────────────────────────────────────────────────────
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}): Promise<Metadata> {
+  const sp           = await searchParams;
+  const typeParam    = sp.type   as PropertyType | undefined;
+  const regionParam  = sp.region as Region       | undefined;
+  const neighborhood = sp.neighborhood?.trim() || undefined;
+
+  const type   = typeParam   && Object.values(PropertyType).includes(typeParam)   ? typeParam   : undefined;
+  const region = regionParam && Object.values(Region).includes(regionParam)       ? regionParam : undefined;
+
+  const heading     = buildHeading({ type, region, neighborhood });
+  const description = buildDescription({ type, region, neighborhood, count: 0 });
+
+  return {
+    title:       `${heading} | Litoral Haus`,
+    description: description.replace(/^0 /, ""),
+  };
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function ImoveisPage({
   searchParams,
@@ -26,11 +117,11 @@ export default async function ImoveisPage({
 }) {
   const sp = await searchParams;
 
-  const typeParam   = sp.type   as PropertyType | undefined;
-  const regionParam = sp.region as Region       | undefined;
-  const priceParam  = sp.price  ? Number(sp.price) : undefined;
-  const bedroomsParam = sp.bedrooms ? Number(sp.bedrooms) : undefined;
-  const neighborhood  = sp.neighborhood?.trim() || undefined;
+  const typeParam      = sp.type      as PropertyType | undefined;
+  const regionParam    = sp.region    as Region       | undefined;
+  const priceParam     = sp.price     ? Number(sp.price)    : undefined;
+  const bedroomsParam  = sp.bedrooms  ? Number(sp.bedrooms) : undefined;
+  const neighborhood   = sp.neighborhood?.trim() || undefined;
 
   const type   = typeParam   && Object.values(PropertyType).includes(typeParam)   ? typeParam   : undefined;
   const region = regionParam && Object.values(Region).includes(regionParam)       ? regionParam : undefined;
@@ -50,6 +141,9 @@ export default async function ImoveisPage({
     getNeighborhoods(region),
   ]);
 
+  const heading = buildHeading({ type, region, neighborhood });
+  const hasFilters = !!(type || region || neighborhood || bedroomsParam || priceParam != null);
+
   return (
     <>
       <Navbar />
@@ -62,7 +156,7 @@ export default async function ImoveisPage({
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <h1 className="font-cormorant text-4xl font-light text-foreground sm:text-5xl">
-                Imóveis disponíveis
+                {hasFilters ? heading : "Imóveis disponíveis"}
               </h1>
               <p className="font-inter text-sm text-muted-foreground">
                 {properties.length}{" "}
@@ -79,6 +173,18 @@ export default async function ImoveisPage({
               <PropertyFilterBar regions={regions} neighborhoods={neighborhoods} />
             </Suspense>
           </div>
+
+          {/* SEO heading — shown when filters active, below the filter bar */}
+          {hasFilters && (
+            <div className="mb-6">
+              <h2 className="font-cormorant text-2xl font-light text-foreground">
+                {heading}
+              </h2>
+              <p className="mt-1 font-inter text-sm text-muted-foreground">
+                {buildDescription({ type, region, neighborhood, count: properties.length })}
+              </p>
+            </div>
+          )}
 
           {/* Grid */}
           {properties.length === 0 ? (
