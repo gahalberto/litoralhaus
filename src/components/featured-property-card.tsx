@@ -18,7 +18,7 @@ export function FeaturedPropertyCard({ p }: { p: PublicProperty }) {
   const cover = p.images[0];
 
   return (
-    <div className="group relative overflow-hidden rounded-xl" style={{ aspectRatio: "3/4" }}>
+    <div className="group relative overflow-hidden rounded-xl" style={{ aspectRatio: "9/16" }}>
 
       {/* ── Background imersivo ──────────────────────────────────────────── */}
       {cover ? (
@@ -35,7 +35,7 @@ export function FeaturedPropertyCard({ p }: { p: PublicProperty }) {
       )}
 
       {/* ── Gradient overlay ─────────────────────────────────────────────── */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent" />
 
       {/* ── Top badges ───────────────────────────────────────────────────── */}
       <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2">
