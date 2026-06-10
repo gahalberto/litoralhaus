@@ -7,7 +7,7 @@ import { REGION_LABELS, PRICE_RANGES } from "@/lib/property-config";
 
 export function HeroSearch({ regions }: { regions: Region[] }) {
   const router = useRouter();
-  const [region, setRegion] = useState("");
+  const [region, setRegion] = useState("GUARUJA");
   const [price, setPrice]   = useState("");
 
   function handleSearch(e: React.FormEvent) {

@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { PropertyType, Region } from "@prisma/client";
-import { getPublicProperties } from "@/lib/public-properties";
-import { PROPERTY_TYPE_LABELS, REGION_LABELS, PRICE_RANGES } from "@/lib/property-config";
+import {
+  getPublicProperties,
+  getAvailableRegions,
+  getNeighborhoods,
+} from "@/lib/public-properties";
+import { PRICE_RANGES } from "@/lib/property-config";
 import { PropertyCard } from "@/components/property-card";
+import { PropertyFilterBar } from "@/components/property-filter-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Imóveis no Litoral de São Paulo | Médio e Alto Padrão",
   description:
     "Encontre apartamentos, casas e coberturas de médio e alto padrão no Guarujá, Santos e litoral paulista. Curadoria Litoral Haus.",
 };
-
 
 export default async function ImoveisPage({
   searchParams,
@@ -21,133 +26,72 @@ export default async function ImoveisPage({
 }) {
   const sp = await searchParams;
 
-  const q         = sp.q?.trim() || undefined;
-  const typeParam = sp.type as PropertyType | undefined;
-  const regionParam = sp.region as Region | undefined;
-  const priceParam  = sp.price ? Number(sp.price) : undefined;
+  const typeParam   = sp.type   as PropertyType | undefined;
+  const regionParam = sp.region as Region       | undefined;
+  const priceParam  = sp.price  ? Number(sp.price) : undefined;
+  const bedroomsParam = sp.bedrooms ? Number(sp.bedrooms) : undefined;
+  const neighborhood  = sp.neighborhood?.trim() || undefined;
 
   const type   = typeParam   && Object.values(PropertyType).includes(typeParam)   ? typeParam   : undefined;
   const region = regionParam && Object.values(Region).includes(regionParam)       ? regionParam : undefined;
 
   const priceRange = priceParam != null ? PRICE_RANGES[priceParam] : undefined;
 
-  const properties = await getPublicProperties({
-    q,
-    type,
-    region,
-    minPrice: priceRange?.min,
-    maxPrice: priceRange?.max,
-  });
-
-  function href(key: string, val: string | undefined) {
-    const p = new URLSearchParams(sp);
-    if (!val) p.delete(key);
-    else p.set(key, val);
-    const qs = p.toString();
-    return `/imoveis${qs ? `?${qs}` : ""}`;
-  }
-
-  const activeFilters = [type, region, priceParam != null ? String(priceParam) : undefined, q].filter(Boolean).length;
+  const [properties, regions, neighborhoods] = await Promise.all([
+    getPublicProperties({
+      type,
+      region,
+      neighborhood,
+      bedrooms: bedroomsParam,
+      minPrice: priceRange?.min,
+      maxPrice: priceRange?.max,
+    }),
+    getAvailableRegions(),
+    getNeighborhoods(region),
+  ]);
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-stone-950">
+      <div className="min-h-screen bg-background text-foreground">
         {/* Header */}
-        <div className="border-b border-stone-800 px-6 pt-28 pb-10">
+        <div className="border-b border-border px-6 pt-28 pb-8">
           <div className="mx-auto max-w-6xl">
-            <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.3em] text-amber-400/70">
+            <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.3em] text-amber-500/80 dark:text-amber-400/70">
               Portfólio
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <h1 className="font-cormorant text-4xl font-light text-stone-50 sm:text-5xl">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <h1 className="font-cormorant text-4xl font-light text-foreground sm:text-5xl">
                 Imóveis disponíveis
               </h1>
-              <p className="font-inter text-sm text-stone-500">
-                {properties.length} {properties.length === 1 ? "imóvel encontrado" : "imóveis encontrados"}
+              <p className="font-inter text-sm text-muted-foreground">
+                {properties.length}{" "}
+                {properties.length === 1 ? "imóvel encontrado" : "imóveis encontrados"}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          {/* Search + Filters */}
-          <div className="mb-8 space-y-4">
-            {/* Search bar */}
-            <form method="GET" action="/imoveis" className="relative">
-              {/* Preserve other filters */}
-              {type   && <input type="hidden" name="type"   value={type}   />}
-              {region && <input type="hidden" name="region" value={region} />}
-              {priceParam != null && <input type="hidden" name="price" value={priceParam} />}
-              <input
-                type="search"
-                name="q"
-                defaultValue={q}
-                placeholder="Buscar por título, bairro ou cidade…"
-                className="w-full rounded-none border border-stone-700 bg-stone-900 px-5 py-3.5 font-inter text-sm text-stone-100 placeholder:text-stone-600 outline-none transition-colors focus:border-amber-400 sm:max-w-md"
-              />
-            </form>
-
-            {/* Filter pills */}
-            <div className="flex flex-wrap gap-4">
-              {/* Tipo */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-inter text-[10px] uppercase tracking-widest text-stone-600 mr-1">Tipo</span>
-                <FilterPill href={href("type", undefined)} active={!type}>Todos</FilterPill>
-                {Object.values(PropertyType).map((t) => (
-                  <FilterPill key={t} href={href("type", t)} active={type === t}>
-                    {PROPERTY_TYPE_LABELS[t]}
-                  </FilterPill>
-                ))}
-              </div>
-
-              <div className="hidden h-5 w-px bg-stone-800 sm:block self-center" />
-
-              {/* Região */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-inter text-[10px] uppercase tracking-widest text-stone-600 mr-1">Região</span>
-                <FilterPill href={href("region", undefined)} active={!region}>Todas</FilterPill>
-                {[Region.GUARUJA, Region.SANTOS, Region.BERTIOGA, Region.SAO_VICENTE, Region.UBATUBA, Region.ILHABELA].map((r) => (
-                  <FilterPill key={r} href={href("region", r)} active={region === r}>
-                    {REGION_LABELS[r]}
-                  </FilterPill>
-                ))}
-              </div>
-
-              <div className="hidden h-5 w-px bg-stone-800 sm:block self-center" />
-
-              {/* Preço */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-inter text-[10px] uppercase tracking-widest text-stone-600 mr-1">Preço</span>
-                <FilterPill href={href("price", undefined)} active={priceParam == null}>Todos</FilterPill>
-                {PRICE_RANGES.map((range, i) => (
-                  <FilterPill key={i} href={href("price", String(i))} active={priceParam === i}>
-                    {range.label}
-                  </FilterPill>
-                ))}
-              </div>
-            </div>
-
-            {/* Clear filters */}
-            {activeFilters > 0 && (
-              <Link
-                href="/imoveis"
-                className="font-inter text-xs text-stone-500 underline underline-offset-2 hover:text-stone-300"
-              >
-                Limpar filtros ({activeFilters})
-              </Link>
-            )}
+        <div className="mx-auto max-w-6xl px-6 py-6">
+          {/* Filter bar */}
+          <div className="mb-8">
+            <Suspense>
+              <PropertyFilterBar regions={regions} neighborhoods={neighborhoods} />
+            </Suspense>
           </div>
 
           {/* Grid */}
           {properties.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
-              <p className="font-cormorant text-3xl font-light text-stone-600">
+              <p className="font-cormorant text-3xl font-light text-muted-foreground">
                 Nenhum imóvel encontrado
               </p>
-              <p className="mt-2 font-inter text-sm text-stone-700">
+              <p className="mt-2 font-inter text-sm text-muted-foreground">
                 Tente ajustar os filtros ou{" "}
-                <Link href="/imoveis" className="text-amber-400/70 hover:text-amber-400">
+                <Link
+                  href="/imoveis"
+                  className="text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
+                >
                   ver todos os imóveis
                 </Link>
               </p>
@@ -163,28 +107,5 @@ export default async function ImoveisPage({
       </div>
       <Footer />
     </>
-  );
-}
-
-function FilterPill({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`px-3 py-1.5 font-inter text-[11px] uppercase tracking-wider transition-colors ${
-        active
-          ? "bg-amber-400 text-stone-950"
-          : "border border-stone-700 text-stone-400 hover:border-stone-500 hover:text-stone-200"
-      }`}
-    >
-      {children}
-    </Link>
   );
 }

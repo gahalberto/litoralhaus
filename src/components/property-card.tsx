@@ -9,10 +9,10 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
   return (
     <Link
       href={`/imoveis/${p.slug}`}
-      className="group flex flex-col overflow-hidden border border-stone-800 bg-stone-950 transition-all duration-300 hover:border-stone-600"
+      className="group flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:border-amber-400/40"
     >
       {/* Imagem */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-900">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         {cover ? (
           <Image
             src={cover}
@@ -23,7 +23,7 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-stone-700">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-muted-foreground/30">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="1.2" />
             </svg>
           </div>
@@ -37,7 +37,7 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
             </span>
           )}
           {p.isIsca && (
-            <span className="rounded-none bg-stone-900/80 px-2 py-0.5 font-inter text-[9px] uppercase tracking-widest text-stone-400 backdrop-blur-sm">
+            <span className="rounded-none bg-background/80 px-2 py-0.5 font-inter text-[9px] uppercase tracking-widest text-muted-foreground backdrop-blur-sm">
               Oportunidade
             </span>
           )}
@@ -49,17 +49,17 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
         <p className="mb-1 font-inter text-[10px] uppercase tracking-widest text-amber-400/70">
           {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
         </p>
-        <h3 className="mb-3 font-cormorant text-lg font-light leading-snug text-stone-100 line-clamp-2 group-hover:text-amber-300 transition-colors">
+        <h3 className="mb-3 font-cormorant text-lg font-light leading-snug text-foreground line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
           {p.title}
         </h3>
-        <p className="mb-4 font-inter text-xs text-stone-500">
+        <p className="mb-4 font-inter text-xs text-muted-foreground">
           {p.neighborhood}, {p.city}
         </p>
 
         {/* Stats */}
-        <div className="mb-4 flex gap-4 border-t border-stone-800 pt-4">
+        <div className="mb-4 flex gap-4 border-t border-border pt-4">
           {p.bedrooms != null && (
-            <span className="flex items-center gap-1 font-inter text-xs text-stone-400">
+            <span className="flex items-center gap-1 font-inter text-xs text-muted-foreground">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="5" width="14" height="8" rx="1" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M1 9h14M5 9V5a2 2 0 014 0v4" stroke="currentColor" strokeWidth="1.2" />
@@ -68,7 +68,7 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
             </span>
           )}
           {p.bathrooms != null && (
-            <span className="flex items-center gap-1 font-inter text-xs text-stone-400">
+            <span className="flex items-center gap-1 font-inter text-xs text-muted-foreground">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <path d="M2 8h12v3a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M2 8V4a2 2 0 014 0" stroke="currentColor" strokeWidth="1.2" />
@@ -77,7 +77,7 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
             </span>
           )}
           {p.areaTotal && (
-            <span className="flex items-center gap-1 font-inter text-xs text-stone-400">
+            <span className="flex items-center gap-1 font-inter text-xs text-muted-foreground">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="1" width="14" height="14" rx="1" stroke="currentColor" strokeWidth="1.2" />
               </svg>
@@ -89,17 +89,17 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
         {/* Preço */}
         <div className="mt-auto">
           {p.priceAsk && (
-            <p className="font-cormorant text-2xl font-light text-stone-100">
+            <p className="font-cormorant text-2xl font-light text-foreground">
               {formatPrice(p.priceAsk)}
             </p>
           )}
           {!p.priceAsk && p.priceRent && (
-            <p className="font-inter text-sm text-stone-400">
+            <p className="font-inter text-sm text-muted-foreground">
               {formatPrice(p.priceRent)}<span className="text-xs">/mês</span>
             </p>
           )}
           {!p.priceAsk && !p.priceRent && (
-            <p className="font-inter text-sm text-stone-600">Consulte o preço</p>
+            <p className="font-inter text-sm text-muted-foreground">Consulte o preço</p>
           )}
         </div>
       </div>

@@ -34,21 +34,29 @@ export type PublicPropertyDetail = PublicProperty & {
 };
 
 export type PropertyFilters = {
-  q?:      string;
-  type?:   PropertyType;
-  region?: Region;
-  minPrice?: number;
-  maxPrice?: number;
+  q?:           string;
+  type?:        PropertyType;
+  region?:      Region;
+  neighborhood?: string;
+  bedrooms?:    number;
+  minPrice?:    number;
+  maxPrice?:    number;
 };
 
 export async function getPublicProperties(filters: PropertyFilters = {}): Promise<PublicProperty[]> {
-  const { q, type, region, minPrice, maxPrice } = filters;
+  const { q, type, region, neighborhood, bedrooms, minPrice, maxPrice } = filters;
 
   return prisma.property.findMany({
     where: {
       status: "DISPONIVEL",
-      ...(type   && { type }),
-      ...(region && { region }),
+      ...(type         && { type }),
+      ...(region       && { region }),
+      ...(neighborhood && { neighborhood: { contains: neighborhood, mode: "insensitive" } }),
+      ...(bedrooms != null && bedrooms >= 4
+        ? { bedrooms: { gte: 4 } }
+        : bedrooms != null
+        ? { bedrooms }
+        : {}),
       ...(q && {
         OR: [
           { title:        { contains: q, mode: "insensitive" } },
@@ -84,6 +92,16 @@ export async function getFeaturedProperties(): Promise<PublicProperty[]> {
       images: true, featured: true, isIsca: true,
     },
   }) as unknown as PublicProperty[];
+}
+
+export async function getNeighborhoods(region?: Region): Promise<string[]> {
+  const rows = await prisma.property.findMany({
+    where: { status: "DISPONIVEL", ...(region && { region }) },
+    select: { neighborhood: true },
+    distinct: ["neighborhood"],
+    orderBy: { neighborhood: "asc" },
+  });
+  return rows.map((r) => r.neighborhood).filter(Boolean);
 }
 
 export async function getAvailableRegions(): Promise<Region[]> {
