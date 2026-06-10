@@ -106,7 +106,7 @@ export default async function AdminDashboard() {
                 <div>
                   <p className="font-inter text-sm text-foreground">{lead.name}</p>
                   <p className="font-inter text-xs text-muted-foreground">
-                    {BUDGET_LABELS[lead.budgetRange]}
+                    {lead.budgetRange ? BUDGET_LABELS[lead.budgetRange] : "—"}
                   </p>
                 </div>
                 <span className={`rounded px-2 py-0.5 font-inter text-[10px] uppercase tracking-wider ${cfg.badge}`}>

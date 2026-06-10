@@ -52,7 +52,7 @@ export function LeadCard({ lead }: LeadCardProps) {
       {/* Meta */}
       <div className="mb-3 space-y-1">
         <p className="font-inter text-xs text-muted-foreground">
-          {BUDGET_LABELS[lead.budgetRange]}
+          {lead.budgetRange ? BUDGET_LABELS[lead.budgetRange] : "—"}
         </p>
         {lead.regions.length > 0 && (
           <p className="font-inter text-xs text-muted-foreground/60">

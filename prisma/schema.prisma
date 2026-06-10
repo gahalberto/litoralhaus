@@ -81,6 +81,11 @@ enum Region {
   ILHABELA
 }
 
+enum LeadType {
+  BUYER
+  SELLER
+}
+
 // ─── User ─────────────────────────────────────────────────────────────────────
 
 model User {
@@ -109,13 +114,14 @@ model Lead {
   updatedAt DateTime @updatedAt
 
   name     String
-  email    String  @unique
+  email    String?  @unique
   phone    String
   whatsapp String?
 
+  type          LeadType     @default(BUYER)
   status        LeadStatus   @default(NOVO)
   source        LeadSource   @default(LANDING_PAGE)
-  budgetRange   BudgetRange
+  budgetRange   BudgetRange?
   regions       Region[]
   propertyTypes PropertyType[]
   notes         String?

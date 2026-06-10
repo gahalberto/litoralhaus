@@ -3,6 +3,7 @@ import { Hero } from "@/components/sections/Hero";
 import { ValueProposition } from "@/components/sections/ValueProposition";
 import { LeadCaptureForm } from "@/components/sections/LeadCaptureForm";
 import { Footer } from "@/components/sections/Footer";
+import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "Imóveis de Alto Padrão no Guarujá e Litoral de São Paulo",
@@ -40,6 +41,7 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(landingPageSchema) }}
       />
+      <Navbar />
       <main>
         <Hero />
         <ValueProposition />
