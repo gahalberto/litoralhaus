@@ -160,11 +160,13 @@ export function PropertyForm({ highlights, amenities }: PropertyFormProps) {
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: {
-      status:   PropertyStatus.DISPONIVEL,
-      type:     PropertyType.APARTMENT,
-      region:   Region.GUARUJA,
-      isIsca:   false,
-      featured: false,
+      status:       PropertyStatus.DISPONIVEL,
+      type:         PropertyType.APARTMENT,
+      region:       Region.GUARUJA,
+      isIsca:       false,
+      featured:     false,
+      highlightIds: [],
+      amenityIds:   [],
     },
   });
 
