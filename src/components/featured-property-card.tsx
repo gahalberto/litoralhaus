@@ -18,7 +18,7 @@ export function FeaturedPropertyCard({ p }: { p: PublicProperty }) {
   const cover = p.images[0];
 
   return (
-    <div className="group relative overflow-hidden rounded-xl" style={{ aspectRatio: "9/16" }}>
+    <div className="group relative overflow-hidden rounded-xl" style={{ aspectRatio: "9/12" }}>
 
       {/* ── Background imersivo ──────────────────────────────────────────── */}
       {cover ? (
