@@ -42,6 +42,14 @@ export const REGION_LABELS: Record<Region, string> = {
   ILHABELA:      "Ilhabela",
 };
 
+export const PRICE_RANGES = [
+  { label: "Até R$ 500k",     min: 0,       max: 500_000   },
+  { label: "R$ 500k – R$ 1M", min: 500_000, max: 1_000_000 },
+  { label: "R$ 1M – R$ 2M",   min: 1_000_000, max: 2_000_000 },
+  { label: "R$ 2M – R$ 5M",   min: 2_000_000, max: 5_000_000 },
+  { label: "Acima de R$ 5M",  min: 5_000_000, max: undefined },
+] as const;
+
 export function formatPrice(value: number | string | null | undefined): string {
   if (value == null || value === "") return "—";
   const num = typeof value === "string" ? parseFloat(value) : Number(value);

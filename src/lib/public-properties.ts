@@ -86,6 +86,16 @@ export async function getFeaturedProperties(): Promise<PublicProperty[]> {
   }) as unknown as PublicProperty[];
 }
 
+export async function getAvailableRegions(): Promise<Region[]> {
+  const rows = await prisma.property.findMany({
+    where:    { status: "DISPONIVEL" },
+    select:   { region: true },
+    distinct: ["region"],
+    orderBy:  { region: "asc" },
+  });
+  return rows.map((r) => r.region);
+}
+
 export async function getPublicPropertyBySlug(slug: string): Promise<PublicPropertyDetail | null> {
   return prisma.property.findUnique({
     where: { slug, status: "DISPONIVEL" },

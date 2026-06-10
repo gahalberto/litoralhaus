@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PropertyType, Region } from "@prisma/client";
 import { getPublicProperties } from "@/lib/public-properties";
-import { PROPERTY_TYPE_LABELS, REGION_LABELS } from "@/lib/property-config";
+import { PROPERTY_TYPE_LABELS, REGION_LABELS, PRICE_RANGES } from "@/lib/property-config";
 import { PropertyCard } from "@/components/property-card";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -13,13 +13,6 @@ export const metadata: Metadata = {
     "Encontre apartamentos, casas e coberturas de médio e alto padrão no Guarujá, Santos e litoral paulista. Curadoria Litoral Haus.",
 };
 
-const PRICE_RANGES = [
-  { label: "Até R$ 500k",      min: 0,        max: 500000   },
-  { label: "R$ 500k – R$ 1M",  min: 500000,   max: 1000000  },
-  { label: "R$ 1M – R$ 2M",    min: 1000000,  max: 2000000  },
-  { label: "R$ 2M – R$ 5M",    min: 2000000,  max: 5000000  },
-  { label: "Acima de R$ 5M",   min: 5000000,  max: undefined },
-];
 
 export default async function ImoveisPage({
   searchParams,

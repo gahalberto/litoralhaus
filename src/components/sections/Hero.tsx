@@ -1,6 +1,8 @@
-import Link from "next/link";
+import { getAvailableRegions } from "@/lib/public-properties";
+import { HeroSearch } from "@/components/hero-search";
 
-export function Hero() {
+export async function Hero() {
+  const regions = await getAvailableRegions();
   return (
     <section
       aria-label="Apresentação Litoral Haus"
@@ -45,18 +47,16 @@ export function Hero() {
           litoral paulista — do médio ao alto padrão.
         </p>
 
-        <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <div className="mt-10 flex justify-center">
+          <HeroSearch regions={regions} />
+        </div>
+
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <a
             href="#captura"
-            className="inline-flex min-w-[220px] items-center justify-center rounded-none border border-amber-400 bg-amber-400 px-8 py-4 font-inter text-sm font-medium uppercase tracking-widest text-stone-950 transition-all duration-300 hover:bg-transparent hover:text-amber-400"
+            className="font-inter text-xs uppercase tracking-widest text-stone-500 transition-colors hover:text-stone-300"
           >
-            Quero ser avisado primeiro
-          </a>
-          <a
-            href="#diferenciais"
-            className="inline-flex min-w-[220px] items-center justify-center rounded-none border border-stone-600 px-8 py-4 font-inter text-sm font-medium uppercase tracking-widest text-stone-300 transition-all duration-300 hover:border-stone-300 hover:text-stone-50"
-          >
-            Nossa inteligência
+            Cadastre seu perfil de investidor →
           </a>
         </div>
 
