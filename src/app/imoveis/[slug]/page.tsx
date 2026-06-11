@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Bed, Bath, Maximize, Car, MapPin } from "lucide-react";
 import { getPublicPropertyBySlug } from "@/lib/public-properties";
 import { PROPERTY_TYPE_LABELS, REGION_LABELS, formatPrice } from "@/lib/property-config";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/sections/Footer";
-import { PropertyGallery } from "@/components/property-gallery";
-import { InterestForm } from "@/components/interest-form";
 import { PropertyJsonLd } from "@/components/json-ld";
+import { PropertyGalleryWide } from "@/components/property-gallery-wide";
+import { PropertyMediaTabs } from "@/components/property-media-tabs";
+import { PropertyPricingCard } from "@/components/property-pricing-card";
+import { Footer } from "@/components/sections/Footer";
 
 const BASE = "https://litoralhaus.com.br";
 
@@ -23,20 +24,17 @@ export async function generateMetadata({
   if (!p) return { title: "Imóvel não encontrado" };
 
   const canonicalUrl = `${BASE}/imoveis/${slug}`;
-
-  // Título otimizado: tipo + bairro + cidade
   const title =
     p.seoTitle ||
     `${PROPERTY_TYPE_LABELS[p.type]} ${p.neighborhood} ${REGION_LABELS[p.region]} | Litoral Haus`;
 
-  // Descrição: primeiro parágrafo real da descrição ou gerada
   const rawDesc =
     p.seoDescription ||
     (p.description ? p.description.split("\n")[0].slice(0, 155) : null) ||
-    `${PROPERTY_TYPE_LABELS[p.type]} à venda em ${p.neighborhood}, ${p.city}. ${
-      p.bedrooms ? `${p.bedrooms} dormitórios. ` : ""
-    }${p.areaTotal ? `${Number(p.areaTotal).toLocaleString("pt-BR")} m². ` : ""}${
-      p.priceAsk ? formatPrice(p.priceAsk) + "." : ""
+    `${PROPERTY_TYPE_LABELS[p.type]} à venda em ${p.neighborhood}, ${p.city}.${
+      p.bedrooms ? ` ${p.bedrooms} dormitórios.` : ""
+    }${p.areaTotal ? ` ${Number(p.areaTotal).toLocaleString("pt-BR")} m².` : ""}${
+      p.priceAsk ? " " + formatPrice(p.priceAsk) + "." : ""
     } Litoral Haus.`;
 
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
@@ -44,32 +42,14 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      type:        "website",
-      locale:      "pt_BR",
-      url:          canonicalUrl,
-      siteName:    "Litoral Haus",
-      title,
-      description,
-      images: p.images[0]
-        ? [{ url: p.images[0], width: 1200, height: 900, alt: p.title }]
-        : [],
+      type: "website", locale: "pt_BR", url: canonicalUrl,
+      siteName: "Litoral Haus", title, description,
+      images: p.images[0] ? [{ url: p.images[0], width: 1200, height: 630, alt: p.title }] : [],
     },
-    twitter: {
-      card:        "summary_large_image",
-      title,
-      description,
-      images:       p.images[0] ? [p.images[0]] : [],
-    },
-    robots: {
-      index:  true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
+    twitter: { card: "summary_large_image", title, description, images: p.images[0] ? [p.images[0]] : [] },
+    robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   };
 }
 
@@ -84,192 +64,247 @@ export default async function PropertyPage({
   const p = await getPublicPropertyBySlug(slug);
   if (!p) notFound();
 
+  const canonicalUrl = `${BASE}/imoveis/${slug}`;
+  const whatsappHref = `https://wa.me/5513000000000?text=${encodeURIComponent(
+    `Olá! Tenho interesse no imóvel: ${p.title} — ${canonicalUrl}`
+  )}`;
+
+  // H1 dinâmico estilo portal
+  const h1Parts = [
+    PROPERTY_TYPE_LABELS[p.type],
+    "à venda",
+    p.areaTotal ? `com ${Number(p.areaTotal).toLocaleString("pt-BR")}m²` : null,
+    p.bedrooms != null ? `${p.bedrooms} ${p.bedrooms === 1 ? "quarto" : "quartos"}` : null,
+    p.parkingSpots != null
+      ? p.parkingSpots === 0 ? "sem vaga" : `${p.parkingSpots} ${p.parkingSpots === 1 ? "vaga" : "vagas"}`
+      : null,
+  ].filter(Boolean).join(", ");
+
   const specs = [
-    { label: "Dormitórios", value: p.bedrooms,     unit: "" },
-    { label: "Banheiros",   value: p.bathrooms,    unit: "" },
-    { label: "Suítes",      value: p.suites,       unit: "" },
-    { label: "Vagas",       value: p.parkingSpots, unit: "" },
-    { label: "Área total",  value: p.areaTotal ? Number(p.areaTotal).toLocaleString("pt-BR") : null, unit: " m²" },
-    { label: "Área útil",   value: p.areaUsable  ? Number(p.areaUsable).toLocaleString("pt-BR")  : null, unit: " m²" },
-  ].filter((s) => s.value != null);
+    { icon: <Maximize size={18} className="text-amber-500" />, value: p.areaTotal ? `${Number(p.areaTotal).toLocaleString("pt-BR")} m²` : "—", label: "Área total" },
+    { icon: <Bed       size={18} className="text-amber-500" />, value: p.bedrooms  != null ? `${p.bedrooms}`  : "—", label: "Dormitórios" },
+    { icon: <Car       size={18} className="text-amber-500" />, value: p.parkingSpots != null ? `${p.parkingSpots}` : "—", label: "Vagas" },
+    { icon: <Bath      size={18} className="text-amber-500" />, value: p.bathrooms != null ? `${p.bathrooms}` : "—", label: "Banheiros" },
+  ];
 
   return (
     <>
       <PropertyJsonLd
-        slug={p.slug}
-        title={p.title}
-        description={p.description}
-        type={p.type}
-        city={p.city}
-        neighborhood={p.neighborhood}
-        region={p.region}
+        slug={p.slug} title={p.title} description={p.description} type={p.type}
+        city={p.city} neighborhood={p.neighborhood} region={p.region}
         priceAsk={p.priceAsk ? String(p.priceAsk) : null}
         priceRent={p.priceRent ? String(p.priceRent) : null}
-        bedrooms={p.bedrooms}
-        bathrooms={p.bathrooms}
+        bedrooms={p.bedrooms} bathrooms={p.bathrooms}
         areaTotal={p.areaTotal ? String(p.areaTotal) : null}
         images={p.images}
       />
 
-      <Navbar />
-      <div className="min-h-screen bg-background text-foreground">
-        {/* Breadcrumb */}
-        <div className="border-b border-border px-6 pt-20 pb-4">
-          <div className="mx-auto max-w-6xl">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-inter text-xs text-muted-foreground">
-              <Link href="/" className="hover:text-foreground">Home</Link>
-              <span aria-hidden>/</span>
-              <Link href="/imoveis" className="hover:text-foreground">Imóveis</Link>
-              <span aria-hidden>/</span>
-              <span className="truncate max-w-64 text-foreground/70">{p.title}</span>
-            </nav>
-          </div>
+      {/* ── Header escuro ──────────────────────────────────────────────────── */}
+      <header className="bg-zinc-950">
+        {/* Navegação */}
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="font-cormorant text-xl font-light tracking-wider text-white">
+            Litoral Haus
+          </Link>
+          <nav className="hidden items-center gap-8 sm:flex">
+            <Link href="/imoveis" className="font-inter text-xs uppercase tracking-widest text-white/60 transition hover:text-white">
+              Imóveis
+            </Link>
+            <Link href="/comprar/guaruja" className="font-inter text-xs uppercase tracking-widest text-white/60 transition hover:text-white">
+              Guarujá
+            </Link>
+            <Link href="/comprar/santos" className="font-inter text-xs uppercase tracking-widest text-white/60 transition hover:text-white">
+              Santos
+            </Link>
+          </nav>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-white/20 px-4 py-2 font-inter text-xs font-medium text-white transition hover:border-amber-400 hover:text-amber-400"
+          >
+            Fale com a gente
+          </a>
         </div>
 
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
-            {/* Coluna principal — min-w-0 impede que o grid 1fr estoure o viewport */}
-            <div className="min-w-0 space-y-10">
-              {/* Galeria */}
-              <PropertyGallery images={p.images} title={p.title} />
+        {/* Breadcrumb */}
+        <div className="border-t border-white/5">
+          <nav aria-label="Breadcrumb" className="mx-auto flex max-w-6xl items-center gap-1.5 overflow-x-auto px-6 py-3 font-inter text-xs text-white/40 whitespace-nowrap">
+            <Link href="/" className="transition hover:text-white">Litoral Haus</Link>
+            <span>/</span>
+            <Link href="/imoveis" className="transition hover:text-white">{PROPERTY_TYPE_LABELS[p.type]}s</Link>
+            <span>/</span>
+            <Link href={`/imoveis?region=${p.region}`} className="transition hover:text-white">{REGION_LABELS[p.region]}</Link>
+            <span>/</span>
+            <Link href={`/imoveis?region=${p.region}&neighborhood=${encodeURIComponent(p.neighborhood)}`} className="transition hover:text-white">{p.neighborhood}</Link>
+            <span>/</span>
+            <span className="text-white/60 truncate max-w-52">{p.title}</span>
+          </nav>
+        </div>
+      </header>
 
-              {/* Título e localização */}
-              <div>
-                <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.25em] text-amber-600/80 dark:text-amber-400/70">
+      {/* ── Galeria hero ───────────────────────────────────────────────────── */}
+      <PropertyGalleryWide images={p.images} title={p.title} />
+
+      {/* ── Grid principal ─────────────────────────────────────────────────── */}
+      <main className="bg-gray-50 pb-20">
+        <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+          <div className="grid gap-8 lg:grid-cols-3">
+
+            {/* ── Coluna esquerda (2/3) ──────────────────────────────────── */}
+            <div className="min-w-0 space-y-8 lg:col-span-2">
+
+              {/* Abas + compartilhar */}
+              <div className="bg-white shadow-sm">
+                <PropertyMediaTabs whatsappHref={whatsappHref} pageUrl={canonicalUrl} />
+              </div>
+
+              {/* Título + endereço */}
+              <div className="bg-white p-6 shadow-sm">
+                <p className="mb-2 font-inter text-[10px] uppercase tracking-widest text-amber-600">
                   {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
                 </p>
-                <h1 className="font-cormorant text-3xl font-light leading-snug text-foreground sm:text-4xl">
-                  {p.title}
+                <h1 className="font-inter text-2xl font-bold leading-snug text-gray-900 sm:text-3xl">
+                  {h1Parts}
                 </h1>
-                <p className="mt-2 font-inter text-sm text-muted-foreground">
-                  {[p.address, p.neighborhood, p.city].filter(Boolean).join(", ")}
-                </p>
+                <div className="mt-3 flex items-center gap-1.5 text-gray-500">
+                  <MapPin size={14} className="shrink-0 text-amber-500" />
+                  <span className="font-inter text-sm">
+                    {[p.address, p.neighborhood, p.city, "SP"].filter(Boolean).join(", ")}
+                  </span>
+                </div>
               </div>
 
               {/* Características */}
-              {specs.length > 0 && (
-                <div>
-                  <h2 className="mb-5 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Características
-                  </h2>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                    {specs.map((s) => (
-                      <div key={s.label} className="border border-border p-4">
-                        <p className="font-cormorant text-2xl font-light text-foreground">
-                          {s.value}{s.unit}
-                        </p>
-                        <p className="mt-0.5 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
-                          {s.label}
-                        </p>
+              <div className="bg-white p-6 shadow-sm">
+                <h2 className="mb-5 font-inter text-[11px] uppercase tracking-widest text-gray-400">
+                  Características
+                </h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {specs.map((s) => (
+                    <div key={s.label} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                      {s.icon}
+                      <div>
+                        <p className="font-inter text-base font-bold text-gray-900">{s.value}</p>
+                        <p className="font-inter text-[10px] uppercase tracking-wide text-gray-400">{s.label}</p>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+
+                {/* Extras: suítes, área útil */}
+                {(p.suites || p.areaUsable) && (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {p.suites != null && (
+                      <span className="rounded-full bg-amber-50 px-3 py-1 font-inter text-xs text-amber-700">
+                        {p.suites} suíte{p.suites !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                    {p.areaUsable && (
+                      <span className="rounded-full bg-amber-50 px-3 py-1 font-inter text-xs text-amber-700">
+                        {Number(p.areaUsable).toLocaleString("pt-BR")} m² úteis
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Descrição */}
               {p.description && (
-                <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
+                <div className="bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
                     Sobre o imóvel
                   </h2>
-                  <div className="space-y-3 font-inter text-sm font-light leading-relaxed text-foreground/70 whitespace-pre-line">
+                  <div className="space-y-3 font-inter text-sm leading-relaxed text-gray-600 whitespace-pre-line">
                     {p.description}
                   </div>
                 </div>
               )}
 
-              {/* Diferenciais */}
-              {p.highlights.length > 0 && (
-                <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Diferenciais
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {p.highlights.map((h) => (
-                      <span key={h.highlight.label} className="border border-border px-3 py-1.5 font-inter text-xs text-muted-foreground">
-                        {h.highlight.label}
-                      </span>
-                    ))}
-                  </div>
+              {/* Diferenciais + Comodidades */}
+              {(p.highlights.length > 0 || p.amenities.length > 0) && (
+                <div className="bg-white p-6 shadow-sm">
+                  {p.highlights.length > 0 && (
+                    <div className="mb-6">
+                      <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
+                        Diferenciais
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {p.highlights.map((h) => (
+                          <span key={h.highlight.label} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-inter text-xs text-amber-700">
+                            {h.highlight.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {p.amenities.length > 0 && (
+                    <div>
+                      <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
+                        Comodidades
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {p.amenities.map((a) => (
+                          <span key={a.amenity.label} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-inter text-xs text-gray-600">
+                            {a.amenity.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Comodidades */}
-              {p.amenities.length > 0 && (
-                <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Comodidades
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {p.amenities.map((a) => (
-                      <span key={a.amenity.label} className="border border-border px-3 py-1.5 font-inter text-xs text-muted-foreground">
-                        {a.amenity.label}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Financeiro */}
+              {/* Custos */}
               {(p.condoFee || p.iptu) && (
-                <div>
-                  <h2 className="mb-4 font-inter text-[10px] uppercase tracking-widest text-muted-foreground">
+                <div className="bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
                     Custos mensais
                   </h2>
-                  <div className="flex gap-8">
+                  <div className="flex flex-wrap gap-6">
                     {p.condoFee && (
                       <div>
-                        <p className="font-cormorant text-xl font-light text-foreground">{formatPrice(p.condoFee)}</p>
-                        <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">Condomínio/mês</p>
+                        <p className="font-inter text-xl font-bold text-gray-900">{formatPrice(p.condoFee)}</p>
+                        <p className="font-inter text-[11px] uppercase tracking-wide text-gray-400">Condomínio/mês</p>
                       </div>
                     )}
                     {p.iptu && (
                       <div>
-                        <p className="font-cormorant text-xl font-light text-foreground">{formatPrice(p.iptu)}</p>
-                        <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">IPTU/ano</p>
+                        <p className="font-inter text-xl font-bold text-gray-900">{formatPrice(p.iptu)}</p>
+                        <p className="font-inter text-[11px] uppercase tracking-wide text-gray-400">IPTU/ano</p>
                       </div>
                     )}
                   </div>
                 </div>
               )}
+
             </div>
 
-            {/* Sidebar sticky */}
-            <div>
-              <div className="sticky top-24 space-y-6 border border-border bg-card p-6">
-                <div>
-                  {p.priceAsk && (
-                    <>
-                      <p className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground">Preço de venda</p>
-                      <p className="mt-1 font-cormorant text-4xl font-light text-foreground">
-                        {formatPrice(p.priceAsk)}
-                      </p>
-                    </>
-                  )}
-                  {p.priceRent && (
-                    <p className={`font-inter text-sm text-muted-foreground ${p.priceAsk ? "mt-1" : "mt-0"}`}>
-                      Locação: {formatPrice(p.priceRent)}/mês
-                    </p>
-                  )}
-                  {!p.priceAsk && !p.priceRent && (
-                    <p className="font-inter text-sm text-muted-foreground">Consulte o preço</p>
-                  )}
-                </div>
+            {/* ── Coluna direita sticky (1/3) ────────────────────────────── */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-6">
+                <PropertyPricingCard
+                  type={p.type}
+                  priceAsk={p.priceAsk ? String(p.priceAsk) : null}
+                  priceRent={p.priceRent ? String(p.priceRent) : null}
+                  city={p.city}
+                  neighborhood={p.neighborhood}
+                  whatsappHref={whatsappHref}
+                />
 
-                <div className="h-px bg-border" />
-
-                <div>
-                  <p className="mb-4 font-inter text-xs uppercase tracking-widest text-muted-foreground">
-                    Tenho interesse
+                {/* CTA secundário mobile — visível só em mobile, abaixo do card */}
+                <div className="mt-4 rounded-xl border border-border bg-background p-4 text-center lg:hidden">
+                  <p className="font-inter text-xs text-muted-foreground">
+                    Dúvidas? Nossa equipe responde em minutos.
                   </p>
-                  <InterestForm propertyId={p.id} />
                 </div>
               </div>
             </div>
+
           </div>
         </div>
-      </div>
+      </main>
+
       <Footer />
     </>
   );

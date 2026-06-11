@@ -49,10 +49,10 @@ export function PropertyCard({ p }: { p: PublicProperty }) {
         <p className="mb-1 font-inter text-[10px] uppercase tracking-widest text-amber-400/70">
           {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
         </p>
-        <h3 className="mb-3 font-cormorant text-lg font-light leading-snug text-foreground line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
+        <h3 className="mb-3 font-cormorant text-lg font-light leading-snug text-foreground line-clamp-2 transition-colors group-hover:text-amber-500">
           {p.title}
         </h3>
-        <p className="mb-4 font-inter text-xs text-muted-foreground">
+        <p className="mb-4 font-inter text-xs text-muted-foreground transition-colors group-hover:text-amber-500/70">
           {p.neighborhood}, {p.city}
         </p>
 
