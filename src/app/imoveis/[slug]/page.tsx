@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Bed, Bath, Maximize, Car, MapPin } from "lucide-react";
 import { getPublicPropertyBySlug } from "@/lib/public-properties";
-import { PROPERTY_TYPE_LABELS, REGION_LABELS, formatPrice } from "@/lib/property-config";
+import { PROPERTY_TYPE_LABELS, PROPERTY_TYPE_PLURAL, REGION_LABELS, formatPrice } from "@/lib/property-config";
 import { PropertyJsonLd } from "@/components/json-ld";
 import { PropertyGalleryWide } from "@/components/property-gallery-wide";
 import { PropertyMediaTabs } from "@/components/property-media-tabs";
@@ -130,15 +130,15 @@ export default async function PropertyPage({
         {/* Breadcrumb */}
         <div className="border-t border-white/5">
           <nav aria-label="Breadcrumb" className="mx-auto flex max-w-6xl items-center gap-1.5 overflow-x-auto px-6 py-3 font-inter text-xs text-white/40 whitespace-nowrap">
-            <Link href="/" className="transition hover:text-white">Litoral Haus</Link>
-            <span>/</span>
-            <Link href="/imoveis" className="transition hover:text-white">{PROPERTY_TYPE_LABELS[p.type]}s</Link>
-            <span>/</span>
-            <Link href={`/imoveis?region=${p.region}`} className="transition hover:text-white">{REGION_LABELS[p.region]}</Link>
-            <span>/</span>
-            <Link href={`/imoveis?region=${p.region}&neighborhood=${encodeURIComponent(p.neighborhood)}`} className="transition hover:text-white">{p.neighborhood}</Link>
-            <span>/</span>
-            <span className="text-white/60 truncate max-w-52">{p.title}</span>
+            <Link href="/" className="transition-colors hover:text-white">Litoral Haus</Link>
+            <span className="select-none">/</span>
+            <Link href={`/imoveis?type=${p.type}`} className="transition-colors hover:text-white">{PROPERTY_TYPE_PLURAL[p.type]}</Link>
+            <span className="select-none">/</span>
+            <Link href={`/imoveis?type=${p.type}&region=${p.region}`} className="transition-colors hover:text-white">{REGION_LABELS[p.region]}</Link>
+            <span className="select-none">/</span>
+            <Link href={`/imoveis?type=${p.type}&region=${p.region}&neighborhood=${encodeURIComponent(p.neighborhood)}`} className="transition-colors hover:text-white">{p.neighborhood}</Link>
+            <span className="select-none">/</span>
+            <span className="max-w-52 truncate text-white/60">{p.title}</span>
           </nav>
         </div>
       </header>

@@ -9,6 +9,15 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   CONDO:     "Condomínio",
 };
 
+export const PROPERTY_TYPE_PLURAL: Record<PropertyType, string> = {
+  APARTMENT: "Apartamentos",
+  HOUSE:     "Casas",
+  PENTHOUSE: "Coberturas",
+  LAND:      "Terrenos",
+  COMMERCIAL:"Imóveis Comerciais",
+  CONDO:     "Condomínios",
+};
+
 export const PROPERTY_STATUS_CONFIG: Record<
   PropertyStatus,
   { label: string; badge: string; dot: string }
