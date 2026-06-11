@@ -37,9 +37,6 @@ export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborh
   // Preço "de" simulado (+30% se não tiver outro dado)
   const originalPrice = priceNum ? Math.round(priceNum * 1.3) : null;
 
-  // Comissão de indicação: 0.5%
-  const referralValue = priceNum ? Math.round(priceNum * 0.005) : null;
-
   return (
     <div className="relative">
 
@@ -99,19 +96,6 @@ export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborh
 
         {/* Divisor */}
         <div className="my-5 h-px bg-white/10" />
-
-        {/* Indicação */}
-        {referralValue && (
-          <div className="mb-5 flex items-center justify-between rounded-lg bg-white/5 px-4 py-3">
-            <p className="font-inter text-xs text-white/60">
-              💰 Indique e ganhe até{" "}
-              <span className="font-semibold text-white">{formatBRL(referralValue)}</span>
-            </p>
-            <button className="rounded-md bg-white px-3 py-1 font-inter text-[11px] font-bold text-black transition hover:bg-amber-400">
-              Indicar
-            </button>
-          </div>
-        )}
 
         {/* Botão WhatsApp */}
         <a

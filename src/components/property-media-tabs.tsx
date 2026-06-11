@@ -31,17 +31,17 @@ export function PropertyMediaTabs({ whatsappHref, pageUrl }: Props) {
   }
 
   return (
-    <div className="flex items-center justify-between border-b border-border">
-      {/* Abas */}
-      <div className="flex">
+    <div className="flex min-w-0 flex-col border-b border-border sm:flex-row sm:items-center sm:justify-between">
+      {/* Abas — wrap em mobile para não vazar */}
+      <div className="flex flex-wrap">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActive(tab)}
             className={cn(
-              "px-4 py-3 font-inter text-sm font-medium transition-colors",
+              "px-4 py-3 font-inter text-sm font-medium whitespace-nowrap transition-colors",
               active === tab
-                ? "border-b-2 border-amber-500 text-amber-600 dark:text-amber-400"
+                ? "border-b-2 border-amber-500 text-amber-600"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -51,7 +51,7 @@ export function PropertyMediaTabs({ whatsappHref, pageUrl }: Props) {
       </div>
 
       {/* Compartilhar */}
-      <div className="flex items-center gap-1 pr-1">
+      <div className="flex items-center gap-1 border-t border-border px-3 py-2 sm:border-t-0 sm:pr-1">
         <span className="mr-1 font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
           Compartilhar
         </span>
