@@ -67,6 +67,8 @@ export async function createProperty(
         amenities: {
           create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
         },
+        ownerName:  d.ownerName  || undefined,
+        ownerPhone: d.ownerPhone || undefined,
         seoTitle:     d.seoTitle,
         seoDescription: d.seoDescription,
       },
@@ -145,6 +147,8 @@ export async function updateProperty(
           amenities: {
             create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
           },
+          ownerName:  d.ownerName  || undefined,
+          ownerPhone: d.ownerPhone || undefined,
           seoTitle:       d.seoTitle,
           seoDescription: d.seoDescription,
         },

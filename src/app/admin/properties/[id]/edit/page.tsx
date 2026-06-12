@@ -49,6 +49,8 @@ export default async function EditPropertyPage({
     imagesRaw:    property.images.join("\n"),
     highlightIds: property.highlights.map((h) => h.highlightId),
     amenityIds:   property.amenities.map((a) => a.amenityId),
+    ownerName:  property.ownerName  ?? "",
+    ownerPhone: property.ownerPhone ?? "",
     seoTitle:       property.seoTitle ?? "",
     seoDescription: property.seoDescription ?? "",
   };

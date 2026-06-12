@@ -191,6 +191,10 @@ model Property {
   highlights PropertyHighlight[]
   amenities  PropertyAmenity[]
 
+  // Proprietário (visível só no admin)
+  ownerName  String?
+  ownerPhone String?
+
   // SEO
   seoTitle       String?
   seoDescription String?

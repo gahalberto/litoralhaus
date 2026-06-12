@@ -513,6 +513,40 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
 
       <Separator />
 
+      {/* ── Proprietário (somente admin) ── */}
+      <Section
+        title="Proprietário"
+        description="Dados internos do proprietário. Nunca exibidos no site público."
+      >
+        <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-400/20 dark:bg-amber-400/5">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-amber-600 dark:text-amber-400">
+            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3a1 1 0 110 2 1 1 0 010-2zm0 3.5v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+          <p className="font-inter text-[11px] text-amber-700 dark:text-amber-400">
+            Informações confidenciais — visíveis apenas no painel admin
+          </p>
+        </div>
+        <FieldGroup cols={2}>
+          <Field label="Nome do proprietário" error={errors.ownerName?.message}>
+            <input
+              {...register("ownerName")}
+              placeholder="João Silva"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Telefone / WhatsApp" error={errors.ownerPhone?.message}>
+            <input
+              {...register("ownerPhone")}
+              placeholder="(13) 99999-9999"
+              inputMode="tel"
+              className={inputCls}
+            />
+          </Field>
+        </FieldGroup>
+      </Section>
+
+      <Separator />
+
       {/* ── SEO ── */}
       <Section
         title="SEO"

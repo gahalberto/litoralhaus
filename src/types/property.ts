@@ -41,6 +41,10 @@ export const propertyFormSchema = z.object({
   highlightIds: z.array(z.string()),
   amenityIds:   z.array(z.string()),
 
+  // Proprietário (somente admin)
+  ownerName:  z.string().optional(),
+  ownerPhone: z.string().optional(),
+
   // SEO
   seoTitle:       z.string().max(70, "Máximo 70 caracteres para SEO").optional(),
   seoDescription: z.string().max(160, "Máximo 160 caracteres para SEO").optional(),
