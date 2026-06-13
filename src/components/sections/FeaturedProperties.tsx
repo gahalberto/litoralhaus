@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getFeaturedProperties } from "@/lib/public-properties";
-import { PropertyCard } from "@/components/property-card";
+import { FeaturedPropertyCard } from "@/components/featured-property-card";
 
 export async function FeaturedProperties() {
   const properties = await getFeaturedProperties();
@@ -33,7 +33,7 @@ export async function FeaturedProperties() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {properties.map((p) => (
-            <PropertyCard key={p.id} p={p} />
+            <FeaturedPropertyCard key={p.id} p={p} />
           ))}
         </div>
 

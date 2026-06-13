@@ -8,6 +8,7 @@ import {
 } from "@/lib/public-properties";
 import { PRICE_RANGES, REGION_LABELS, PROPERTY_TYPE_PLURAL } from "@/lib/property-config";
 import { PropertyCard } from "@/components/property-card";
+import { FeaturedPropertyCard } from "@/components/featured-property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -197,9 +198,13 @@ export default async function ImoveisPage({
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {properties.map((p) => (
-                <PropertyCard key={p.id} p={p} />
-              ))}
+              {properties.map((p) =>
+                p.featured ? (
+                  <FeaturedPropertyCard key={p.id} p={p} />
+                ) : (
+                  <PropertyCard key={p.id} p={p} />
+                )
+              )}
             </div>
           )}
         </div>
