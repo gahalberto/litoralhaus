@@ -56,7 +56,7 @@ export default async function EditPropertyPage({
     imagesRaw:    property.images.join("\n"),
     highlightIds: property.highlights.map((h) => h.highlightId),
     amenityIds:   property.amenities.map((a) => a.amenityId),
-    purpose:           property.purpose,
+    purposes:          property.purposes,
     categoryId:        property.categoryId ?? "",
     reviewIntervalDays: property.reviewIntervalDays?.toString() ?? "90",
     ownerId:    property.ownerId    ?? "",

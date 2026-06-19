@@ -279,7 +279,7 @@ export function PropertyForm({
     defaultValues: initialData ?? {
       status:       PropertyStatus.DISPONIVEL,
       type:         PropertyType.APARTMENT,
-      purpose:      PropertyPurpose.VENDA,
+      purposes:     [PropertyPurpose.VENDA],
       region:       Region.GUARUJA,
       isIsca:            false,
       featured:          false,
@@ -413,20 +413,26 @@ export function PropertyForm({
           </Field>
         </FieldGroup>
 
-        {/* Finalidade */}
-        <Field label="Finalidade *" error={errors.purpose?.message}>
+        {/* Finalidade — multi-select */}
+        <Field label="Finalidade *" error={errors.purposes?.message}>
           <div className="flex flex-wrap gap-2">
             {Object.values(PropertyPurpose).map((p) => {
               const cfg = PURPOSE_CONFIG[p];
-              const active = watch("purpose") === p;
+              const selected = (watch("purposes") ?? []).includes(p);
               return (
                 <button
                   key={p}
                   type="button"
-                  onClick={() => setValue("purpose", p)}
+                  onClick={() => {
+                    const current = watch("purposes") ?? [];
+                    const next = selected
+                      ? current.filter((v) => v !== p)
+                      : [...current, p];
+                    setValue("purposes", next, { shouldValidate: true });
+                  }}
                   className={cn(
                     "flex flex-1 min-w-22.5 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 font-inter text-sm transition-all",
-                    active
+                    selected
                       ? "border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-semibold shadow-sm"
                       : "border-border text-muted-foreground hover:border-amber-300 hover:text-foreground"
                   )}
@@ -437,6 +443,9 @@ export function PropertyForm({
               );
             })}
           </div>
+          <p className="font-inter text-[10px] text-muted-foreground/60">
+            Selecione uma ou mais finalidades
+          </p>
         </Field>
 
         {/* Tipo + Status */}

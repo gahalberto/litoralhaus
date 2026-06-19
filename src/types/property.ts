@@ -11,7 +11,7 @@ export const propertyFormSchema = z.object({
   slug:     z.string().min(3, "Mínimo 3 caracteres")
               .regex(/^[a-z0-9-]+$/, "Apenas minúsculas, números e hífens"),
   type:     z.nativeEnum(PropertyType, { error: "Selecione o tipo" }),
-  purpose:  z.nativeEnum(PropertyPurpose),
+  purposes: z.array(z.nativeEnum(PropertyPurpose)).min(1, "Selecione ao menos uma finalidade"),
   status:   z.nativeEnum(PropertyStatus),
   isIsca:   z.boolean(),
   featured: z.boolean(),

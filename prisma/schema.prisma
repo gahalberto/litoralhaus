@@ -170,7 +170,7 @@ model Property {
   description String?         @db.Text
   status      PropertyStatus  @default(DISPONIVEL)
   type        PropertyType    @default(APARTMENT)
-  purpose     PropertyPurpose @default(VENDA)
+  purposes    PropertyPurpose[]
   featured    Boolean         @default(false)
   isIsca      Boolean         @default(false)
 
@@ -237,7 +237,7 @@ model Property {
   @@index([refCode])
   @@index([region, status])
   @@index([type, status])
-  @@index([purpose, status])
+  @@index([status])
   @@index([categoryId])
   @@index([isIsca])
   @@index([featured])

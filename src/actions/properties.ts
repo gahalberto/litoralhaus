@@ -105,7 +105,7 @@ export async function createProperty(
           create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
         },
         ownerId:    d.ownerId    || undefined,
-        purpose:    d.purpose,
+        purposes:   d.purposes,
         categoryId: d.categoryId || undefined,
         reviewIntervalDays: toNum(d.reviewIntervalDays) ?? 90,
         nextReviewAt: calcNextReview(toNum(d.reviewIntervalDays) ?? 90),
@@ -188,7 +188,7 @@ const LOGGABLE_FIELDS: Array<{ key: string; label: string }> = [
   { key: "title",              label: "Título"            },
   { key: "slug",               label: "Slug"              },
   { key: "status",             label: "Status"            },
-  { key: "purpose",            label: "Finalidade"        },
+  { key: "purposes",           label: "Finalidade"        },
   { key: "type",               label: "Tipo (legado)"     },
   { key: "categoryId",         label: "Categoria"         },
   { key: "region",             label: "Região"            },
@@ -232,7 +232,7 @@ export async function updateProperty(
   const old = await prisma.property.findUnique({
     where:  { id },
     select: {
-      title: true, slug: true, status: true, purpose: true, type: true,
+      title: true, slug: true, status: true, purposes: true, type: true,
       categoryId: true, region: true, city: true, neighborhood: true,
       address: true, addressNumber: true, bedrooms: true, bathrooms: true,
       suites: true, parkingSpots: true, areaTotal: true, areaUsable: true,
@@ -246,7 +246,7 @@ export async function updateProperty(
     title:              d.title,
     slug:               d.slug || slugify(d.title),
     status:             d.status,
-    purpose:            d.purpose,
+    purposes:           d.purposes,
     type:               d.type,
     categoryId:         d.categoryId || null,
     region:             d.region,
@@ -282,8 +282,10 @@ export async function updateProperty(
 
   if (old) {
     for (const { key, label } of LOGGABLE_FIELDS) {
-      const oldVal = String(old[key as keyof typeof old] ?? "");
-      const newVal = String(newData[key as keyof typeof newData] ?? "");
+      const rawOld = old[key as keyof typeof old];
+      const rawNew = newData[key as keyof typeof newData];
+      const oldVal = Array.isArray(rawOld) ? rawOld.join(", ") : String(rawOld ?? "");
+      const newVal = Array.isArray(rawNew) ? rawNew.join(", ") : String(rawNew ?? "");
       if (oldVal !== newVal) {
         logEntries.push({
           propertyId: id,
