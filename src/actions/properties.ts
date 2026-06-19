@@ -345,7 +345,7 @@ export async function deleteProperty(id: string): Promise<void> {
 
 export type PropertyRow = {
   id: string;
-  refCode: string;
+  refCode: string | null;
   title: string;
   type: PropertyType;
   status: PropertyStatus;

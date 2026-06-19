@@ -164,7 +164,7 @@ model Property {
   updatedAt DateTime @updatedAt
 
   // Identificação
-  refCode     String          @unique
+  refCode     String?         @unique
   title       String
   slug        String          @unique
   description String?         @db.Text

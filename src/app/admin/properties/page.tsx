@@ -137,9 +137,13 @@ export default async function PropertiesPage({
                   >
                     {/* Ref */}
                     <td className="px-5 py-3">
-                      <span className="rounded bg-zinc-100 dark:bg-zinc-800 px-2 py-1 font-mono text-[11px] font-semibold tracking-wider text-zinc-600 dark:text-zinc-300">
-                        {p.refCode}
-                      </span>
+                      {p.refCode ? (
+                        <span className="rounded bg-zinc-100 dark:bg-zinc-800 px-2 py-1 font-mono text-[11px] font-semibold tracking-wider text-zinc-600 dark:text-zinc-300">
+                          {p.refCode}
+                        </span>
+                      ) : (
+                        <span className="font-inter text-xs text-muted-foreground/40">—</span>
+                      )}
                     </td>
 
                     {/* Imóvel */}

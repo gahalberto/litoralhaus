@@ -63,7 +63,7 @@ export default async function EditPropertyPage({
     ownerName:  property.ownerName  ?? "",
     ownerPhone: property.ownerPhone ?? "",
     agentId:    property.agentId    ?? "",
-    refCode:    property.refCode,
+    refCode:    property.refCode ?? undefined,
     seoTitle:       property.seoTitle ?? "",
     seoDescription: property.seoDescription ?? "",
   };
