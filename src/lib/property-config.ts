@@ -1,4 +1,4 @@
-import { PropertyType, PropertyStatus, Region } from "@prisma/client";
+import { PropertyType, PropertyStatus, PropertyPurpose, Region } from "@prisma/client";
 
 export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   APARTMENT: "Apartamento",
@@ -49,6 +49,30 @@ export const REGION_LABELS: Record<Region, string> = {
   CARAGUATATUBA: "Caraguatatuba",
   SAO_SEBASTIAO: "São Sebastião",
   ILHABELA:      "Ilhabela",
+};
+
+export const PURPOSE_CONFIG: Record<
+  PropertyPurpose,
+  { label: string; badge: string; dot: string; icon: string }
+> = {
+  VENDA: {
+    label: "Venda",
+    badge: "bg-blue-100 text-blue-700 dark:bg-blue-400/10 dark:text-blue-300",
+    dot:   "bg-blue-400",
+    icon:  "🏷️",
+  },
+  LOCACAO: {
+    label: "Locação",
+    badge: "bg-violet-100 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300",
+    dot:   "bg-violet-400",
+    icon:  "🔑",
+  },
+  TEMPORADA: {
+    label: "Temporada",
+    badge: "bg-orange-100 text-orange-700 dark:bg-orange-400/10 dark:text-orange-300",
+    dot:   "bg-orange-400",
+    icon:  "🌴",
+  },
 };
 
 export const PRICE_RANGES = [

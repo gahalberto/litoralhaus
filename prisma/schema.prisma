@@ -50,6 +50,12 @@ enum PropertyType {
   CONDO
 }
 
+enum PropertyPurpose {
+  VENDA
+  LOCACAO
+  TEMPORADA
+}
+
 enum PropertyStatus {
   DISPONIVEL
   RESERVADO
@@ -156,12 +162,21 @@ model Property {
 
   // Identificação
   title       String
-  slug        String         @unique
-  description String?        @db.Text
-  status      PropertyStatus @default(DISPONIVEL)
-  type        PropertyType
-  featured    Boolean        @default(false)
-  isIsca      Boolean        @default(false)
+  slug        String          @unique
+  description String?         @db.Text
+  status      PropertyStatus  @default(DISPONIVEL)
+  type        PropertyType    @default(APARTMENT)
+  purpose     PropertyPurpose @default(VENDA)
+  featured    Boolean         @default(false)
+  isIsca      Boolean         @default(false)
+
+  // Categoria dinâmica (substituirá o enum type no futuro)
+  categoryId  String?
+  category    PropertyCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Revisão periódica
+  reviewIntervalDays Int       @default(90)
+  nextReviewAt       DateTime?
 
   // Localização
   region            Region
@@ -210,9 +225,22 @@ model Property {
 
   @@index([region, status])
   @@index([type, status])
+  @@index([purpose, status])
+  @@index([categoryId])
   @@index([isIsca])
   @@index([featured])
   @@index([priceAsk])
+  @@index([nextReviewAt])
+}
+
+// ─── Categoria dinâmica de imóvel ─────────────────────────────────────────────
+
+model PropertyCategory {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  name      String     @unique
+  properties Property[]
 }
 
 // ─── Catálogo de Destaques ────────────────────────────────────────────────────

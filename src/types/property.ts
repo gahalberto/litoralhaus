@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PropertyType, PropertyStatus, Region } from "@prisma/client";
+import { PropertyType, PropertyStatus, PropertyPurpose, Region } from "@prisma/client";
 
 // Campos numéricos chegam como string do input HTML.
 // A Server Action faz a coerção — no schema do form ficam como string opcional.
@@ -11,9 +11,16 @@ export const propertyFormSchema = z.object({
   slug:     z.string().min(3, "Mínimo 3 caracteres")
               .regex(/^[a-z0-9-]+$/, "Apenas minúsculas, números e hífens"),
   type:     z.nativeEnum(PropertyType, { error: "Selecione o tipo" }),
+  purpose:  z.nativeEnum(PropertyPurpose),
   status:   z.nativeEnum(PropertyStatus),
   isIsca:   z.boolean(),
   featured: z.boolean(),
+
+  // Categoria dinâmica
+  categoryId: z.string().optional(),
+
+  // Revisão periódica
+  reviewIntervalDays: z.string().optional(),
 
   // Localização
   region:            z.nativeEnum(Region, { error: "Selecione a região" }),

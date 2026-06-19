@@ -9,6 +9,7 @@ import {
   UserCheck,
   Users,
   ShieldCheck,
+  LayoutList,
   LogOut,
   X,
 } from "lucide-react";
@@ -34,7 +35,8 @@ const NAV_MAIN: NavItem[] = [
 ];
 
 const NAV_SETTINGS: NavItem[] = [
-  { label: "Usuários", href: "/admin/users", icon: ShieldCheck, adminOnly: true },
+  { label: "Tipos de Imóvel", href: "/admin/property-types", icon: LayoutList, adminOnly: true },
+  { label: "Usuários",        href: "/admin/users",          icon: ShieldCheck, adminOnly: true },
 ];
 
 const ROLE_LABEL: Record<string, string> = {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getHighlights, getAmenities } from "@/actions/catalog";
 import { getPropertyById } from "@/actions/properties";
+import { getPropertyCategories } from "@/actions/property-categories";
 import { PropertyForm } from "@/components/admin/PropertyForm";
 
 export const metadata: Metadata = { title: "Editar Imóvel" };
@@ -14,10 +15,11 @@ export default async function EditPropertyPage({
 }) {
   const { id } = await params;
 
-  const [property, highlights, amenities] = await Promise.all([
+  const [property, highlights, amenities, categories] = await Promise.all([
     getPropertyById(id),
     getHighlights(),
     getAmenities(),
+    getPropertyCategories(),
   ]);
 
   if (!property) notFound();
@@ -51,6 +53,9 @@ export default async function EditPropertyPage({
     imagesRaw:    property.images.join("\n"),
     highlightIds: property.highlights.map((h) => h.highlightId),
     amenityIds:   property.amenities.map((a) => a.amenityId),
+    purpose:           property.purpose,
+    categoryId:        property.categoryId ?? "",
+    reviewIntervalDays: property.reviewIntervalDays?.toString() ?? "90",
     ownerId:    property.ownerId    ?? "",
     ownerName:  property.ownerName  ?? "",
     ownerPhone: property.ownerPhone ?? "",
@@ -82,6 +87,7 @@ export default async function EditPropertyPage({
       <PropertyForm
         highlights={highlights}
         amenities={amenities}
+        categories={categories}
         initialData={initialData}
         initialOwner={property.owner ?? null}
       />

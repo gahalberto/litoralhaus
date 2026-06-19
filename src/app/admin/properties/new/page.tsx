@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getHighlights, getAmenities } from "@/actions/catalog";
 import { PropertyForm } from "@/components/admin/PropertyForm";
+import { getPropertyCategories } from "@/actions/property-categories";
 
 export const metadata: Metadata = { title: "Cadastrar Imóvel" };
 
 export default async function NewPropertyPage() {
-  const [highlights, amenities] = await Promise.all([
+  const [highlights, amenities, categories] = await Promise.all([
     getHighlights(),
     getAmenities(),
+    getPropertyCategories(),
   ]);
 
   return (
@@ -30,7 +32,7 @@ export default async function NewPropertyPage() {
         </p>
       </div>
 
-      <PropertyForm highlights={highlights} amenities={amenities} />
+      <PropertyForm highlights={highlights} amenities={amenities} categories={categories} />
     </div>
   );
 }

@@ -13,8 +13,10 @@ import { fetchCep, formatCep } from "@/lib/cep";
 import {
   PROPERTY_TYPE_LABELS,
   PROPERTY_STATUS_CONFIG,
+  PURPOSE_CONFIG,
   REGION_LABELS,
 } from "@/lib/property-config";
+import { PropertyPurpose } from "@prisma/client";
 
 import { Button }        from "@/components/ui/button";
 import { Label }         from "@/components/ui/label";
@@ -230,15 +232,17 @@ function PhoneInput({
 type InitialData = PropertyFormData & { id: string };
 
 type OwnerSummary = { id: string; name: string; phone: string; email: string | null; cpf: string | null } | null;
+type CategoryItem = { id: string; name: string };
 
 interface PropertyFormProps {
   highlights:   CatalogItem[];
   amenities:    CatalogItem[];
+  categories:   CategoryItem[];
   initialData?: InitialData;
   initialOwner?: OwnerSummary;
 }
 
-export function PropertyForm({ highlights, amenities, initialData, initialOwner }: PropertyFormProps) {
+export function PropertyForm({ highlights, amenities, categories, initialData, initialOwner }: PropertyFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedOwner, setSelectedOwner] = useState<OwnerSummary>(initialOwner ?? null);
@@ -256,10 +260,13 @@ export function PropertyForm({ highlights, amenities, initialData, initialOwner 
     defaultValues: initialData ?? {
       status:       PropertyStatus.DISPONIVEL,
       type:         PropertyType.APARTMENT,
+      purpose:      PropertyPurpose.VENDA,
       region:       Region.GUARUJA,
       isIsca:            false,
       featured:          false,
       showAddressNumber: false,
+      categoryId:        "",
+      reviewIntervalDays: "90",
       highlightIds:      [],
       amenityIds:        [],
     },
@@ -347,15 +354,54 @@ export function PropertyForm({ highlights, amenities, initialData, initialOwner 
             <input {...register("slug")} className={inputCls} />
           </Field>
           <FieldGroup cols={2}>
-            <Field label="Tipo *" error={errors.type?.message}>
-              <select {...register("type")} className={selectCls}>
-                {Object.values(PropertyType).map((t) => (
-                  <option key={t} value={t} className="bg-background">
-                    {PROPERTY_TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </select>
+            {/* Finalidade */}
+            <div className="col-span-2">
+              <Field label="Finalidade *" error={errors.purpose?.message}>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.values(PropertyPurpose).map((p) => {
+                    const cfg = PURPOSE_CONFIG[p];
+                    const active = watch("purpose") === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setValue("purpose", p)}
+                        className={cn(
+                          "flex items-center justify-center gap-2 rounded-xl border py-2.5 font-inter text-sm transition-all",
+                          active
+                            ? "border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-semibold shadow-sm"
+                            : "border-border text-muted-foreground hover:border-amber-300 hover:text-foreground"
+                        )}
+                      >
+                        <span>{cfg.icon}</span>
+                        {cfg.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+            </div>
+
+            {/* Categoria dinâmica */}
+            <Field label="Tipo do imóvel" error={errors.categoryId?.message}>
+              <div className="flex gap-2">
+                <select {...register("categoryId")} className={`${selectCls} flex-1`}>
+                  <option value="">— Selecionar tipo —</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+                <a
+                  href="/admin/property-types"
+                  target="_blank"
+                  className="flex shrink-0 items-center rounded-lg border border-input px-2.5 font-inter text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Gerenciar tipos"
+                >
+                  + Novo tipo
+                </a>
+              </div>
             </Field>
+
             <Field label="Status *" error={errors.status?.message}>
               <select {...register("status")} className={selectCls}>
                 {Object.values(PropertyStatus).map((s) => (
@@ -649,6 +695,31 @@ export function PropertyForm({ highlights, amenities, initialData, initialOwner 
             setValue("ownerPhone", owner?.phone ?? "");
           }}
         />
+      </Section>
+
+      <Separator />
+
+      {/* ── Revisão periódica ── */}
+      <Section
+        title="Revisão periódica"
+        description="Defina de quantos em quantos dias este imóvel deve ser revisado. A próxima data é calculada automaticamente ao salvar."
+      >
+        <Field
+          label="Intervalo de revisão (dias)"
+          hint="Padrão: 90 dias. O sistema marcará o imóvel para revisão quando a data vencer."
+          error={errors.reviewIntervalDays?.message}
+        >
+          <div className="flex items-center gap-3">
+            <input
+              {...register("reviewIntervalDays")}
+              type="number"
+              min="7"
+              max="365"
+              className={`${inputCls} w-28`}
+            />
+            <span className="font-inter text-sm text-muted-foreground">dias</span>
+          </div>
+        </Field>
       </Section>
 
       <Separator />

@@ -6,6 +6,12 @@ import { slugify } from "@/lib/slugify";
 import { propertyFormSchema, type PropertyActionResult } from "@/types/property";
 import { PropertyStatus, PropertyType, Region } from "@prisma/client";
 
+function calcNextReview(intervalDays: number): Date {
+  const d = new Date();
+  d.setDate(d.getDate() + intervalDays);
+  return d;
+}
+
 function splitLines(raw?: string): string[] {
   if (!raw) return [];
   return raw.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -70,6 +76,10 @@ export async function createProperty(
           create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
         },
         ownerId:    d.ownerId    || undefined,
+        purpose:    d.purpose,
+        categoryId: d.categoryId || undefined,
+        reviewIntervalDays: toNum(d.reviewIntervalDays) ?? 90,
+        nextReviewAt: calcNextReview(toNum(d.reviewIntervalDays) ?? 90),
         ownerName:  d.ownerName  || undefined,
         ownerPhone: d.ownerPhone || undefined,
         seoTitle:     d.seoTitle,
@@ -153,6 +163,10 @@ export async function updateProperty(
           amenities: {
             create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
           },
+          purpose:    d.purpose,
+          categoryId: d.categoryId || null,
+          reviewIntervalDays: toNum(d.reviewIntervalDays) ?? 90,
+          nextReviewAt: calcNextReview(toNum(d.reviewIntervalDays) ?? 90),
           ownerId:    d.ownerId    || null,
           ownerName:  d.ownerName  || undefined,
           ownerPhone: d.ownerPhone || undefined,
