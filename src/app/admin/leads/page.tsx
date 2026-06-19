@@ -6,6 +6,7 @@ import { KanbanColumn } from "@/components/admin/KanbanColumn";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { searchLeads } from "@/actions/leads";
 import { cn } from "@/lib/utils";
+import { LeadsStatusFilter } from "@/components/admin/LeadsStatusFilter";
 
 export const metadata: Metadata = { title: "Leads" };
 export const revalidate = 0;
@@ -79,16 +80,7 @@ export default async function LeadsPage({
           </form>
 
           {/* Filtro status */}
-          <select
-            defaultValue={status ?? ""}
-            onChange={(e) => { window.location.href = href({ status: e.target.value || undefined, view }); }}
-            className="rounded-md border border-input bg-background px-2 py-1.5 font-inter text-sm text-foreground outline-none focus:border-ring cursor-pointer appearance-none"
-          >
-            <option value="">Todos os status</option>
-            {Object.values(LeadStatus).map((s) => (
-              <option key={s} value={s}>{LEAD_STATUS_CONFIG[s].label}</option>
-            ))}
-          </select>
+          <LeadsStatusFilter current={status} baseParams={{ ...sp, view }} />
 
           {/* Toggle kanban / lista */}
           <div className="flex rounded-md border border-border overflow-hidden">
