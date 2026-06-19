@@ -231,7 +231,7 @@ function PhoneInput({
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 
-type InitialData = PropertyFormData & { id: string };
+type InitialData = PropertyFormData & { id: string; refCode?: string };
 
 type OwnerSummary = { id: string; name: string; phone: string; email: string | null; cpf: string | null } | null;
 type CategoryItem = { id: string; name: string };
@@ -365,6 +365,25 @@ export function PropertyForm({
             hint="Gerado automaticamente — editável"
           >
             <input {...register("slug")} className={inputCls} />
+          </Field>
+          <Field
+            label="Código de referência"
+            hint={isEdit ? undefined : "Gerado automaticamente com as iniciais do corretor"}
+          >
+            {isEdit && initialData?.refCode ? (
+              <div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+                <span className="font-mono text-sm font-semibold tracking-widest text-foreground">
+                  {initialData.refCode}
+                </span>
+                <span className="ml-auto font-inter text-[10px] text-muted-foreground/50">imutável</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-md border border-dashed border-border bg-muted/20 px-3 py-2">
+                <span className="font-inter text-xs text-muted-foreground/60">
+                  Será gerado ao salvar · ex: GA0001
+                </span>
+              </div>
+            )}
           </Field>
           <FieldGroup cols={2}>
             {/* Finalidade */}

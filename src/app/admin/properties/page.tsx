@@ -117,7 +117,7 @@ export default async function PropertiesPage({
           <table className="w-full min-w-215 border-collapse">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                {["Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Leads", ""].map((h) => (
+                {["Ref.", "Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Leads", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left font-inter text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
@@ -135,6 +135,13 @@ export default async function PropertiesPage({
                     key={p.id}
                     className="group transition-colors hover:bg-muted/20"
                   >
+                    {/* Ref */}
+                    <td className="px-5 py-3">
+                      <span className="rounded bg-zinc-100 dark:bg-zinc-800 px-2 py-1 font-mono text-[11px] font-semibold tracking-wider text-zinc-600 dark:text-zinc-300">
+                        {p.refCode}
+                      </span>
+                    </td>
+
                     {/* Imóvel */}
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">

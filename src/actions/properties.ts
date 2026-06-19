@@ -31,6 +31,23 @@ async function uniqueSlug(base: string): Promise<string> {
   return `${base}-${ts}`;
 }
 
+function nameInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+async function generateRefCode(prefix: string): Promise<string> {
+  const count = await prisma.property.count();
+  let n = count + 1;
+  for (;;) {
+    const code = `${prefix}${String(n).padStart(4, "0")}`;
+    const exists = await prisma.property.findUnique({ where: { refCode: code } });
+    if (!exists) return code;
+    n++;
+  }
+}
+
 // ─── Create ────────────────────────────────────────────────────────────────────
 
 export async function createProperty(
@@ -45,9 +62,17 @@ export async function createProperty(
   const d = parsed.data;
   const slug = await uniqueSlug(d.slug || slugify(d.title));
 
+  let prefixName = session.name;
+  if (d.agentId) {
+    const agent = await prisma.user.findUnique({ where: { id: d.agentId }, select: { name: true } });
+    if (agent) prefixName = agent.name;
+  }
+  const refCode = await generateRefCode(nameInitials(prefixName));
+
   try {
     const property = await prisma.property.create({
       data: {
+        refCode,
         title:        d.title,
         slug,
         type:         d.type,
@@ -320,6 +345,7 @@ export async function deleteProperty(id: string): Promise<void> {
 
 export type PropertyRow = {
   id: string;
+  refCode: string;
   title: string;
   type: PropertyType;
   status: PropertyStatus;
@@ -348,7 +374,7 @@ export async function getProperties(filters?: {
     },
     orderBy: { createdAt: "desc" },
     select: {
-      id: true, title: true, type: true, status: true,
+      id: true, refCode: true, title: true, type: true, status: true,
       city: true, neighborhood: true, region: true,
       priceAsk: true, isIsca: true, featured: true, createdAt: true,
       _count: { select: { interests: true } },

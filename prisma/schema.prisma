@@ -164,6 +164,7 @@ model Property {
   updatedAt DateTime @updatedAt
 
   // Identificação
+  refCode     String          @unique
   title       String
   slug        String          @unique
   description String?         @db.Text
@@ -233,6 +234,7 @@ model Property {
   visits    Visit[]
   logs      PropertyLog[]
 
+  @@index([refCode])
   @@index([region, status])
   @@index([type, status])
   @@index([purpose, status])
