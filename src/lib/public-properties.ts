@@ -120,6 +120,7 @@ export async function getPublicPropertyBySlug(slug: string): Promise<PublicPrope
     select: {
       id: true, slug: true, title: true, type: true,
       region: true, city: true, neighborhood: true, address: true,
+      addressNumber: true, showAddressNumber: true,
       bedrooms: true, bathrooms: true, suites: true, parkingSpots: true,
       areaTotal: true, areaUsable: true,
       priceAsk: true, priceRent: true, condoFee: true, iptu: true,

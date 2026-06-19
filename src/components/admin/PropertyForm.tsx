@@ -140,6 +140,52 @@ function CurrencyInput({
   );
 }
 
+// ─── PhoneInput: formata +55 DDD NÚMERO ──────────────────────────────────────
+
+function formatBRPhone(raw: string): string {
+  // raw = apenas dígitos após +55, ex: "13955422935"
+  const d = raw.replace(/\D/g, "").slice(0, 11); // máx 11 dígitos (DDD + 9 dígitos)
+  if (d.length === 0) return "";
+  if (d.length <= 2)  return `+55 ${d}`;
+  if (d.length <= 6)  return `+55 ${d.slice(0, 2)} ${d.slice(2)}`;
+  if (d.length <= 10) return `+55 ${d.slice(0, 2)} ${d.slice(2, 6)}-${d.slice(6)}`; // fixo
+  return `+55 ${d.slice(0, 2)} ${d.slice(2, 7)}-${d.slice(7)}`; // celular
+}
+
+function PhoneInput({
+  value,
+  onChange,
+  className,
+}: {
+  value: string | undefined;
+  onChange: (v: string) => void;
+  className?: string;
+}) {
+  // Extrai só os dígitos do valor armazenado (que pode vir como "+5513955422935")
+  const digitsOnly = (value ?? "").replace(/\D/g, "").replace(/^55/, "");
+  const [display, setDisplay] = useState(() => formatBRPhone(digitsOnly));
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Mantém só os dígitos que o usuário digitou (ignora o +55 prefixado)
+    const raw = e.target.value.replace(/\D/g, "").replace(/^55/, "");
+    const formatted = formatBRPhone(raw);
+    setDisplay(formatted);
+    // Salva no formato canônico +55DDDNUMERO
+    onChange(raw.length > 0 ? `+55${raw}` : "");
+  }
+
+  return (
+    <input
+      type="tel"
+      inputMode="numeric"
+      value={display}
+      onChange={handleChange}
+      placeholder="+55 13 99999-9999"
+      className={className}
+    />
+  );
+}
+
 // ─── Componente principal ──────────────────────────────────────────────────────
 
 type InitialData = PropertyFormData & { id: string };
@@ -168,10 +214,11 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
       status:       PropertyStatus.DISPONIVEL,
       type:         PropertyType.APARTMENT,
       region:       Region.GUARUJA,
-      isIsca:       false,
-      featured:     false,
-      highlightIds: [],
-      amenityIds:   [],
+      isIsca:            false,
+      featured:          false,
+      showAddressNumber: false,
+      highlightIds:      [],
+      amenityIds:        [],
     },
   });
 
@@ -211,8 +258,9 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
     initialData?.amenityIds ?? []
   );
 
-  const isIsca   = watch("isIsca");
-  const featured = watch("featured");
+  const isIsca            = watch("isIsca");
+  const featured          = watch("featured");
+  const showAddressNumber = watch("showAddressNumber");
   const seoTitle       = watch("seoTitle") ?? "";
   const seoDescription = watch("seoDescription") ?? "";
 
@@ -384,11 +432,34 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
             <Field label="Logradouro">
               <input
                 {...register("address")}
-                placeholder="Preenchido via CEP — edite para adicionar número"
+                placeholder="Preenchido via CEP"
                 className={cn(inputCls, cepStatus === "loading" && "animate-pulse")}
               />
             </Field>
           </div>
+        </FieldGroup>
+
+        {/* Número + toggle público */}
+        <FieldGroup cols={2}>
+          <Field label="Número" hint="Ex: 123, s/n, Apto 42">
+            <input
+              {...register("addressNumber")}
+              placeholder="123"
+              className={inputCls}
+            />
+          </Field>
+          <label className="flex cursor-pointer items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3 transition-colors hover:bg-muted/50">
+            <div>
+              <p className="font-inter text-sm font-medium text-foreground">Exibir número no site</p>
+              <p className="font-inter text-xs text-muted-foreground">
+                Por padrão ocultado — ative para mostrar publicamente
+              </p>
+            </div>
+            <Switch
+              checked={showAddressNumber}
+              onCheckedChange={(v) => setValue("showAddressNumber", v)}
+            />
+          </label>
         </FieldGroup>
       </Section>
 
@@ -534,11 +605,14 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
               className={inputCls}
             />
           </Field>
-          <Field label="Telefone / WhatsApp" error={errors.ownerPhone?.message}>
-            <input
-              {...register("ownerPhone")}
-              placeholder="(13) 99999-9999"
-              inputMode="tel"
+          <Field
+            label="Telefone / WhatsApp"
+            hint="Formato: +55 DDD número — ex: +55 13 99999-9999"
+            error={errors.ownerPhone?.message}
+          >
+            <PhoneInput
+              value={watch("ownerPhone")}
+              onChange={(v) => setValue("ownerPhone", v)}
               className={inputCls}
             />
           </Field>

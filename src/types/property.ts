@@ -16,11 +16,13 @@ export const propertyFormSchema = z.object({
   featured: z.boolean(),
 
   // Localização
-  region:       z.nativeEnum(Region, { error: "Selecione a região" }),
-  cep:          z.string().optional(),
-  city:         z.string().min(2, "Obrigatório"),
-  neighborhood: z.string().min(2, "Obrigatório"),
-  address:      z.string().optional(),
+  region:            z.nativeEnum(Region, { error: "Selecione a região" }),
+  cep:               z.string().optional(),
+  city:              z.string().min(2, "Obrigatório"),
+  neighborhood:      z.string().min(2, "Obrigatório"),
+  address:           z.string().optional(),
+  addressNumber:     z.string().optional(),
+  showAddressNumber: z.boolean(),
 
   // Características (string → Number na action)
   bedrooms:     optNum,

@@ -162,13 +162,15 @@ model Property {
   isIsca      Boolean        @default(false)
 
   // Localização
-  region       Region
-  cep          String?
-  city         String
-  neighborhood String
-  address      String?
-  latitude     Decimal?  @db.Decimal(10, 8)
-  longitude    Decimal?  @db.Decimal(11, 8)
+  region            Region
+  cep               String?
+  city              String
+  neighborhood      String
+  address           String?
+  addressNumber     String?
+  showAddressNumber Boolean @default(false)
+  latitude          Decimal?  @db.Decimal(10, 8)
+  longitude         Decimal?  @db.Decimal(11, 8)
 
   // Características
   bedrooms     Int?

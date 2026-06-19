@@ -170,7 +170,13 @@ export default async function PropertyPage({
                 <div className="mt-3 flex items-center gap-1.5 text-gray-500">
                   <MapPin size={14} className="shrink-0 text-amber-500" />
                   <span className="font-inter text-sm">
-                    {[p.address, p.neighborhood, p.city, "SP"].filter(Boolean).join(", ")}
+                    {[
+                      p.address,
+                      p.showAddressNumber && p.addressNumber ? p.addressNumber : null,
+                      p.neighborhood,
+                      p.city,
+                      "SP",
+                    ].filter(Boolean).join(", ")}
                   </span>
                 </div>
               </div>
