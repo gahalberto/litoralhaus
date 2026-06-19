@@ -140,16 +140,27 @@ function CurrencyInput({
   );
 }
 
-// ─── PhoneInput: formata +55 DDD NÚMERO ──────────────────────────────────────
+// ─── PhoneInput: código do país editável + número formatado ─────────────────
 
-function formatBRPhone(raw: string): string {
-  // raw = apenas dígitos após +55, ex: "13955422935"
-  const d = raw.replace(/\D/g, "").slice(0, 11); // máx 11 dígitos (DDD + 9 dígitos)
-  if (d.length === 0) return "";
-  if (d.length <= 2)  return `+55 ${d}`;
-  if (d.length <= 6)  return `+55 ${d.slice(0, 2)} ${d.slice(2)}`;
-  if (d.length <= 10) return `+55 ${d.slice(0, 2)} ${d.slice(2, 6)}-${d.slice(6)}`; // fixo
-  return `+55 ${d.slice(0, 2)} ${d.slice(2, 7)}-${d.slice(7)}`; // celular
+function formatLocalPhone(digits: string, countryCode: string): string {
+  const d = digits.slice(0, 13); // limite seguro
+  if (countryCode !== "55") return d; // fora do BR: sem formatação automática
+  // Brasil: DDD(2) + número(8 ou 9)
+  const br = d.slice(0, 11);
+  if (br.length === 0)  return "";
+  if (br.length <= 2)   return br;
+  if (br.length <= 6)   return `${br.slice(0, 2)} ${br.slice(2)}`;
+  if (br.length <= 10)  return `${br.slice(0, 2)} ${br.slice(2, 6)}-${br.slice(6)}`;
+  return `${br.slice(0, 2)} ${br.slice(2, 7)}-${br.slice(7)}`;
+}
+
+function parseStored(stored: string): { countryCode: string; local: string } {
+  const s = stored.trim();
+  if (!s) return { countryCode: "55", local: "" };
+  // formato canônico: +CCNUMBER  ex: +5513955422935 ou +12125551234
+  const m = s.match(/^\+?(\d{1,4})(\d*)$/);
+  if (m) return { countryCode: m[1], local: m[2] };
+  return { countryCode: "55", local: s.replace(/\D/g, "") };
 }
 
 function PhoneInput({
@@ -161,28 +172,55 @@ function PhoneInput({
   onChange: (v: string) => void;
   className?: string;
 }) {
-  // Extrai só os dígitos do valor armazenado (que pode vir como "+5513955422935")
-  const digitsOnly = (value ?? "").replace(/\D/g, "").replace(/^55/, "");
-  const [display, setDisplay] = useState(() => formatBRPhone(digitsOnly));
+  const parsed = parseStored(value ?? "");
+  const [countryCode, setCountryCode] = useState(parsed.countryCode);
+  const [local, setLocal]             = useState(parsed.local);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    // Mantém só os dígitos que o usuário digitou (ignora o +55 prefixado)
-    const raw = e.target.value.replace(/\D/g, "").replace(/^55/, "");
-    const formatted = formatBRPhone(raw);
-    setDisplay(formatted);
-    // Salva no formato canônico +55DDDNUMERO
-    onChange(raw.length > 0 ? `+55${raw}` : "");
+  function saveValue(cc: string, loc: string) {
+    const digits = loc.replace(/\D/g, "");
+    onChange(digits.length > 0 ? `+${cc}${digits}` : "");
   }
 
+  function handleCountryCode(e: React.ChangeEvent<HTMLInputElement>) {
+    const cc = e.target.value.replace(/\D/g, "").slice(0, 4);
+    setCountryCode(cc);
+    saveValue(cc, local);
+  }
+
+  function handleLocal(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, "");
+    setLocal(raw);
+    saveValue(countryCode, raw);
+  }
+
+  const display = formatLocalPhone(local, countryCode);
+  const isBR    = countryCode === "55";
+
   return (
-    <input
-      type="tel"
-      inputMode="numeric"
-      value={display}
-      onChange={handleChange}
-      placeholder="+55 13 99999-9999"
-      className={className}
-    />
+    <div className="flex gap-2">
+      {/* Código do país */}
+      <div className="relative flex shrink-0 items-center">
+        <span className="pointer-events-none absolute left-3 select-none font-inter text-sm text-muted-foreground">+</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={countryCode}
+          onChange={handleCountryCode}
+          placeholder="55"
+          className={cn(className, "w-16 pl-6 text-center")}
+          title="Código do país"
+        />
+      </div>
+      {/* Número local */}
+      <input
+        type="tel"
+        inputMode="numeric"
+        value={display}
+        onChange={handleLocal}
+        placeholder={isBR ? "13 99999-9999" : "número"}
+        className={cn(className, "flex-1")}
+      />
+    </div>
   );
 }
 
