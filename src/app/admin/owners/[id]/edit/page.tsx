@@ -15,11 +15,12 @@ function fmt(d: Date) {
 }
 
 const FIELD_ICONS: Record<string, string> = {
-  "Telefone": "📞",
-  "E-mail":   "✉️",
-  "Nome":     "👤",
-  "CPF":      "🪪",
+  "Telefone":  "📞",
+  "E-mail":    "✉️",
+  "Nome":      "👤",
+  "CPF":       "🪪",
   "Observações": "📝",
+  "EXCLUSÃO":  "🗑️",
 };
 
 export default async function EditOwnerPage({

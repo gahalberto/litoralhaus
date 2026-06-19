@@ -46,6 +46,10 @@ function parsePhone(stored: string): { cc: string; local: string } {
   return { cc: "55", local: s.replace(/\D/g, "") };
 }
 
+// Classe do campo de código do país — sem w-full para não conflitar com a largura explícita
+const ccInputCls =
+  "rounded-md border border-input bg-background py-2 font-inter text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-50";
+
 function PhoneField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const parsed = parsePhone(value);
   const [cc, setCc]       = useState(parsed.cc);
@@ -58,20 +62,28 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
 
   return (
     <div className="flex gap-2">
-      <div className="relative flex shrink-0 items-center">
-        <span className="pointer-events-none absolute left-2.5 select-none font-inter text-sm text-muted-foreground">+</span>
+      {/* Código do país — largura fixa, sem w-full */}
+      <div className="relative shrink-0">
+        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 select-none font-inter text-sm text-muted-foreground">
+          +
+        </span>
         <input
-          type="text" inputMode="numeric" value={cc} placeholder="55"
+          type="text"
+          inputMode="numeric"
+          value={cc}
+          placeholder="55"
           onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 4); setCc(v); save(v, local); }}
-          className={`${inputCls} w-12 pl-5 pr-1 text-center`}
+          className={`${ccInputCls} w-14 pl-6 pr-1 text-center`}
         />
       </div>
+      {/* Número — ocupa todo o espaço restante */}
       <input
-        type="tel" inputMode="numeric"
+        type="tel"
+        inputMode="numeric"
         value={formatPhone(local, cc)}
         onChange={(e) => { const r = e.target.value.replace(/\D/g, ""); setLocal(r); save(cc, r); }}
         placeholder={cc === "55" ? "13 99999-9999" : "número"}
-        className={`${inputCls} min-w-0 flex-1`}
+        className={`${inputCls} flex-1 min-w-0`}
       />
     </div>
   );

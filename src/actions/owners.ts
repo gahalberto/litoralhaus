@@ -3,7 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ownerSchema } from "@/types/owner";
+import { requireSession } from "@/lib/session";
 export type { OwnerFormData } from "@/types/owner";
+
+async function requireAdmin() {
+  const session = await requireSession();
+  if (session.role !== "ADMIN") throw new Error("Acesso restrito a administradores.");
+  return session;
+}
 
 export type OwnerResult = { success: true; id: string } | { success: false; error: string };
 
@@ -100,6 +107,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 export async function updateOwner(id: string, raw: unknown): Promise<OwnerResult> {
+  const session = await requireSession();
   const parsed = ownerSchema.safeParse(raw);
   if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
   const d = parsed.data;
@@ -108,7 +116,6 @@ export async function updateOwner(id: string, raw: unknown): Promise<OwnerResult
     const current = await prisma.owner.findUnique({ where: { id } });
     if (!current) return { success: false, error: "Proprietário não encontrado" };
 
-    // Detecta quais campos mudaram e gera histórico
     const fields = ["name", "phone", "email", "cpf", "notes"] as const;
     const historyEntries = fields
       .filter((f) => {
@@ -121,7 +128,7 @@ export async function updateOwner(id: string, raw: unknown): Promise<OwnerResult
         field:     FIELD_LABELS[f] ?? f,
         oldValue:  (current[f] ?? null) as string | null,
         newValue:  (d[f] ?? null) as string | null,
-        changedBy: "Admin",
+        changedBy: session.name,
       }));
 
     await prisma.$transaction([
@@ -151,6 +158,21 @@ export async function updateOwner(id: string, raw: unknown): Promise<OwnerResult
 // ─── Excluir ─────────────────────────────────────────────────────────────────
 
 export async function deleteOwner(id: string): Promise<void> {
+  const session = await requireAdmin();
+  const owner = await prisma.owner.findUnique({ where: { id }, select: { name: true } });
+  if (!owner) return;
+
+  // Registra a exclusão antes do cascade
+  await prisma.ownerHistory.create({
+    data: {
+      ownerId:   id,
+      field:     "EXCLUSÃO",
+      oldValue:  owner.name,
+      newValue:  null,
+      changedBy: session.name,
+    },
+  });
+
   await prisma.owner.delete({ where: { id } });
   revalidatePath("/admin/owners");
 }
