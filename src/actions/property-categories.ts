@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireSession } from "@/lib/session";
+
+async function requireAdmin() {
+  const session = await requireSession();
+  if (session.role !== "ADMIN") throw new Error("Acesso restrito a administradores.");
+}
 
 const categorySchema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres").max(60),
@@ -18,6 +24,7 @@ export async function getPropertyCategories() {
 }
 
 export async function createPropertyCategory(raw: unknown): Promise<CategoryResult> {
+  await requireAdmin();
   const parsed = categorySchema.safeParse(raw);
   if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
   try {
@@ -32,6 +39,7 @@ export async function createPropertyCategory(raw: unknown): Promise<CategoryResu
 }
 
 export async function updatePropertyCategory(id: string, raw: unknown): Promise<CategoryResult> {
+  await requireAdmin();
   const parsed = categorySchema.safeParse(raw);
   if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
   try {
@@ -46,6 +54,7 @@ export async function updatePropertyCategory(id: string, raw: unknown): Promise<
 }
 
 export async function deletePropertyCategory(id: string): Promise<void> {
+  await requireAdmin();
   await prisma.propertyCategory.delete({ where: { id } });
   revalidatePath("/admin/property-types");
 }

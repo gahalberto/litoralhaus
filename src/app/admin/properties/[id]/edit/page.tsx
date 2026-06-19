@@ -99,6 +99,7 @@ export default async function EditPropertyPage({
         initialOwner={property.owner ?? null}
         initialAgent={property.agent ?? null}
         initialCreatedBy={property.createdBy ?? null}
+        isAdmin={isAdmin}
       />
 
       {isAdmin && property.logs.length > 0 && (

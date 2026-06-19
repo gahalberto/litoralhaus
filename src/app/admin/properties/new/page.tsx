@@ -3,14 +3,16 @@ import Link from "next/link";
 import { getHighlights, getAmenities } from "@/actions/catalog";
 import { PropertyForm } from "@/components/admin/PropertyForm";
 import { getPropertyCategories } from "@/actions/property-categories";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Cadastrar Imóvel" };
 
 export default async function NewPropertyPage() {
-  const [highlights, amenities, categories] = await Promise.all([
+  const [highlights, amenities, categories, session] = await Promise.all([
     getHighlights(),
     getAmenities(),
     getPropertyCategories(),
+    getSession(),
   ]);
 
   return (
@@ -32,7 +34,7 @@ export default async function NewPropertyPage() {
         </p>
       </div>
 
-      <PropertyForm highlights={highlights} amenities={amenities} categories={categories} />
+      <PropertyForm highlights={highlights} amenities={amenities} categories={categories} isAdmin={session?.role === "ADMIN"} />
     </div>
   );
 }

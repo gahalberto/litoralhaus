@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getPropertyCategories } from "@/actions/property-categories";
 import { PropertyTypesManager } from "@/components/admin/PropertyTypesManager";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Tipos de Imóvel" };
 export const revalidate = 0;
 
 export default async function PropertyTypesPage() {
+  const session = await getSession();
+  if (session?.role !== "ADMIN") redirect("/admin");
+
   const categories = await getPropertyCategories();
 
   return (

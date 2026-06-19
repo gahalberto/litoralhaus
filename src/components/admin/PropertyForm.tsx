@@ -23,11 +23,16 @@ import { Label }         from "@/components/ui/label";
 import { Textarea }      from "@/components/ui/textarea";
 import { Switch }        from "@/components/ui/switch";
 import { Separator }     from "@/components/ui/separator";
+import {
+  Dialog, DialogContent, DialogHeader,
+  DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { CatalogPicker }      from "@/components/admin/CatalogPicker";
 import { ImageUploader }      from "@/components/admin/ImageUploader";
 import { OwnerSearchInput }   from "@/components/admin/OwnerSearchInput";
 import { UserSearchInput }    from "@/components/admin/UserSearchInput";
 import { createHighlight, createAmenity, type CatalogItem } from "@/actions/catalog";
+import { createPropertyCategory } from "@/actions/property-categories";
 import { cn }            from "@/lib/utils";
 import type { UserSummary } from "@/actions/users";
 
@@ -244,16 +249,22 @@ interface PropertyFormProps {
   initialOwner?: OwnerSummary;
   initialAgent?: UserSummary | null;
   initialCreatedBy?: UserSummary | null;
+  isAdmin?:      boolean;
 }
 
 export function PropertyForm({
-  highlights, amenities, categories, initialData,
-  initialOwner, initialAgent, initialCreatedBy,
+  highlights, amenities, categories: initialCategories, initialData,
+  initialOwner, initialAgent, initialCreatedBy, isAdmin,
 }: PropertyFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedOwner, setSelectedOwner] = useState<OwnerSummary>(initialOwner ?? null);
   const [selectedAgent, setSelectedAgent] = useState<UserSummary | null>(initialAgent ?? null);
+  const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [catName, setCatName] = useState("");
+  const [catError, setCatError] = useState("");
+  const [catPending, startCatTransition] = useTransition();
   const isEdit = !!initialData;
 
   const {
@@ -321,6 +332,20 @@ export function PropertyForm({
   const showAddressNumber = watch("showAddressNumber");
   const seoTitle       = watch("seoTitle") ?? "";
   const seoDescription = watch("seoDescription") ?? "";
+
+  function handleCreateCategory() {
+    if (!catName.trim()) { setCatError("Nome obrigatório"); return; }
+    startCatTransition(async () => {
+      const res = await createPropertyCategory({ name: catName.trim() });
+      if (!res.success) { setCatError(res.error); return; }
+      const newCat = { id: res.id, name: catName.trim() };
+      setCategories((prev) => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+      setValue("categoryId", res.id);
+      setCatName("");
+      setCatError("");
+      setCatDialogOpen(false);
+    });
+  }
 
   function onSubmit(data: PropertyFormData) {
     startTransition(async () => {
@@ -400,7 +425,7 @@ export function PropertyForm({
                   type="button"
                   onClick={() => setValue("purpose", p)}
                   className={cn(
-                    "flex flex-1 min-w-[90px] items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 font-inter text-sm transition-all",
+                    "flex flex-1 min-w-22.5 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 font-inter text-sm transition-all",
                     active
                       ? "border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-semibold shadow-sm"
                       : "border-border text-muted-foreground hover:border-amber-300 hover:text-foreground"
@@ -424,14 +449,16 @@ export function PropertyForm({
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
-              <a
-                href="/admin/property-types"
-                target="_blank"
-                className="flex shrink-0 items-center rounded-lg border border-input px-2.5 font-inter text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                title="Gerenciar tipos"
-              >
-                + Novo
-              </a>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => { setCatName(""); setCatError(""); setCatDialogOpen(true); }}
+                  className="flex shrink-0 items-center rounded-lg border border-input px-2.5 font-inter text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Criar novo tipo"
+                >
+                  + Novo
+                </button>
+              )}
             </div>
           </Field>
 
@@ -836,6 +863,50 @@ export function PropertyForm({
           onChange={(urls) => setValue("imagesRaw", urls.join("\n"), { shouldValidate: false })}
         />
       </Section>
+
+      {/* ── Dialog: criar tipo de imóvel ── */}
+      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
+        <DialogContent showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Novo tipo de imóvel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-1">
+            <div className="flex flex-col gap-1.5">
+              <Label className="font-inter text-xs uppercase tracking-wider text-muted-foreground">
+                Nome
+              </Label>
+              <input
+                autoFocus
+                value={catName}
+                onChange={(e) => { setCatName(e.target.value); setCatError(""); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateCategory(); } }}
+                placeholder="Ex: Cobertura, Mansão, Loja…"
+                className={inputCls}
+              />
+              {catError && (
+                <p className="font-inter text-[11px] text-destructive">{catError}</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setCatDialogOpen(false)}
+              className="rounded-lg border border-input px-4 py-2 font-inter text-xs text-muted-foreground hover:bg-accent transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleCreateCategory}
+              disabled={catPending}
+              className="rounded-lg border border-amber-400 bg-amber-400 px-4 py-2 font-inter text-xs font-medium text-stone-950 hover:bg-amber-300 disabled:opacity-50 transition-colors"
+            >
+              {catPending ? "Criando…" : "Criar tipo"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Erros globais + Submit ── */}
       {errors.root && (
