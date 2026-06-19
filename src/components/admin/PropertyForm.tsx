@@ -21,8 +21,9 @@ import { Label }         from "@/components/ui/label";
 import { Textarea }      from "@/components/ui/textarea";
 import { Switch }        from "@/components/ui/switch";
 import { Separator }     from "@/components/ui/separator";
-import { CatalogPicker }   from "@/components/admin/CatalogPicker";
-import { ImageUploader }   from "@/components/admin/ImageUploader";
+import { CatalogPicker }      from "@/components/admin/CatalogPicker";
+import { ImageUploader }      from "@/components/admin/ImageUploader";
+import { OwnerSearchInput }   from "@/components/admin/OwnerSearchInput";
 import { createHighlight, createAmenity, type CatalogItem } from "@/actions/catalog";
 import { cn }            from "@/lib/utils";
 
@@ -228,15 +229,19 @@ function PhoneInput({
 
 type InitialData = PropertyFormData & { id: string };
 
+type OwnerSummary = { id: string; name: string; phone: string; email: string | null; cpf: string | null } | null;
+
 interface PropertyFormProps {
   highlights:   CatalogItem[];
   amenities:    CatalogItem[];
   initialData?: InitialData;
+  initialOwner?: OwnerSummary;
 }
 
-export function PropertyForm({ highlights, amenities, initialData }: PropertyFormProps) {
+export function PropertyForm({ highlights, amenities, initialData, initialOwner }: PropertyFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [selectedOwner, setSelectedOwner] = useState<OwnerSummary>(initialOwner ?? null);
   const isEdit = !!initialData;
 
   const {
@@ -627,7 +632,7 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
         title="Proprietário"
         description="Dados internos do proprietário. Nunca exibidos no site público."
       >
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-400/20 dark:bg-amber-400/5">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-400/20 dark:bg-amber-400/5">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-amber-600 dark:text-amber-400">
             <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3a1 1 0 110 2 1 1 0 010-2zm0 3.5v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
@@ -635,26 +640,15 @@ export function PropertyForm({ highlights, amenities, initialData }: PropertyFor
             Informações confidenciais — visíveis apenas no painel admin
           </p>
         </div>
-        <FieldGroup cols={2}>
-          <Field label="Nome do proprietário" error={errors.ownerName?.message}>
-            <input
-              {...register("ownerName")}
-              placeholder="João Silva"
-              className={inputCls}
-            />
-          </Field>
-          <Field
-            label="Telefone / WhatsApp"
-            hint="Formato: +55 DDD número — ex: +55 13 99999-9999"
-            error={errors.ownerPhone?.message}
-          >
-            <PhoneInput
-              value={watch("ownerPhone")}
-              onChange={(v) => setValue("ownerPhone", v)}
-              className={inputCls}
-            />
-          </Field>
-        </FieldGroup>
+        <OwnerSearchInput
+          value={selectedOwner}
+          onChange={(owner) => {
+            setSelectedOwner(owner);
+            setValue("ownerId",    owner?.id    ?? "");
+            setValue("ownerName",  owner?.name  ?? "");
+            setValue("ownerPhone", owner?.phone ?? "");
+          }}
+        />
       </Section>
 
       <Separator />

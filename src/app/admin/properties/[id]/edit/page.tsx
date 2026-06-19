@@ -51,6 +51,7 @@ export default async function EditPropertyPage({
     imagesRaw:    property.images.join("\n"),
     highlightIds: property.highlights.map((h) => h.highlightId),
     amenityIds:   property.amenities.map((a) => a.amenityId),
+    ownerId:    property.ownerId    ?? "",
     ownerName:  property.ownerName  ?? "",
     ownerPhone: property.ownerPhone ?? "",
     seoTitle:       property.seoTitle ?? "",
@@ -82,6 +83,7 @@ export default async function EditPropertyPage({
         highlights={highlights}
         amenities={amenities}
         initialData={initialData}
+        initialOwner={property.owner ?? null}
       />
     </div>
   );

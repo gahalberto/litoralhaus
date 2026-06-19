@@ -59,11 +59,11 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
   return (
     <div className="flex gap-2">
       <div className="relative flex shrink-0 items-center">
-        <span className="pointer-events-none absolute left-3 select-none font-inter text-sm text-muted-foreground">+</span>
+        <span className="pointer-events-none absolute left-2.5 select-none font-inter text-sm text-muted-foreground">+</span>
         <input
           type="text" inputMode="numeric" value={cc} placeholder="55"
           onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 4); setCc(v); save(v, local); }}
-          className={`${inputCls} w-16 pl-6 text-center`}
+          className={`${inputCls} w-12 pl-5 pr-1 text-center`}
         />
       </div>
       <input
@@ -71,7 +71,7 @@ function PhoneField({ value, onChange }: { value: string; onChange: (v: string) 
         value={formatPhone(local, cc)}
         onChange={(e) => { const r = e.target.value.replace(/\D/g, ""); setLocal(r); save(cc, r); }}
         placeholder={cc === "55" ? "13 99999-9999" : "número"}
-        className={`${inputCls} flex-1`}
+        className={`${inputCls} min-w-0 flex-1`}
       />
     </div>
   );

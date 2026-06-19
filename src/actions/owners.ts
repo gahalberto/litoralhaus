@@ -12,11 +12,18 @@ export type OwnerResult = { success: true; id: string } | { success: false; erro
 export async function getOwners(q?: string) {
   return prisma.owner.findMany({
     where: q
-      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { phone: { contains: q } }] }
+      ? {
+          OR: [
+            { name:  { contains: q, mode: "insensitive" } },
+            { phone: { contains: q } },
+            { cpf:   { contains: q } },
+          ],
+        }
       : undefined,
     orderBy: { name: "asc" },
+    take: 50,
     select: {
-      id: true, name: true, phone: true, email: true, createdAt: true,
+      id: true, name: true, phone: true, email: true, cpf: true, createdAt: true,
       _count: { select: { properties: true } },
     },
   });

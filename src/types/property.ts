@@ -44,6 +44,7 @@ export const propertyFormSchema = z.object({
   amenityIds:   z.array(z.string()),
 
   // Proprietário (somente admin)
+  ownerId:    z.string().optional(),
   ownerName:  z.string().optional(),
   ownerPhone: z.string().optional(),
 

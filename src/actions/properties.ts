@@ -69,6 +69,7 @@ export async function createProperty(
         amenities: {
           create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
         },
+        ownerId:    d.ownerId    || undefined,
         ownerName:  d.ownerName  || undefined,
         ownerPhone: d.ownerPhone || undefined,
         seoTitle:     d.seoTitle,
@@ -98,6 +99,7 @@ export async function getPropertyById(id: string) {
     include: {
       highlights: { select: { highlightId: true } },
       amenities:  { select: { amenityId:  true } },
+      owner: { select: { id: true, name: true, phone: true, email: true, cpf: true } },
     },
   });
 }
@@ -151,6 +153,7 @@ export async function updateProperty(
           amenities: {
             create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
           },
+          ownerId:    d.ownerId    || null,
           ownerName:  d.ownerName  || undefined,
           ownerPhone: d.ownerPhone || undefined,
           seoTitle:       d.seoTitle,
