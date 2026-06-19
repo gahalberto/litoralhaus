@@ -30,6 +30,7 @@ enum LeadSource {
   GOOGLE_ADS
   REFERRAL
   DIRECT
+  MANUAL
 }
 
 enum BudgetRange {

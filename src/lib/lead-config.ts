@@ -55,6 +55,16 @@ export const LEAD_STATUS_CONFIG: Record<
   },
 };
 
+export const SOURCE_LABELS: Record<string, string> = {
+  LANDING_PAGE: "Site",
+  WHATSAPP: "WhatsApp",
+  INSTAGRAM: "Instagram",
+  GOOGLE_ADS: "Google Ads",
+  REFERRAL: "Indicação",
+  DIRECT: "Direto",
+  MANUAL: "Cadastro Manual",
+};
+
 export const BUDGET_LABELS: Record<string, string> = {
   UP_TO_500K: "Até R$ 500k",
   RANGE_500K_1M: "R$ 500k – R$ 1M",

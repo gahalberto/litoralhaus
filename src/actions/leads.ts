@@ -7,6 +7,36 @@ import { LeadStatus, LeadSource, LeadType } from "@prisma/client";
 import { leadEditSchema } from "@/types/lead";
 export type { LeadEditData } from "@/types/lead";
 
+// ─── Criar lead ───────────────────────────────────────────────────────────────
+
+export type CreateLeadResult = { success: true; id: string } | { success: false; error: string };
+
+export async function createLead(raw: unknown): Promise<CreateLeadResult> {
+  const parsed = leadEditSchema.safeParse(raw);
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+  const d = parsed.data;
+  try {
+    const lead = await prisma.lead.create({
+      data: {
+        name:        d.name,
+        phone:       d.phone,
+        email:       d.email    || null,
+        whatsapp:    d.whatsapp || null,
+        type:        d.type,
+        status:      d.status,
+        source:      d.source,
+        budgetRange: d.budgetRange || null,
+        regions:     d.regions,
+        notes:       d.notes || null,
+      },
+    });
+    revalidatePath("/admin/leads");
+    return { success: true, id: lead.id };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Erro ao criar lead" };
+  }
+}
+
 // ─── Busca / listagem ─────────────────────────────────────────────────────────
 
 export async function searchLeads(params: {
