@@ -107,7 +107,10 @@ model User {
   active   Boolean  @default(true)
   avatar   String?
 
-  assignedLeads Lead[]
+  assignedLeads     Lead[]
+  propertiesCreated Property[]   @relation("PropertyCreatedBy")
+  propertiesManaged Property[]   @relation("PropertyAgent")
+  propertyLogs      PropertyLog[]
 
   @@index([role])
   @@index([active])
@@ -216,12 +219,19 @@ model Property {
   ownerId    String?
   owner      Owner?  @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
+  // Responsáveis
+  createdById String?
+  createdBy   User?   @relation("PropertyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  agentId     String?
+  agent       User?   @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+
   // SEO
   seoTitle       String?
   seoDescription String?
 
   interests PropertyInterest[]
   visits    Visit[]
+  logs      PropertyLog[]
 
   @@index([region, status])
   @@index([type, status])
@@ -373,4 +383,26 @@ model PropertyInterest {
   @@unique([leadId, propertyId])
   @@index([leadId])
   @@index([propertyId])
+}
+
+// ─── PropertyLog ─────────────────────────────────────────────────────────────
+
+model PropertyLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName   String
+
+  action     String
+  field      String?
+  oldValue   String?
+  newValue   String?
+
+  @@index([propertyId])
+  @@index([createdAt])
 }

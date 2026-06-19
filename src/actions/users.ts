@@ -6,6 +6,38 @@ import { hashPassword } from "@/lib/password";
 import { userFormSchema } from "@/types/user";
 import { UserRole } from "@prisma/client";
 
+export type UserSummary = {
+  id:     string;
+  name:   string;
+  email:  string;
+  role:   string;
+  avatar: string | null;
+};
+
+export async function searchUsers(query: string): Promise<UserSummary[]> {
+  if (!query || query.trim().length < 1) {
+    return prisma.user.findMany({
+      where:   { active: true },
+      orderBy: { name: "asc" },
+      take:    30,
+      select:  { id: true, name: true, email: true, role: true, avatar: true },
+    });
+  }
+
+  return prisma.user.findMany({
+    where: {
+      active: true,
+      OR: [
+        { name:  { contains: query, mode: "insensitive" } },
+        { email: { contains: query, mode: "insensitive" } },
+      ],
+    },
+    orderBy: { name: "asc" },
+    take:    20,
+    select:  { id: true, name: true, email: true, role: true, avatar: true },
+  });
+}
+
 export type UserRow = {
   id: string;
   name: string;

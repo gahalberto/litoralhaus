@@ -26,8 +26,10 @@ import { Separator }     from "@/components/ui/separator";
 import { CatalogPicker }      from "@/components/admin/CatalogPicker";
 import { ImageUploader }      from "@/components/admin/ImageUploader";
 import { OwnerSearchInput }   from "@/components/admin/OwnerSearchInput";
+import { UserSearchInput }    from "@/components/admin/UserSearchInput";
 import { createHighlight, createAmenity, type CatalogItem } from "@/actions/catalog";
 import { cn }            from "@/lib/utils";
+import type { UserSummary } from "@/actions/users";
 
 // ─── Helpers de layout ────────────────────────────────────────────────────────
 
@@ -235,17 +237,23 @@ type OwnerSummary = { id: string; name: string; phone: string; email: string | n
 type CategoryItem = { id: string; name: string };
 
 interface PropertyFormProps {
-  highlights:   CatalogItem[];
-  amenities:    CatalogItem[];
-  categories:   CategoryItem[];
-  initialData?: InitialData;
+  highlights:    CatalogItem[];
+  amenities:     CatalogItem[];
+  categories:    CategoryItem[];
+  initialData?:  InitialData;
   initialOwner?: OwnerSummary;
+  initialAgent?: UserSummary | null;
+  initialCreatedBy?: UserSummary | null;
 }
 
-export function PropertyForm({ highlights, amenities, categories, initialData, initialOwner }: PropertyFormProps) {
+export function PropertyForm({
+  highlights, amenities, categories, initialData,
+  initialOwner, initialAgent, initialCreatedBy,
+}: PropertyFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedOwner, setSelectedOwner] = useState<OwnerSummary>(initialOwner ?? null);
+  const [selectedAgent, setSelectedAgent] = useState<UserSummary | null>(initialAgent ?? null);
   const isEdit = !!initialData;
 
   const {
@@ -316,7 +324,12 @@ export function PropertyForm({ highlights, amenities, categories, initialData, i
 
   function onSubmit(data: PropertyFormData) {
     startTransition(async () => {
-      const payload = { ...data, highlightIds: selectedHighlights, amenityIds: selectedAmenities };
+      const payload = {
+        ...data,
+        highlightIds: selectedHighlights,
+        amenityIds:   selectedAmenities,
+        agentId:      selectedAgent?.id ?? "",
+      };
       const result = isEdit
         ? await updateProperty(initialData.id, payload)
         : await createProperty(payload);
@@ -669,6 +682,41 @@ export function PropertyForm({ highlights, amenities, categories, initialData, i
           onChange={setSelectedAmenities}
           onAdd={createAmenity}
         />
+      </Section>
+
+      <Separator />
+
+      {/* ── Responsáveis ── */}
+      <Section
+        title="Responsáveis"
+        description="Quem cadastrou e quem é o corretor responsável por este imóvel."
+      >
+        {initialCreatedBy && (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3 mb-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-zinc-400 to-zinc-600 font-inter text-[11px] font-bold text-white">
+              {initialCreatedBy.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-inter text-xs uppercase tracking-wider text-muted-foreground mb-0.5">
+                Cadastrado por
+              </p>
+              <p className="font-inter text-sm font-semibold text-foreground truncate">
+                {initialCreatedBy.name}
+              </p>
+              <p className="font-inter text-xs text-muted-foreground truncate">{initialCreatedBy.email}</p>
+            </div>
+          </div>
+        )}
+        <Field label="Corretor Responsável" hint="Por padrão, o usuário que está cadastrando.">
+          <UserSearchInput
+            value={selectedAgent}
+            onChange={(user) => {
+              setSelectedAgent(user);
+              setValue("agentId", user?.id ?? "");
+            }}
+            placeholder="Buscar corretor por nome ou e-mail…"
+          />
+        </Field>
       </Section>
 
       <Separator />

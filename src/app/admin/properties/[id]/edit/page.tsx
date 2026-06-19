@@ -5,6 +5,8 @@ import { getHighlights, getAmenities } from "@/actions/catalog";
 import { getPropertyById } from "@/actions/properties";
 import { getPropertyCategories } from "@/actions/property-categories";
 import { PropertyForm } from "@/components/admin/PropertyForm";
+import { PropertyLogPanel } from "@/components/admin/PropertyLogPanel";
+import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Editar Imóvel" };
 
@@ -15,11 +17,12 @@ export default async function EditPropertyPage({
 }) {
   const { id } = await params;
 
-  const [property, highlights, amenities, categories] = await Promise.all([
+  const [property, highlights, amenities, categories, session] = await Promise.all([
     getPropertyById(id),
     getHighlights(),
     getAmenities(),
     getPropertyCategories(),
+    getSession(),
   ]);
 
   if (!property) notFound();
@@ -59,9 +62,12 @@ export default async function EditPropertyPage({
     ownerId:    property.ownerId    ?? "",
     ownerName:  property.ownerName  ?? "",
     ownerPhone: property.ownerPhone ?? "",
+    agentId:    property.agentId    ?? "",
     seoTitle:       property.seoTitle ?? "",
     seoDescription: property.seoDescription ?? "",
   };
+
+  const isAdmin = session?.role === "ADMIN";
 
   return (
     <div className="mx-auto max-w-3xl px-8 py-8">
@@ -90,7 +96,13 @@ export default async function EditPropertyPage({
         categories={categories}
         initialData={initialData}
         initialOwner={property.owner ?? null}
+        initialAgent={property.agent ?? null}
+        initialCreatedBy={property.createdBy ?? null}
       />
+
+      {isAdmin && property.logs.length > 0 && (
+        <PropertyLogPanel logs={property.logs} />
+      )}
     </div>
   );
 }
