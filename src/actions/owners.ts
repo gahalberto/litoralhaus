@@ -52,6 +52,26 @@ export async function getOwnerById(id: string) {
 
 // ─── Criar ────────────────────────────────────────────────────────────────────
 
+export type OwnerQuickSummary = {
+  id: string; name: string; phone: string; email: string | null; cpf: string | null;
+};
+
+export async function findOwnerByPhoneOrCpf(
+  phone: string,
+  cpf?: string
+): Promise<OwnerQuickSummary | null> {
+  const conditions: Parameters<typeof prisma.owner.findFirst>[0] = {
+    where: {
+      OR: [
+        { phone: { equals: phone } },
+        ...(cpf ? [{ cpf: { equals: cpf } }] : []),
+      ],
+    },
+    select: { id: true, name: true, phone: true, email: true, cpf: true },
+  };
+  return prisma.owner.findFirst(conditions) as Promise<OwnerQuickSummary | null>;
+}
+
 export async function createOwner(raw: unknown): Promise<OwnerResult> {
   const parsed = ownerSchema.safeParse(raw);
   if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
