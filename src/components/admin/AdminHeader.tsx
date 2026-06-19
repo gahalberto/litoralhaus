@@ -29,10 +29,11 @@ function useBreadcrumbs() {
 }
 
 interface Props {
-  onMenuClick: () => void;
+  onMenuClick:      () => void;
+  sidebarCollapsed?: boolean;
 }
 
-export function AdminHeader({ onMenuClick }: Props) {
+export function AdminHeader({ onMenuClick, sidebarCollapsed: _ }: Props) {
   const crumbs = useBreadcrumbs();
 
   return (

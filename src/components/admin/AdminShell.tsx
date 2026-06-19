@@ -11,19 +11,25 @@ interface Props {
 }
 
 export function AdminShell({ session, children }: Props) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen,  setMobileOpen]  = useState(false);
+  const [collapsed,   setCollapsed]   = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-[#09090b]">
       <Sidebar
         session={session}
         mobileOpen={mobileOpen}
+        collapsed={collapsed}
         onClose={() => setMobileOpen(false)}
+        onToggleCollapse={() => setCollapsed((v) => !v)}
       />
 
       {/* Right column */}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
-        <AdminHeader onMenuClick={() => setMobileOpen(true)} />
+        <AdminHeader
+          onMenuClick={() => setMobileOpen(true)}
+          sidebarCollapsed={collapsed}
+        />
 
         <main className="flex-1 overflow-y-auto">
           {children}

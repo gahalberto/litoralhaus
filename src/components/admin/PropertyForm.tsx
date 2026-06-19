@@ -349,16 +349,17 @@ export function PropertyForm({
         title="Identificação"
         description="Dados principais e visibilidade do imóvel."
       >
+        {/* Título */}
+        <Field label="Título *" error={errors.title?.message}>
+          <input
+            {...register("title")}
+            placeholder="Ex: Cobertura Duplex Frente Mar — Enseada"
+            className={inputCls}
+          />
+        </Field>
+
+        {/* Slug + Ref */}
         <FieldGroup cols={2}>
-          <div className="col-span-2">
-            <Field label="Título *" error={errors.title?.message}>
-              <input
-                {...register("title")}
-                placeholder="Ex: Cobertura Duplex Frente Mar — Enseada"
-                className={inputCls}
-              />
-            </Field>
-          </div>
           <Field
             label="Slug (URL) *"
             error={errors.slug?.message}
@@ -368,7 +369,7 @@ export function PropertyForm({
           </Field>
           <Field
             label="Código de referência"
-            hint={isEdit ? undefined : "Gerado automaticamente com as iniciais do corretor"}
+            hint={isEdit ? undefined : "Gerado com iniciais do corretor"}
           >
             {isEdit && initialData?.refCode ? (
               <div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
@@ -380,72 +381,72 @@ export function PropertyForm({
             ) : (
               <div className="flex items-center gap-2 rounded-md border border-dashed border-border bg-muted/20 px-3 py-2">
                 <span className="font-inter text-xs text-muted-foreground/60">
-                  Será gerado ao salvar · ex: GA0001
+                  Gerado ao salvar · ex: GA0001
                 </span>
               </div>
             )}
           </Field>
-          <FieldGroup cols={2}>
-            {/* Finalidade */}
-            <div className="col-span-2">
-              <Field label="Finalidade *" error={errors.purpose?.message}>
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.values(PropertyPurpose).map((p) => {
-                    const cfg = PURPOSE_CONFIG[p];
-                    const active = watch("purpose") === p;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setValue("purpose", p)}
-                        className={cn(
-                          "flex items-center justify-center gap-2 rounded-xl border py-2.5 font-inter text-sm transition-all",
-                          active
-                            ? "border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-semibold shadow-sm"
-                            : "border-border text-muted-foreground hover:border-amber-300 hover:text-foreground"
-                        )}
-                      >
-                        <span>{cfg.icon}</span>
-                        {cfg.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Field>
-            </div>
-
-            {/* Categoria dinâmica */}
-            <Field label="Tipo do imóvel" error={errors.categoryId?.message}>
-              <div className="flex gap-2">
-                <select {...register("categoryId")} className={`${selectCls} flex-1`}>
-                  <option value="">— Selecionar tipo —</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-                <a
-                  href="/admin/property-types"
-                  target="_blank"
-                  className="flex shrink-0 items-center rounded-lg border border-input px-2.5 font-inter text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                  title="Gerenciar tipos"
-                >
-                  + Novo tipo
-                </a>
-              </div>
-            </Field>
-
-            <Field label="Status *" error={errors.status?.message}>
-              <select {...register("status")} className={selectCls}>
-                {Object.values(PropertyStatus).map((s) => (
-                  <option key={s} value={s} className="bg-background">
-                    {PROPERTY_STATUS_CONFIG[s].label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </FieldGroup>
         </FieldGroup>
 
+        {/* Finalidade */}
+        <Field label="Finalidade *" error={errors.purpose?.message}>
+          <div className="flex flex-wrap gap-2">
+            {Object.values(PropertyPurpose).map((p) => {
+              const cfg = PURPOSE_CONFIG[p];
+              const active = watch("purpose") === p;
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setValue("purpose", p)}
+                  className={cn(
+                    "flex flex-1 min-w-[90px] items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 font-inter text-sm transition-all",
+                    active
+                      ? "border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-semibold shadow-sm"
+                      : "border-border text-muted-foreground hover:border-amber-300 hover:text-foreground"
+                  )}
+                >
+                  <span>{cfg.icon}</span>
+                  {cfg.label}
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+
+        {/* Tipo + Status */}
+        <FieldGroup cols={2}>
+          <Field label="Tipo do imóvel" error={errors.categoryId?.message}>
+            <div className="flex gap-2">
+              <select {...register("categoryId")} className={`${selectCls} flex-1 min-w-0`}>
+                <option value="">— Tipo —</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <a
+                href="/admin/property-types"
+                target="_blank"
+                className="flex shrink-0 items-center rounded-lg border border-input px-2.5 font-inter text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                title="Gerenciar tipos"
+              >
+                + Novo
+              </a>
+            </div>
+          </Field>
+
+          <Field label="Status *" error={errors.status?.message}>
+            <select {...register("status")} className={selectCls}>
+              {Object.values(PropertyStatus).map((s) => (
+                <option key={s} value={s} className="bg-background">
+                  {PROPERTY_STATUS_CONFIG[s].label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </FieldGroup>
+
+        {/* Isca + Destaque */}
         <FieldGroup cols={2}>
           <label className="flex cursor-pointer items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3 transition-colors hover:bg-muted/50">
             <div>

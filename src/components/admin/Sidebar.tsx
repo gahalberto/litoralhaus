@@ -12,6 +12,8 @@ import {
   LayoutList,
   LogOut,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -27,15 +29,15 @@ type NavItem = {
 };
 
 const NAV_MAIN: NavItem[] = [
-  { label: "Dashboard",    href: "/admin",            icon: LayoutDashboard },
-  { label: "Leads",        href: "/admin/leads",      icon: TrendingUp      },
-  { label: "Imóveis",      href: "/admin/properties", icon: Building2       },
-  { label: "Proprietários",href: "/admin/owners",     icon: UserCheck       },
-  { label: "Equipe",       href: "/admin/team",       icon: Users, soon: true },
+  { label: "Dashboard",     href: "/admin",            icon: LayoutDashboard },
+  { label: "Leads",         href: "/admin/leads",      icon: TrendingUp      },
+  { label: "Imóveis",       href: "/admin/properties", icon: Building2       },
+  { label: "Proprietários", href: "/admin/owners",     icon: UserCheck       },
+  { label: "Equipe",        href: "/admin/team",       icon: Users, soon: true },
 ];
 
 const NAV_SETTINGS: NavItem[] = [
-  { label: "Tipos de Imóvel", href: "/admin/property-types", icon: LayoutList, adminOnly: true },
+  { label: "Tipos de Imóvel", href: "/admin/property-types", icon: LayoutList,  adminOnly: true },
   { label: "Usuários",        href: "/admin/users",          icon: ShieldCheck, adminOnly: true },
 ];
 
@@ -45,12 +47,14 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 interface Props {
-  session: SessionPayload;
-  mobileOpen: boolean;
-  onClose: () => void;
+  session:          SessionPayload;
+  mobileOpen:       boolean;
+  collapsed:        boolean;
+  onClose:          () => void;
+  onToggleCollapse: () => void;
 }
 
-export function Sidebar({ session, mobileOpen, onClose }: Props) {
+export function Sidebar({ session, mobileOpen, collapsed, onClose, onToggleCollapse }: Props) {
   const pathname = usePathname();
 
   const initials = session.name
@@ -65,7 +69,12 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
     return pathname.startsWith(item.href);
   }
 
-  const visibleMain    = NAV_MAIN.filter((i) => !i.adminOnly || session.role === "ADMIN");
+  function handleNavClick(item: NavItem) {
+    if (item.soon) return;
+    onClose(); // fecha no mobile
+  }
+
+  const visibleMain     = NAV_MAIN.filter((i) => !i.adminOnly || session.role === "ADMIN");
   const visibleSettings = NAV_SETTINGS.filter((i) => !i.adminOnly || session.role === "ADMIN");
 
   return (
@@ -80,46 +89,75 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col",
+          "fixed inset-y-0 left-0 z-50 flex flex-col",
           "bg-white dark:bg-zinc-950",
           "border-r border-zinc-200 dark:border-zinc-800",
-          "transition-transform duration-300 ease-in-out",
-          // desktop: always visible
-          "lg:translate-x-0 lg:static lg:z-auto",
-          // mobile: controlled by state
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          "transition-all duration-300 ease-in-out",
+          // desktop: always visible, width controlled by collapsed
+          "lg:static lg:z-auto lg:translate-x-0",
+          collapsed ? "lg:w-16" : "lg:w-64",
+          // mobile: full width sidebar, controlled by mobileOpen
+          "w-64",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 shrink-0 items-center justify-between px-5 border-b border-zinc-100 dark:border-zinc-800">
-          <Link href="/admin" className="flex items-center gap-2.5" onClick={onClose}>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400">
+        <div className="flex h-16 shrink-0 items-center justify-between px-3 border-b border-zinc-100 dark:border-zinc-800">
+          {!collapsed && (
+            <Link href="/admin" className="flex items-center gap-2.5 flex-1 min-w-0" onClick={onClose}>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-400">
+                <span className="font-cormorant text-sm font-bold text-zinc-950">L</span>
+              </div>
+              <div className="leading-none min-w-0">
+                <span className="font-cormorant text-base font-semibold tracking-wide text-zinc-900 dark:text-zinc-100">
+                  Litoral Haus
+                </span>
+                <span className="ml-2 rounded-md bg-amber-400/15 px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                  CRM
+                </span>
+              </div>
+            </Link>
+          )}
+
+          {collapsed && (
+            <Link href="/admin" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-400 mx-auto" onClick={onClose}>
               <span className="font-cormorant text-sm font-bold text-zinc-950">L</span>
-            </div>
-            <div className="leading-none">
-              <span className="font-cormorant text-base font-semibold tracking-wide text-zinc-900 dark:text-zinc-100">
-                Litoral Haus
-              </span>
-              <span className="ml-2 rounded-md bg-amber-400/15 px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
-                CRM
-              </span>
-            </div>
-          </Link>
+            </Link>
+          )}
+
+          {/* Mobile close */}
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 lg:hidden"
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 lg:hidden ml-1 shrink-0"
           >
             <X size={16} />
+          </button>
+
+          {/* Desktop collapse toggle */}
+          <button
+            onClick={onToggleCollapse}
+            className={cn(
+              "hidden lg:flex rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0 transition-colors",
+              collapsed && "mx-auto"
+            )}
+            title={collapsed ? "Expandir menu" : "Recolher menu"}
+          >
+            {collapsed
+              ? <PanelLeftOpen  size={15} />
+              : <PanelLeftClose size={15} />
+            }
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 space-y-6">
           {/* Main group */}
           <div>
-            <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
-              Principal
-            </p>
+            {!collapsed && (
+              <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                Principal
+              </p>
+            )}
             <ul className="space-y-0.5">
               {visibleMain.map((item) => {
                 const active = isActive(item);
@@ -128,9 +166,11 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
                   <li key={item.href}>
                     <Link
                       href={item.soon ? "#" : item.href}
-                      onClick={item.soon ? undefined : onClose}
+                      onClick={() => handleNavClick(item)}
+                      title={collapsed ? item.label : undefined}
                       className={cn(
-                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm transition-all duration-150",
+                        "group flex items-center rounded-xl font-inter text-sm transition-all duration-150",
+                        collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5",
                         active
                           ? "bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-medium"
                           : item.soon
@@ -150,14 +190,18 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
                             : "text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
                         )}
                       />
-                      <span className="flex-1">{item.label}</span>
-                      {item.soon && (
-                        <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
-                          Em breve
-                        </span>
-                      )}
-                      {active && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      {!collapsed && (
+                        <>
+                          <span className="flex-1 truncate">{item.label}</span>
+                          {item.soon && (
+                            <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                              Em breve
+                            </span>
+                          )}
+                          {active && !item.soon && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                          )}
+                        </>
                       )}
                     </Link>
                   </li>
@@ -169,9 +213,11 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
           {/* Settings group */}
           {visibleSettings.length > 0 && (
             <div>
-              <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
-                Configurações
-              </p>
+              {!collapsed && (
+                <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                  Configurações
+                </p>
+              )}
               <ul className="space-y-0.5">
                 {visibleSettings.map((item) => {
                   const active = isActive(item);
@@ -180,9 +226,11 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        onClick={onClose}
+                        onClick={() => handleNavClick(item)}
+                        title={collapsed ? item.label : undefined}
                         className={cn(
-                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm transition-all duration-150",
+                          "group flex items-center rounded-xl font-inter text-sm transition-all duration-150",
+                          collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5",
                           active
                             ? "bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-medium"
                             : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -198,9 +246,13 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
                               : "text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
                           )}
                         />
-                        {item.label}
-                        {active && (
-                          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-amber-400" />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 truncate">{item.label}</span>
+                            {active && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                            )}
+                          </>
                         )}
                       </Link>
                     </li>
@@ -211,33 +263,58 @@ export function Sidebar({ session, mobileOpen, onClose }: Props) {
           )}
         </nav>
 
-        {/* Footer — user card */}
-        <div className="shrink-0 border-t border-zinc-100 dark:border-zinc-800 p-3 space-y-1">
-          <div className="mb-2 px-1">
-            <ModeToggle variant="segmented" className="w-full" />
-          </div>
-
-          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-amber-400 to-amber-600 font-inter text-[11px] font-bold text-white shadow-sm">
-              {initials}
+        {/* Footer */}
+        <div className="shrink-0 border-t border-zinc-100 dark:border-zinc-800 p-2 space-y-1">
+          {!collapsed && (
+            <div className="mb-2 px-1">
+              <ModeToggle variant="segmented" className="w-full" />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-inter text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                {session.name.split(" ")[0]}
-              </p>
-              <p className="font-inter text-[10px] text-zinc-400 dark:text-zinc-500">
-                {ROLE_LABEL[session.role] ?? session.role}
-              </p>
-            </div>
-          </div>
+          )}
 
+          {collapsed && (
+            <div className="flex justify-center py-1">
+              <ModeToggle variant="icon" />
+            </div>
+          )}
+
+          {/* User card */}
+          {!collapsed ? (
+            <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-amber-400 to-amber-600 font-inter text-[11px] font-bold text-white shadow-sm">
+                {initials}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-inter text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                  {session.name.split(" ")[0]}
+                </p>
+                <p className="font-inter text-[10px] text-zinc-400 dark:text-zinc-500">
+                  {ROLE_LABEL[session.role] ?? session.role}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div
+              title={session.name}
+              className="flex justify-center py-1"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-amber-400 to-amber-600 font-inter text-[11px] font-bold text-white shadow-sm">
+                {initials}
+              </div>
+            </div>
+          )}
+
+          {/* Logout */}
           <form action={logout}>
             <button
               type="submit"
-              className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm text-zinc-500 dark:text-zinc-500 transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
+              title="Sair"
+              className={cn(
+                "group flex w-full items-center rounded-xl font-inter text-sm text-zinc-500 dark:text-zinc-500 transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400",
+                collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
+              )}
             >
               <LogOut size={15} strokeWidth={1.7} className="shrink-0 transition-colors group-hover:text-red-500" />
-              Sair
+              {!collapsed && "Sair"}
             </button>
           </form>
         </div>
