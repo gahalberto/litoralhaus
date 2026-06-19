@@ -2,19 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { ownerSchema } from "@/types/owner";
+export type { OwnerFormData } from "@/types/owner";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
-
-export const ownerSchema = z.object({
-  name:  z.string().min(2, "Nome obrigatório"),
-  phone: z.string().min(8, "Telefone obrigatório"),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
-  cpf:   z.string().optional(),
-  notes: z.string().optional(),
-});
-
-export type OwnerFormData = z.infer<typeof ownerSchema>;
 export type OwnerResult = { success: true; id: string } | { success: false; error: string };
 
 // ─── Listagem ─────────────────────────────────────────────────────────────────

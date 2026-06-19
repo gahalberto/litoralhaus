@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getOwnerById, deleteOwner } from "@/actions/owners";
 import { OwnerForm } from "@/components/admin/OwnerForm";
 import { PROPERTY_TYPE_LABELS, PROPERTY_STATUS_CONFIG, formatPrice } from "@/lib/property-config";
@@ -110,12 +110,8 @@ export default async function EditOwnerPage({
             <p className="mb-3 font-inter text-xs text-muted-foreground">
               Excluir remove o proprietário mas não afeta os imóveis vinculados.
             </p>
-            <form action={async () => { "use server"; await deleteOwner(id); }}>
-              <button
-                type="submit"
-                className="font-inter text-xs text-destructive hover:underline transition-colors"
-                onClick={() => {}}
-              >
+            <form action={async () => { "use server"; await deleteOwner(id); redirect("/admin/owners"); }}>
+              <button type="submit" className="font-inter text-xs text-destructive hover:underline transition-colors">
                 Excluir proprietário
               </button>
             </form>

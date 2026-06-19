@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getLeadById, deleteLead } from "@/actions/leads";
 import { LeadEditForm } from "@/components/admin/LeadEditForm";
 import { AddInteractionForm } from "@/components/admin/AddInteractionForm";
@@ -48,7 +48,7 @@ export default async function LeadDetailPage({
     type:        lead.type,
     status:      lead.status,
     source:      lead.source,
-    budgetRange: lead.budgetRange ?? ("" as any),
+    budgetRange: (lead.budgetRange ?? "") as import("@prisma/client").BudgetRange | "",
     regions:     lead.regions,
     notes:       lead.notes ?? "",
   };
@@ -135,7 +135,7 @@ export default async function LeadDetailPage({
 
           {/* Exclusão */}
           <section className="border-t border-border pt-4">
-            <form action={async () => { "use server"; await deleteLead(id); }}>
+            <form action={async () => { "use server"; await deleteLead(id); redirect("/admin/leads?view=list"); }}>
               <button type="submit" className="font-inter text-xs text-destructive hover:underline">
                 Excluir lead
               </button>

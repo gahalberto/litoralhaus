@@ -1,4 +1,20 @@
 import { z } from "zod";
+import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
+
+export const leadEditSchema = z.object({
+  name:        z.string().min(2, "Nome obrigatório"),
+  phone:       z.string().min(8, "Telefone obrigatório"),
+  email:       z.string().optional().or(z.literal("")),
+  whatsapp:    z.string().optional(),
+  type:        z.nativeEnum(LeadType),
+  status:      z.nativeEnum(LeadStatus),
+  source:      z.nativeEnum(LeadSource),
+  budgetRange: z.union([z.nativeEnum(BudgetRange), z.literal("")]).optional(),
+  regions:     z.array(z.nativeEnum(Region)),
+  notes:       z.string().optional(),
+});
+
+export type LeadEditData = z.infer<typeof leadEditSchema>;
 
 export const leadFormSchema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres"),

@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
+import { LeadStatus, LeadSource, LeadType } from "@prisma/client";
+import { leadEditSchema } from "@/types/lead";
+export type { LeadEditData } from "@/types/lead";
 
 // ─── Busca / listagem ─────────────────────────────────────────────────────────
 
@@ -63,22 +65,6 @@ export async function getLeadById(id: string) {
   });
 }
 
-// ─── Schema de edição ─────────────────────────────────────────────────────────
-
-export const leadEditSchema = z.object({
-  name:         z.string().min(2, "Nome obrigatório"),
-  phone:        z.string().min(8, "Telefone obrigatório"),
-  email:        z.string().email("E-mail inválido").optional().or(z.literal("")),
-  whatsapp:     z.string().optional(),
-  type:         z.nativeEnum(LeadType),
-  status:       z.nativeEnum(LeadStatus),
-  source:       z.nativeEnum(LeadSource),
-  budgetRange:  z.nativeEnum(BudgetRange).optional().or(z.literal("")).transform(v => v || undefined),
-  regions:      z.array(z.nativeEnum(Region)),
-  notes:        z.string().optional(),
-});
-
-export type LeadEditData = z.infer<typeof leadEditSchema>;
 export type LeadEditResult = { success: true } | { success: false; error: string };
 
 // ─── Atualizar lead ───────────────────────────────────────────────────────────
@@ -98,7 +84,7 @@ export async function updateLead(id: string, raw: unknown): Promise<LeadEditResu
         type:        d.type,
         status:      d.status,
         source:      d.source,
-        budgetRange: d.budgetRange ?? null,
+        budgetRange: d.budgetRange || null,
         regions:     d.regions,
         notes:       d.notes || null,
       },

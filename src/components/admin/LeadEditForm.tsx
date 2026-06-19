@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { leadEditSchema, type LeadEditData, updateLead } from "@/actions/leads";
+import { leadEditSchema, type LeadEditData } from "@/types/lead";
+import { updateLead } from "@/actions/leads";
 import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { Button } from "@/components/ui/button";
