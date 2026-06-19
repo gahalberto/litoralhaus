@@ -64,8 +64,7 @@ function CreateOwnerDialog({
     onOpenChange(v);
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function doCreate() {
     setError(""); setDuplicate(null);
     if (!name.trim()) { setError("Nome é obrigatório."); return; }
     if (!phone)       { setError("Telefone é obrigatório."); return; }
@@ -88,6 +87,12 @@ function CreateOwnerDialog({
         setError(res.error);
       }
     });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    e.stopPropagation(); // impede o submit de borbulhar pelo React tree até o form externo
+    doCreate();
   }
 
   return (
@@ -207,10 +212,10 @@ function CreateOwnerDialog({
 
         {!duplicate && (
           <DialogFooter>
-            <Button type="submit" form="quick-owner-form" disabled={isPending} className="bg-amber-500 hover:bg-amber-600 text-white">
+            <Button type="button" onClick={doCreate} disabled={isPending} className="bg-amber-500 hover:bg-amber-600 text-white">
               {isPending ? <><Loader2 size={13} className="animate-spin mr-1.5" />Criando...</> : "Criar e vincular"}
             </Button>
-            <Button variant="outline" onClick={() => handleClose(false)}>
+            <Button variant="outline" type="button" onClick={() => handleClose(false)}>
               Cancelar
             </Button>
           </DialogFooter>
