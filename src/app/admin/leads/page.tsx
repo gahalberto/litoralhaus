@@ -7,13 +7,14 @@ import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { searchLeads } from "@/actions/leads";
 import { cn } from "@/lib/utils";
 import { LeadsStatusFilter } from "@/components/admin/LeadsStatusFilter";
+import { Plus } from "lucide-react";
 
 export const metadata: Metadata = { title: "Leads" };
 export const revalidate = 0;
 
 const SOURCE_LABELS: Record<LeadSource, string> = {
-  LANDING_PAGE: "Landing Page", WHATSAPP: "WhatsApp", INSTAGRAM: "Instagram",
-  GOOGLE_ADS: "Google Ads", REFERRAL: "Indicação", DIRECT: "Direto",
+  LANDING_PAGE: "Site", WHATSAPP: "WhatsApp", INSTAGRAM: "Instagram",
+  GOOGLE_ADS: "Google Ads", REFERRAL: "Indicação", DIRECT: "Direto", MANUAL: "Cadastro Manual",
 };
 
 function fmtDate(d: Date) {
@@ -58,16 +59,25 @@ export default async function LeadsPage({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex shrink-0 flex-col gap-3 border-b border-border px-8 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-8 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-cormorant text-2xl font-light text-foreground">Leads</h1>
-          <p className="mt-0.5 font-inter text-xs text-muted-foreground">
+          <h1 className="font-cormorant text-2xl font-light text-zinc-900 dark:text-zinc-100">Leads</h1>
+          <p className="mt-0.5 font-inter text-xs text-zinc-400 dark:text-zinc-500">
             {total} {total === 1 ? "lead" : "leads"} no funil
           </p>
         </div>
 
         {/* Controles */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Novo lead */}
+          <Link
+            href="/admin/leads/new"
+            className="flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-1.5 font-inter text-xs font-medium text-white transition-colors shadow-sm shadow-amber-500/20"
+          >
+            <Plus size={13} strokeWidth={2.5} />
+            Novo Lead
+          </Link>
+
           {/* Busca */}
           <form method="get" className="flex gap-2">
             <input type="hidden" name="view" value={view} />
@@ -75,7 +85,7 @@ export default async function LeadsPage({
               name="q"
               defaultValue={q}
               placeholder="Nome, telefone ou e-mail..."
-              className="w-52 rounded-md border border-input bg-background px-3 py-1.5 font-inter text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-ring focus:ring-1 focus:ring-ring"
+              className="w-52 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3 py-1.5 font-inter text-xs text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-400 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30"
             />
           </form>
 

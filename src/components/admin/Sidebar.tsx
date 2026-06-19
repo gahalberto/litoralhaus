@@ -2,83 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Building2,
+  UserCheck,
+  Users,
+  ShieldCheck,
+  LogOut,
+  X,
+} from "lucide-react";
 import { logout } from "@/actions/auth";
-import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 import type { SessionPayload } from "@/lib/auth";
 
 type NavItem = {
   label: string;
-  href:  string;
+  href: string;
+  icon: React.ElementType;
   adminOnly?: boolean;
-  icon:  React.ReactNode;
+  soon?: boolean;
 };
 
-const navItems: NavItem[] = [
-  {
-    label: "Dashboard",
-    href:  "/admin",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.2" />
-      </svg>
-    ),
-  },
-  {
-    label: "Kanban de Vendas",
-    href:  "/admin/leads",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <rect x="1" y="2" width="4" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="6" y="2" width="4" height="8"  rx="1" stroke="currentColor" strokeWidth="1.2" />
-        <rect x="11" y="2" width="4" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" />
-      </svg>
-    ),
-  },
-  {
-    label: "Imóveis",
-    href:  "/admin/properties",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <path d="M1 7L8 1.5L15 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M2.5 6.5V13.5C2.5 14.05 2.95 14.5 3.5 14.5H6V10.5H10V14.5H12.5C13.05 14.5 13.5 14.05 13.5 13.5V6.5"
-          stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    label: "Proprietários",
-    href:  "/admin/owners",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.2" />
-        <path d="M2 13.5c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    label:     "Usuários",
-    href:      "/admin/users",
-    adminOnly: true,
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="6" cy="5" r="3" stroke="currentColor" strokeWidth="1.2" />
-        <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-        <path d="M12 7v4M10 9h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
+const NAV_MAIN: NavItem[] = [
+  { label: "Dashboard",    href: "/admin",            icon: LayoutDashboard },
+  { label: "Leads",        href: "/admin/leads",      icon: TrendingUp      },
+  { label: "Imóveis",      href: "/admin/properties", icon: Building2       },
+  { label: "Proprietários",href: "/admin/owners",     icon: UserCheck       },
+  { label: "Equipe",       href: "/admin/team",       icon: Users, soon: true },
+];
+
+const NAV_SETTINGS: NavItem[] = [
+  { label: "Usuários", href: "/admin/users", icon: ShieldCheck, adminOnly: true },
 ];
 
 const ROLE_LABEL: Record<string, string> = {
-  ADMIN:    "Administrador",
+  ADMIN:    "Admin · CEO",
   CORRETOR: "Corretor",
 };
 
-export function Sidebar({ session }: { session: SessionPayload }) {
+interface Props {
+  session: SessionPayload;
+  mobileOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ session, mobileOpen, onClose }: Props) {
   const pathname = usePathname();
 
   const initials = session.name
@@ -88,95 +58,188 @@ export function Sidebar({ session }: { session: SessionPayload }) {
     .join("")
     .toUpperCase();
 
-  const visibleItems = navItems.filter(
-    (item) => !item.adminOnly || session.role === "ADMIN"
-  );
+  function isActive(item: NavItem) {
+    if (item.href === "/admin") return pathname === "/admin";
+    return pathname.startsWith(item.href);
+  }
+
+  const visibleMain    = NAV_MAIN.filter((i) => !i.adminOnly || session.role === "ADMIN");
+  const visibleSettings = NAV_SETTINGS.filter((i) => !i.adminOnly || session.role === "ADMIN");
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-border bg-background">
-      {/* Logo */}
-      <div className="flex h-14 shrink-0 items-center border-b border-border px-5">
-        <span className="font-cormorant text-lg font-light tracking-wider text-foreground">
-          Litoral Haus
-        </span>
-        <span className="ml-2 rounded bg-amber-400/10 px-1.5 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-amber-600 dark:text-amber-400">
-          CRM
-        </span>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto p-3" aria-label="Navegação do admin">
-        <ul className="space-y-0.5">
-          {visibleItems.map((item) => {
-            const isActive =
-              item.href === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.href);
-
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded px-3 py-2 font-inter text-sm transition-colors duration-150",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-                  )}
-                >
-                  <span className={cn(
-                    "shrink-0 transition-colors",
-                    isActive ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground/60"
-                  )}>
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      {/* Footer */}
-      <div className="shrink-0 border-t border-border p-3 space-y-1">
-        {/* Theme toggle */}
-        <div className="px-1 pb-1">
-          <ModeToggle variant="segmented" className="w-full" />
-        </div>
-
-        {/* Usuário logado */}
-        <div className="flex items-center gap-3 rounded px-3 py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted font-inter text-[10px] font-semibold text-foreground">
-            {initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-inter text-xs font-medium text-foreground">
-              {session.name.split(" ")[0]}
-            </p>
-            <p className="font-inter text-[10px] text-muted-foreground">
-              {ROLE_LABEL[session.role]}
-            </p>
-          </div>
-        </div>
-
-        {/* Logout */}
-        <form action={logout}>
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col",
+          "bg-white dark:bg-zinc-950",
+          "border-r border-zinc-200 dark:border-zinc-800",
+          "transition-transform duration-300 ease-in-out",
+          // desktop: always visible
+          "lg:translate-x-0 lg:static lg:z-auto",
+          // mobile: controlled by state
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Logo */}
+        <div className="flex h-16 shrink-0 items-center justify-between px-5 border-b border-zinc-100 dark:border-zinc-800">
+          <Link href="/admin" className="flex items-center gap-2.5" onClick={onClose}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400">
+              <span className="font-cormorant text-sm font-bold text-zinc-950">L</span>
+            </div>
+            <div className="leading-none">
+              <span className="font-cormorant text-base font-semibold tracking-wide text-zinc-900 dark:text-zinc-100">
+                Litoral Haus
+              </span>
+              <span className="ml-2 rounded-md bg-amber-400/15 px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                CRM
+              </span>
+            </div>
+          </Link>
           <button
-            type="submit"
-            className="flex w-full items-center gap-3 rounded px-3 py-2 font-inter text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 lg:hidden"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-              <path d="M6 2H3C2.45 2 2 2.45 2 3V13C2 13.55 2.45 14 3 14H6"
-                stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <path d="M10.5 5L14 8L10.5 11" stroke="currentColor" strokeWidth="1.2"
-                strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M14 8H6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
-            Sair
+            <X size={16} />
           </button>
-        </form>
-      </div>
-    </aside>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+          {/* Main group */}
+          <div>
+            <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+              Principal
+            </p>
+            <ul className="space-y-0.5">
+              {visibleMain.map((item) => {
+                const active = isActive(item);
+                const Icon = item.icon;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.soon ? "#" : item.href}
+                      onClick={item.soon ? undefined : onClose}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm transition-all duration-150",
+                        active
+                          ? "bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-medium"
+                          : item.soon
+                          ? "cursor-default text-zinc-300 dark:text-zinc-700"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100"
+                      )}
+                    >
+                      <Icon
+                        size={17}
+                        strokeWidth={active ? 2 : 1.7}
+                        className={cn(
+                          "shrink-0 transition-colors",
+                          active
+                            ? "text-amber-600 dark:text-amber-400"
+                            : item.soon
+                            ? "text-zinc-300 dark:text-zinc-700"
+                            : "text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
+                        )}
+                      />
+                      <span className="flex-1">{item.label}</span>
+                      {item.soon && (
+                        <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 font-inter text-[9px] font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                          Em breve
+                        </span>
+                      )}
+                      {active && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Settings group */}
+          {visibleSettings.length > 0 && (
+            <div>
+              <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                Configurações
+              </p>
+              <ul className="space-y-0.5">
+                {visibleSettings.map((item) => {
+                  const active = isActive(item);
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={onClose}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm transition-all duration-150",
+                          active
+                            ? "bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 font-medium"
+                            : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100"
+                        )}
+                      >
+                        <Icon
+                          size={17}
+                          strokeWidth={active ? 2 : 1.7}
+                          className={cn(
+                            "shrink-0",
+                            active
+                              ? "text-amber-600 dark:text-amber-400"
+                              : "text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
+                          )}
+                        />
+                        {item.label}
+                        {active && (
+                          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-amber-400" />
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </nav>
+
+        {/* Footer — user card */}
+        <div className="shrink-0 border-t border-zinc-100 dark:border-zinc-800 p-3 space-y-1">
+          <div className="mb-2 px-1">
+            <ModeToggle variant="segmented" className="w-full" />
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-amber-400 to-amber-600 font-inter text-[11px] font-bold text-white shadow-sm">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-inter text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                {session.name.split(" ")[0]}
+              </p>
+              <p className="font-inter text-[10px] text-zinc-400 dark:text-zinc-500">
+                {ROLE_LABEL[session.role] ?? session.role}
+              </p>
+            </div>
+          </div>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 font-inter text-sm text-zinc-500 dark:text-zinc-500 transition-colors hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
+            >
+              <LogOut size={15} strokeWidth={1.7} className="shrink-0 transition-colors group-hover:text-red-500" />
+              Sair
+            </button>
+          </form>
+        </div>
+      </aside>
+    </>
   );
 }
