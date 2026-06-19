@@ -76,9 +76,21 @@ export default async function OwnersPage({
                   <td className="px-5 py-3 text-muted-foreground">{o.phone}</td>
                   <td className="px-5 py-3 text-muted-foreground">{o.email ?? "—"}</td>
                   <td className="px-5 py-3">
-                    <span className="rounded-full bg-muted px-2 py-0.5 font-inter text-[11px] text-muted-foreground">
-                      {o._count.properties} imóvel{o._count.properties !== 1 ? "s" : ""}
-                    </span>
+                    {o._count.properties > 0 ? (
+                      <Link
+                        href={`/admin/owners/${o.id}/edit`}
+                        className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-400/15 px-2 py-0.5 font-inter text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-400/25 transition-colors"
+                      >
+                        {o._count.properties} imóvel{o._count.properties !== 1 ? "s" : ""}
+                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+                          <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </Link>
+                    ) : (
+                      <span className="rounded-full bg-muted px-2 py-0.5 font-inter text-[11px] text-muted-foreground">
+                        0 imóveis
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-xs text-muted-foreground">{fmtDate(o.createdAt)}</td>
                   <td className="px-5 py-3">
