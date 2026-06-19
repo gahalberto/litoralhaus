@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { LeadStatus } from "@prisma/client";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
+import { getGA4Stats } from "@/lib/ga4";
+import { AnalyticsSection } from "@/components/admin/AnalyticsSection";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -20,7 +22,10 @@ async function getStats() {
 }
 
 export default async function AdminDashboard() {
-  const { total, byStatus, recentLeads } = await getStats();
+  const [{ total, byStatus, recentLeads }, ga4] = await Promise.all([
+    getStats(),
+    getGA4Stats(),
+  ]);
 
   const won = byStatus.find((s) => s.status === LeadStatus.FECHADO_GANHO)?._count.id ?? 0;
   const active = byStatus
@@ -78,6 +83,11 @@ export default async function AdminDashboard() {
             );
           })}
         </div>
+      </div>
+
+      {/* Analytics GA4 */}
+      <div className="mb-8">
+        <AnalyticsSection stats={ga4} />
       </div>
 
       {/* Leads recentes */}

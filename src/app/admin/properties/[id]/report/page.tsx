@@ -74,7 +74,7 @@ export default async function PropertyReportPage({
           </span>
           {property.priceAsk && (
             <span className="font-inter text-sm font-semibold text-foreground">
-              {formatPrice(property.priceAsk)}
+              {formatPrice(property.priceAsk.toString())}
             </span>
           )}
         </div>
