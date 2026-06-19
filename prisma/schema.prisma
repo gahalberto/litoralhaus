@@ -114,13 +114,13 @@ model Lead {
   updatedAt DateTime @updatedAt
 
   name     String
-  email    String?  @unique
+  email    String? @unique
   phone    String
   whatsapp String?
 
-  type          LeadType     @default(BUYER)
-  status        LeadStatus   @default(NOVO)
-  source        LeadSource   @default(LANDING_PAGE)
+  type          LeadType       @default(BUYER)
+  status        LeadStatus     @default(NOVO)
+  source        LeadSource     @default(LANDING_PAGE)
   budgetRange   BudgetRange?
   regions       Region[]
   propertyTypes PropertyType[]
@@ -169,23 +169,23 @@ model Property {
   neighborhood      String
   address           String?
   addressNumber     String?
-  showAddressNumber Boolean @default(false)
-  latitude          Decimal?  @db.Decimal(10, 8)
-  longitude         Decimal?  @db.Decimal(11, 8)
+  showAddressNumber Boolean  @default(false)
+  latitude          Decimal? @db.Decimal(10, 8)
+  longitude         Decimal? @db.Decimal(11, 8)
 
   // Características
   bedrooms     Int?
   bathrooms    Int?
   suites       Int?
   parkingSpots Int?
-  areaTotal    Decimal?  @db.Decimal(10, 2)
-  areaUsable   Decimal?  @db.Decimal(10, 2)
+  areaTotal    Decimal? @db.Decimal(10, 2)
+  areaUsable   Decimal? @db.Decimal(10, 2)
 
   // Financeiro
-  priceAsk  Decimal?  @db.Decimal(15, 2)
-  priceRent Decimal?  @db.Decimal(15, 2)
-  condoFee  Decimal?  @db.Decimal(10, 2)
-  iptu      Decimal?  @db.Decimal(10, 2)
+  priceAsk  Decimal? @db.Decimal(15, 2)
+  priceRent Decimal? @db.Decimal(15, 2)
+  condoFee  Decimal? @db.Decimal(10, 2)
+  iptu      Decimal? @db.Decimal(10, 2)
 
   // Mídia (URLs diretas — uma por item)
   images String[]
@@ -197,6 +197,8 @@ model Property {
   // Proprietário (visível só no admin)
   ownerName  String?
   ownerPhone String?
+  ownerId    String?
+  owner      Owner?  @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
   // SEO
   seoTitle       String?
@@ -225,7 +227,7 @@ model Highlight {
 model PropertyHighlight {
   propertyId  String
   highlightId String
-  property    Property  @relation(fields: [propertyId],  references: [id], onDelete: Cascade)
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   highlight   Highlight @relation(fields: [highlightId], references: [id], onDelete: Cascade)
 
   @@id([propertyId, highlightId])
@@ -246,7 +248,7 @@ model PropertyAmenity {
   propertyId String
   amenityId  String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  amenity    Amenity  @relation(fields: [amenityId],  references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
 
   @@id([propertyId, amenityId])
   @@index([propertyId])
@@ -272,21 +274,57 @@ model Interaction {
   @@index([createdAt])
 }
 
+// ─── Owner ───────────────────────────────────────────────────────────────────
+
+model Owner {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String
+  phone String
+  email String?
+  cpf   String?
+  notes String? @db.Text
+
+  properties Property[]
+  history    OwnerHistory[]
+
+  @@index([phone])
+  @@index([name])
+}
+
+model OwnerHistory {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  ownerId String
+  owner   Owner  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  field     String
+  oldValue  String?
+  newValue  String?
+  changedBy String
+
+  @@index([ownerId])
+  @@index([createdAt])
+}
+
 // ─── Visit ───────────────────────────────────────────────────────────────────
 
 model Visit {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
-  propertyId   String
-  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  leadId       String?
-  lead         Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
-  visitedAt    DateTime
-  conductedBy  String
-  notes        String?  @db.Text
+  visitedAt   DateTime
+  conductedBy String
+  notes       String?  @db.Text
 
   @@index([propertyId])
   @@index([visitedAt])

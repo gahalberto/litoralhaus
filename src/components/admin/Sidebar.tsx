@@ -50,6 +50,16 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    label: "Proprietários",
+    href:  "/admin/owners",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+        <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M2 13.5c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     label:     "Usuários",
     href:      "/admin/users",
     adminOnly: true,
