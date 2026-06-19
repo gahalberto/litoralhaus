@@ -20,17 +20,19 @@ export type PublicProperty = {
 };
 
 export type PublicPropertyDetail = PublicProperty & {
-  description:  string | null;
-  address:      string | null;
-  suites:       number | null;
-  parkingSpots: number | null;
-  areaUsable:   string | null;
-  condoFee:     string | null;
-  iptu:         string | null;
-  highlights:   { highlight: { label: string } }[];
-  amenities:    { amenity:   { label: string } }[];
-  seoTitle:       string | null;
-  seoDescription: string | null;
+  description:       string | null;
+  address:           string | null;
+  addressNumber:     string | null;
+  showAddressNumber: boolean;
+  suites:            number | null;
+  parkingSpots:      number | null;
+  areaUsable:        string | null;
+  condoFee:          string | null;
+  iptu:              string | null;
+  highlights:        { highlight: { label: string } }[];
+  amenities:         { amenity:   { label: string } }[];
+  seoTitle:          string | null;
+  seoDescription:    string | null;
 };
 
 export type PropertyFilters = {
