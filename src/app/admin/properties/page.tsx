@@ -200,12 +200,20 @@ export default async function PropertiesPage({
 
                     {/* Ações */}
                     <td className="px-5 py-3">
-                      <Link
-                        href={`/admin/properties/${p.id}/edit`}
-                        className="font-inter text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        Editar
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <Link
+                          href={`/admin/properties/${p.id}/edit`}
+                          className="font-inter text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          Editar
+                        </Link>
+                        <Link
+                          href={`/admin/properties/${p.id}/report`}
+                          className="font-inter text-xs text-amber-600 hover:text-amber-500 transition-colors"
+                        >
+                          Relatório
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

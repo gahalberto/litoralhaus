@@ -138,6 +138,7 @@ model Lead {
 
   interactions Interaction[]
   interests    PropertyInterest[]
+  visits       Visit[]
 
   @@index([status])
   @@index([budgetRange])
@@ -202,6 +203,7 @@ model Property {
   seoDescription String?
 
   interests PropertyInterest[]
+  visits    Visit[]
 
   @@index([region, status])
   @@index([type, status])
@@ -268,6 +270,26 @@ model Interaction {
 
   @@index([leadId])
   @@index([createdAt])
+}
+
+// ─── Visit ───────────────────────────────────────────────────────────────────
+
+model Visit {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  propertyId   String
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  leadId       String?
+  lead         Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  visitedAt    DateTime
+  conductedBy  String
+  notes        String?  @db.Text
+
+  @@index([propertyId])
+  @@index([visitedAt])
 }
 
 // ─── PropertyInterest ─────────────────────────────────────────────────────────
