@@ -8,14 +8,14 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function getUploadSignature(): Promise<{
+export async function getUploadSignature(folder = "litoralhaus/properties"): Promise<{
   signature: string;
   timestamp: number;
   cloudName: string;
   apiKey: string;
+  folder: string;
 }> {
   const timestamp = Math.round(Date.now() / 1000);
-  const folder = "litoralhaus/properties";
 
   const signature = cloudinary.utils.api_sign_request(
     { timestamp, folder },
@@ -27,5 +27,6 @@ export async function getUploadSignature(): Promise<{
     timestamp,
     cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
     apiKey:    process.env.CLOUDINARY_API_KEY!,
+    folder,
   };
 }

@@ -16,6 +16,7 @@ import { Label }    from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch }   from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { CoverImageUploader } from "@/components/admin/CoverImageUploader";
 import { cn } from "@/lib/utils";
 import { Loader2, Trash2, ExternalLink } from "lucide-react";
 
@@ -197,14 +198,14 @@ export function PostForm({ initialData }: PostFormProps) {
       <Separator />
 
       {/* ── Mídia ────────────────────────────────────────────────────────── */}
-      <Section title="Imagem de capa" description="URL da imagem de capa do artigo (Cloudinary ou externa).">
-        <Field label="URL da imagem" error={errors.coverImage?.message}>
-          <Input
-            {...register("coverImage")}
-            placeholder="https://res.cloudinary.com/..."
-            type="url"
-          />
-        </Field>
+      <Section
+        title="Imagem de capa"
+        description="Enviada para o Cloudinary. Proporção 16:9 (1200×630 px) recomendada."
+      >
+        <CoverImageUploader
+          value={watch("coverImage") ?? ""}
+          onChange={(url) => setValue("coverImage", url)}
+        />
       </Section>
 
       <Separator />
