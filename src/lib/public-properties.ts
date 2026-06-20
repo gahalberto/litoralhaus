@@ -17,6 +17,7 @@ export type PublicProperty = {
   images:       string[];
   featured:     boolean;
   isIsca:       boolean;
+  description:  string | null;
 };
 
 export type PublicPropertyDetail = PublicProperty & {
@@ -80,6 +81,7 @@ export async function getPublicProperties(filters: PropertyFilters = {}): Promis
       bedrooms: true, bathrooms: true,
       areaTotal: true, priceAsk: true, priceRent: true,
       images: true, featured: true, isIsca: true,
+      description: true,
     },
   }) as unknown as PublicProperty[];
 }
@@ -95,6 +97,7 @@ export async function getFeaturedProperties(): Promise<PublicProperty[]> {
       bedrooms: true, bathrooms: true,
       areaTotal: true, priceAsk: true, priceRent: true,
       images: true, featured: true, isIsca: true,
+      description: true,
     },
   }) as unknown as PublicProperty[];
 }
