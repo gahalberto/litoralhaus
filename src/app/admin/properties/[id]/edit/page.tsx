@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getHighlights, getAmenities } from "@/actions/catalog";
+import { getHighlights, getAmenities, getProximities } from "@/actions/catalog";
 import { getPropertyById } from "@/actions/properties";
 import { getPropertyCategories } from "@/actions/property-categories";
 import { PropertyForm } from "@/components/admin/PropertyForm";
@@ -17,10 +17,11 @@ export default async function EditPropertyPage({
 }) {
   const { id } = await params;
 
-  const [property, highlights, amenities, categories, session] = await Promise.all([
+  const [property, highlights, amenities, proximities, categories, session] = await Promise.all([
     getPropertyById(id),
     getHighlights(),
     getAmenities(),
+    getProximities(),
     getPropertyCategories(),
     getSession(),
   ]);
@@ -37,6 +38,7 @@ export default async function EditPropertyPage({
     isIsca:           property.isIsca,
     featured:         property.featured,
     acceptsFinancing: property.acceptsFinancing,
+    exclusive:        property.exclusive,
     region:       property.region,
     cep:          property.cep ?? "",
     city:         property.city,
@@ -56,8 +58,13 @@ export default async function EditPropertyPage({
     iptu:         property.iptu?.toString() ?? "",
     description:  property.description ?? "",
     imagesRaw:    property.images.join("\n"),
-    highlightIds: property.highlights.map((h) => h.highlightId),
-    amenityIds:   property.amenities.map((a) => a.amenityId),
+    highlightIds:  property.highlights.map((h) => h.highlightId),
+    amenityIds:    property.amenities.map((a) => a.amenityId),
+    proximityIds:  property.proximities.map((p) => p.proximityId),
+    averbada:          property.averbada,
+    escritura:         property.escritura,
+    placaImobiliaria:  property.placaImobiliaria,
+    localChaves:       property.localChaves ?? "",
     purposes:          property.purposes,
     categoryId:        property.categoryId ?? "",
     reviewIntervalDays: property.reviewIntervalDays?.toString() ?? "90",
@@ -100,6 +107,7 @@ export default async function EditPropertyPage({
         amenities={amenities}
         categories={categories}
         initialData={initialData}
+        proximities={proximities}
         initialOwner={property.owner ?? null}
         initialAgent={property.agent ?? null}
         initialCreatedBy={property.createdBy ?? null}

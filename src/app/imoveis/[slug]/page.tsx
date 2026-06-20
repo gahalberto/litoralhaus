@@ -161,9 +161,19 @@ export default async function PropertyPage({
 
               {/* Título + endereço */}
               <div className="bg-white p-6 shadow-sm">
-                <p className="mb-2 font-inter text-[10px] uppercase tracking-widest text-amber-600">
-                  {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
-                </p>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <p className="font-inter text-[10px] uppercase tracking-widest text-amber-600">
+                    {PROPERTY_TYPE_LABELS[p.type]} · {REGION_LABELS[p.region]}
+                  </p>
+                  {p.exclusive && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                      Exclusivo
+                    </span>
+                  )}
+                </div>
                 <h1 className="font-inter text-2xl font-bold leading-snug text-gray-900 sm:text-3xl">
                   {h1Parts}
                 </h1>
@@ -227,11 +237,11 @@ export default async function PropertyPage({
                 </div>
               )}
 
-              {/* Diferenciais + Comodidades */}
-              {(p.highlights.length > 0 || p.amenities.length > 0) && (
-                <div className="bg-white p-6 shadow-sm">
+              {/* Diferenciais + Comodidades + Proximidades */}
+              {(p.highlights.length > 0 || p.amenities.length > 0 || p.proximities.length > 0) && (
+                <div className="bg-white p-6 shadow-sm space-y-6">
                   {p.highlights.length > 0 && (
-                    <div className="mb-6">
+                    <div>
                       <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
                         Diferenciais
                       </h2>
@@ -253,6 +263,23 @@ export default async function PropertyPage({
                         {p.amenities.map((a) => (
                           <span key={a.amenity.label} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 font-inter text-xs text-gray-600">
                             {a.amenity.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {p.proximities.length > 0 && (
+                    <div>
+                      <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
+                        Proximidades
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {p.proximities.map((pr) => (
+                          <span key={pr.proximity.label} className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 font-inter text-xs text-blue-700">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            {pr.proximity.label}
                           </span>
                         ))}
                       </div>
@@ -297,6 +324,7 @@ export default async function PropertyPage({
                   neighborhood={p.neighborhood}
                   whatsappHref={whatsappHref}
                   acceptsFinancing={p.acceptsFinancing}
+                  exclusive={p.exclusive}
                 />
 
                 {/* CTA secundário mobile — visível só em mobile, abaixo do card */}

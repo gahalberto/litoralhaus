@@ -17,6 +17,7 @@ export const propertyFormSchema = z.object({
   isIsca:           z.boolean(),
   featured:         z.boolean(),
   acceptsFinancing: z.boolean(),
+  exclusive:        z.boolean(),
 
   // Categoria dinâmica
   categoryId: z.string().optional(),
@@ -51,6 +52,15 @@ export const propertyFormSchema = z.object({
   description:  z.string().optional(),
   highlightIds: z.array(z.string()),
   amenityIds:   z.array(z.string()),
+
+  // Dados privativos
+  averbada:         z.boolean(),
+  escritura:        z.boolean(),
+  placaImobiliaria: z.boolean(),
+  localChaves:      z.string().optional(),
+
+  // Proximidades
+  proximityIds: z.array(z.string()),
 
   // Responsáveis (somente admin)
   ownerId:    z.string().optional(),

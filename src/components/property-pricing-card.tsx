@@ -19,6 +19,7 @@ interface Props {
   neighborhood:     string;
   whatsappHref:     string;
   acceptsFinancing: boolean;
+  exclusive:        boolean;
 }
 
 function formatBRL(value: string | number | null) {
@@ -31,7 +32,7 @@ function formatBRL(value: string | number | null) {
   }).format(num);
 }
 
-export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborhood, whatsappHref, acceptsFinancing }: Props) {
+export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborhood, whatsappHref, acceptsFinancing, exclusive }: Props) {
   const price    = priceAsk ?? priceRent;
   const priceNum = price ? Number(price) : null;
 
@@ -94,6 +95,18 @@ export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborh
         <p className="mt-1 font-inter text-[11px] text-white/40">
           Preço da Litoral Haus
         </p>
+
+        {/* Badge exclusivo */}
+        {exclusive && (
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 px-3 py-1 font-inter text-xs font-bold uppercase tracking-wider text-amber-300">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              Exclusivo Litoral Haus
+            </span>
+          </div>
+        )}
 
         {/* Badge financiamento */}
         <div className="mt-3">

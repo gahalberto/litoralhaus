@@ -81,6 +81,7 @@ export async function createProperty(
         isIsca:           d.isIsca,
         featured:         d.featured,
         acceptsFinancing: d.acceptsFinancing,
+        exclusive:        d.exclusive,
         region:       d.region,
         cep:          d.cep?.replace(/\D/g, "") || undefined,
         city:         d.city,
@@ -106,6 +107,13 @@ export async function createProperty(
         amenities: {
           create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
         },
+        proximities: {
+          create: (d.proximityIds ?? []).map((proximityId) => ({ proximityId })),
+        },
+        averbada:         d.averbada,
+        escritura:        d.escritura,
+        placaImobiliaria: d.placaImobiliaria,
+        localChaves:      d.localChaves || undefined,
         ownerId:    d.ownerId    || undefined,
         purposes:   d.purposes,
         categoryId: d.categoryId || undefined,
@@ -172,8 +180,9 @@ export async function getPropertyById(id: string) {
   return prisma.property.findUnique({
     where: { id },
     include: {
-      highlights: { select: { highlightId: true } },
-      amenities:  { select: { amenityId:   true } },
+      highlights:  { select: { highlightId:  true } },
+      amenities:   { select: { amenityId:    true } },
+      proximities: { select: { proximityId:  true } },
       owner:       { select: { id: true, name: true, phone: true, email: true, cpf: true } },
       createdBy:   { select: { id: true, name: true, email: true, role: true, avatar: true } },
       agent:       { select: { id: true, name: true, email: true, role: true, avatar: true } },
@@ -252,6 +261,7 @@ export async function updateProperty(
     status:             d.status,
     active:             d.active,
     acceptsFinancing:   d.acceptsFinancing,
+    exclusive:          d.exclusive,
     purposes:           d.purposes,
     type:               d.type,
     categoryId:         d.categoryId || null,
@@ -312,6 +322,7 @@ export async function updateProperty(
     await prisma.$transaction([
       prisma.propertyHighlight.deleteMany({ where: { propertyId: id } }),
       prisma.propertyAmenity.deleteMany({ where: { propertyId: id } }),
+      prisma.propertyProximity.deleteMany({ where: { propertyId: id } }),
       prisma.property.update({
         where: { id },
         data: {
@@ -322,11 +333,18 @@ export async function updateProperty(
           ownerName:    d.ownerName  || undefined,
           ownerPhone:   d.ownerPhone || undefined,
           images:       splitLines(d.imagesRaw),
+          averbada:         d.averbada,
+          escritura:        d.escritura,
+          placaImobiliaria: d.placaImobiliaria,
+          localChaves:      d.localChaves || null,
           highlights: {
             create: (d.highlightIds ?? []).map((highlightId) => ({ highlightId })),
           },
           amenities: {
             create: (d.amenityIds ?? []).map((amenityId) => ({ amenityId })),
+          },
+          proximities: {
+            create: (d.proximityIds ?? []).map((proximityId) => ({ proximityId })),
           },
         },
       }),

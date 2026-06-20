@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getHighlights, getAmenities } from "@/actions/catalog";
+import { getHighlights, getAmenities, getProximities } from "@/actions/catalog";
 import { PropertyForm } from "@/components/admin/PropertyForm";
 import { getPropertyCategories } from "@/actions/property-categories";
 import { getSession } from "@/lib/session";
@@ -8,9 +8,10 @@ import { getSession } from "@/lib/session";
 export const metadata: Metadata = { title: "Cadastrar Imóvel" };
 
 export default async function NewPropertyPage() {
-  const [highlights, amenities, categories, session] = await Promise.all([
+  const [highlights, amenities, proximities, categories, session] = await Promise.all([
     getHighlights(),
     getAmenities(),
+    getProximities(),
     getPropertyCategories(),
     getSession(),
   ]);
@@ -34,7 +35,7 @@ export default async function NewPropertyPage() {
         </p>
       </div>
 
-      <PropertyForm highlights={highlights} amenities={amenities} categories={categories} isAdmin={session?.role === "ADMIN"} />
+      <PropertyForm highlights={highlights} amenities={amenities} proximities={proximities} categories={categories} isAdmin={session?.role === "ADMIN"} />
     </div>
   );
 }

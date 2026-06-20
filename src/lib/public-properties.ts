@@ -31,9 +31,11 @@ export type PublicPropertyDetail = PublicProperty & {
   iptu:              string | null;
   highlights:        { highlight: { label: string } }[];
   amenities:         { amenity:   { label: string } }[];
+  proximities:       { proximity: { label: string } }[];
   seoTitle:          string | null;
   seoDescription:    string | null;
   acceptsFinancing:  boolean;
+  exclusive:         boolean;
 };
 
 export type PropertyFilters = {
@@ -129,9 +131,10 @@ export async function getPublicPropertyBySlug(slug: string): Promise<PublicPrope
       priceAsk: true, priceRent: true, condoFee: true, iptu: true,
       images: true, featured: true, isIsca: true,
       description: true,
-      highlights: { select: { highlight: { select: { label: true } } } },
-      amenities:  { select: { amenity:   { select: { label: true } } } },
-      seoTitle: true, seoDescription: true, acceptsFinancing: true,
+      highlights:  { select: { highlight:  { select: { label: true } } } },
+      amenities:   { select: { amenity:    { select: { label: true } } } },
+      proximities: { select: { proximity:  { select: { label: true } } } },
+      seoTitle: true, seoDescription: true, acceptsFinancing: true, exclusive: true,
     },
   }) as unknown as PublicPropertyDetail | null;
 }

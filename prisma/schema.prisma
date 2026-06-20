@@ -178,6 +178,13 @@ model Property {
   featured          Boolean         @default(false)
   isIsca            Boolean         @default(false)
   acceptsFinancing  Boolean         @default(false)
+  exclusive         Boolean         @default(false)
+
+  // Dados privativos
+  averbada          Boolean         @default(false)
+  escritura         Boolean         @default(false)
+  placaImobiliaria  Boolean         @default(false)
+  localChaves       String?
 
   // Categoria dinâmica (substituirá o enum type no futuro)
   categoryId  String?
@@ -216,8 +223,9 @@ model Property {
   images String[]
 
   // Diferenciais (relações com catálogo)
-  highlights PropertyHighlight[]
-  amenities  PropertyAmenity[]
+  highlights   PropertyHighlight[]
+  amenities    PropertyAmenity[]
+  proximities  PropertyProximity[]
 
   // Proprietário (visível só no admin)
   ownerName  String?
@@ -277,6 +285,26 @@ model PropertyHighlight {
   highlight   Highlight @relation(fields: [highlightId], references: [id], onDelete: Cascade)
 
   @@id([propertyId, highlightId])
+  @@index([propertyId])
+}
+
+// ─── Catálogo de Proximidades ─────────────────────────────────────────────────
+
+model Proximity {
+  id        String   @id @default(cuid())
+  label     String   @unique
+  createdAt DateTime @default(now())
+
+  properties PropertyProximity[]
+}
+
+model PropertyProximity {
+  propertyId  String
+  proximityId String
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  proximity   Proximity @relation(fields: [proximityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, proximityId])
   @@index([propertyId])
 }
 

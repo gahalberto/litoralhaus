@@ -31,7 +31,7 @@ import { CatalogPicker }      from "@/components/admin/CatalogPicker";
 import { ImageUploader }      from "@/components/admin/ImageUploader";
 import { OwnerSearchInput }   from "@/components/admin/OwnerSearchInput";
 import { UserSearchInput }    from "@/components/admin/UserSearchInput";
-import { createHighlight, createAmenity, type CatalogItem } from "@/actions/catalog";
+import { createHighlight, createAmenity, createProximity, type CatalogItem } from "@/actions/catalog";
 import { createPropertyCategory } from "@/actions/property-categories";
 import { cn }            from "@/lib/utils";
 import type { UserSummary } from "@/actions/users";
@@ -244,6 +244,7 @@ type CategoryItem = { id: string; name: string };
 interface PropertyFormProps {
   highlights:    CatalogItem[];
   amenities:     CatalogItem[];
+  proximities:   CatalogItem[];
   categories:    CategoryItem[];
   initialData?:  InitialData;
   initialOwner?: OwnerSummary;
@@ -253,7 +254,7 @@ interface PropertyFormProps {
 }
 
 export function PropertyForm({
-  highlights, amenities, categories: initialCategories, initialData,
+  highlights, amenities, proximities, categories: initialCategories, initialData,
   initialOwner, initialAgent, initialCreatedBy, isAdmin,
 }: PropertyFormProps) {
   const router = useRouter();
@@ -280,6 +281,7 @@ export function PropertyForm({
       status:           PropertyStatus.DISPONIVEL,
       active:           true,
       acceptsFinancing: false,
+      exclusive:        false,
       type:             PropertyType.APARTMENT,
       purposes:     [PropertyPurpose.VENDA],
       region:       Region.GUARUJA,
@@ -290,6 +292,11 @@ export function PropertyForm({
       reviewIntervalDays: "90",
       highlightIds:      [],
       amenityIds:        [],
+      proximityIds:      [],
+      averbada:          false,
+      escritura:         false,
+      placaImobiliaria:  false,
+      localChaves:       "",
     },
   });
 
@@ -335,10 +342,17 @@ export function PropertyForm({
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
     initialData?.amenityIds ?? []
   );
+  const [selectedProximities, setSelectedProximities] = useState<string[]>(
+    initialData?.proximityIds ?? []
+  );
 
   const active            = watch("active");
   const acceptsFinancing  = watch("acceptsFinancing");
+  const exclusive         = watch("exclusive");
   const isIsca            = watch("isIsca");
+  const averbada          = watch("averbada");
+  const escritura         = watch("escritura");
+  const placaImobiliaria  = watch("placaImobiliaria");
   const featured          = watch("featured");
   const showAddressNumber = watch("showAddressNumber");
   const seoTitle       = watch("seoTitle") ?? "";
@@ -362,8 +376,9 @@ export function PropertyForm({
     startTransition(async () => {
       const payload = {
         ...data,
-        highlightIds: selectedHighlights,
-        amenityIds:   selectedAmenities,
+        highlightIds:  selectedHighlights,
+        amenityIds:    selectedAmenities,
+        proximityIds:  selectedProximities,
         agentId:      selectedAgent?.id ?? "",
       };
       const result = isEdit
@@ -532,6 +547,27 @@ export function PropertyForm({
           <Switch
             checked={acceptsFinancing}
             onCheckedChange={(v) => setValue("acceptsFinancing", v)}
+          />
+        </label>
+
+        {/* Exclusivo */}
+        <label className={cn(
+          "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+          exclusive
+            ? "border-amber-200 bg-amber-50/50 dark:border-amber-800/50 dark:bg-amber-400/5"
+            : "border-border bg-muted/30 hover:bg-muted/50"
+        )}>
+          <div>
+            <p className="font-inter text-sm font-medium text-foreground">
+              {exclusive ? "Imóvel Exclusivo" : "Não exclusivo"}
+            </p>
+            <p className="font-inter text-xs text-muted-foreground">
+              {exclusive ? "Captação exclusiva da Litoral Haus" : "Disponível em outras imobiliárias"}
+            </p>
+          </div>
+          <Switch
+            checked={exclusive}
+            onCheckedChange={(v) => setValue("exclusive", v)}
           />
         </label>
 
@@ -763,6 +799,54 @@ export function PropertyForm({
 
       <Separator />
 
+      {/* ── Dados Privativos ── */}
+      <Section
+        title="Dados Privativos"
+        description="Informações internas do imóvel, visíveis apenas para a equipe."
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className={cn(
+            "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+            averbada ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-400/5" : "border-border bg-muted/30 hover:bg-muted/50"
+          )}>
+            <div>
+              <p className="font-inter text-sm font-medium text-foreground">Averbada</p>
+              <p className="font-inter text-xs text-muted-foreground">Registro averbado</p>
+            </div>
+            <Switch checked={averbada} onCheckedChange={(v) => setValue("averbada", v)} />
+          </label>
+          <label className={cn(
+            "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+            escritura ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-400/5" : "border-border bg-muted/30 hover:bg-muted/50"
+          )}>
+            <div>
+              <p className="font-inter text-sm font-medium text-foreground">Escritura</p>
+              <p className="font-inter text-xs text-muted-foreground">Possui escritura</p>
+            </div>
+            <Switch checked={escritura} onCheckedChange={(v) => setValue("escritura", v)} />
+          </label>
+          <label className={cn(
+            "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+            placaImobiliaria ? "border-amber-200 bg-amber-50/50 dark:border-amber-800/50 dark:bg-amber-400/5" : "border-border bg-muted/30 hover:bg-muted/50"
+          )}>
+            <div>
+              <p className="font-inter text-sm font-medium text-foreground">Placa</p>
+              <p className="font-inter text-xs text-muted-foreground">Tem placa da imobiliária</p>
+            </div>
+            <Switch checked={placaImobiliaria} onCheckedChange={(v) => setValue("placaImobiliaria", v)} />
+          </label>
+        </div>
+        <Field label="Local das Chaves">
+          <input
+            {...register("localChaves")}
+            placeholder="Ex: Com o porteiro, na imobiliária, com o proprietário..."
+            className={inputCls}
+          />
+        </Field>
+      </Section>
+
+      <Separator />
+
       {/* ── Destaques ── */}
       <Section
         title="Destaques"
@@ -790,6 +874,22 @@ export function PropertyForm({
           selected={selectedAmenities}
           onChange={setSelectedAmenities}
           onAdd={createAmenity}
+        />
+      </Section>
+
+      <Separator />
+
+      {/* ── Proximidades ── */}
+      <Section
+        title="Proximidades"
+        description="O que há perto do imóvel. Selecione os que se aplicam ou adicione novos."
+      >
+        <CatalogPicker
+          label="Proximidade"
+          items={proximities}
+          selected={selectedProximities}
+          onChange={setSelectedProximities}
+          onAdd={createProximity}
         />
       </Section>
 
