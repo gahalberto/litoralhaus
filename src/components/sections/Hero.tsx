@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getAvailableRegions } from "@/lib/public-properties";
 import { HeroSearch } from "@/components/hero-search";
 
@@ -8,25 +9,32 @@ export async function Hero() {
       aria-label="Apresentação Litoral Haus"
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-32 text-center"
     >
-      {/* Gradient cinematográfico de fundo */}
-      <div
+      {/* Imagem de fundo */}
+      <Image
+        src="/background-fundo.webp"
+        alt=""
+        fill
+        priority
+        className="object-cover"
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-stone-950 via-stone-900/80 to-stone-950"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(180,140,80,0.15),transparent)]"
       />
 
-      {/* Grid sutil de fundo */}
+      {/* Escurecimento sobre a imagem */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
+        className="pointer-events-none absolute inset-0 bg-stone-950/65"
+      />
+
+      {/* Gradiente nas bordas para suavizar */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-stone-950/40 via-transparent to-stone-950/70"
+      />
+
+      {/* Toque âmbar sutil */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(180,140,80,0.10),transparent)]"
       />
 
       <div className="relative z-10 mx-auto max-w-4xl">
