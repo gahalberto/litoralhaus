@@ -239,9 +239,10 @@ export default async function PropertyPage({
                   <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
                     Sobre o imóvel
                   </h2>
-                  <div className="space-y-3 font-inter text-sm leading-relaxed text-gray-600 whitespace-pre-line">
-                    {p.description}
-                  </div>
+                  <div
+                    className="article-content max-w-none"
+                    dangerouslySetInnerHTML={{ __html: p.description }}
+                  />
                 </div>
               )}
 

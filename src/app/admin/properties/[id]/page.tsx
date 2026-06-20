@@ -321,9 +321,10 @@ export default async function PropertyViewPage({
                 <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                   Descrição
                 </p>
-                <p className="font-inter text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                  {property.description}
-                </p>
+                <div
+                  className="article-content max-w-none"
+                  dangerouslySetInnerHTML={{ __html: property.description }}
+                />
               </div>
             )}
 
