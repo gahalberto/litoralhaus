@@ -168,3 +168,117 @@ html {
     @apply font-sans;
   }
 }
+
+/* ── Tipografia editorial dos artigos do Blog ─────────────────────────────── */
+.article-content {
+  font-family: var(--font-inter);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #374151;
+  max-width: 65ch;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  font-family: var(--font-cormorant);
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+}
+
+.article-content h2 { font-size: 1.875rem; }
+.article-content h3 { font-size: 1.5rem; }
+.article-content h4 { font-size: 1.25rem; }
+
+.article-content p {
+  margin-top: 0;
+  margin-bottom: 1.25em;
+}
+
+.article-content a {
+  color: #b45309;
+  text-decoration: none;
+}
+.article-content a:hover {
+  text-decoration: underline;
+}
+
+.article-content strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.article-content ul,
+.article-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.25em;
+}
+.article-content li {
+  margin-bottom: 0.4em;
+}
+.article-content ul { list-style-type: disc; }
+.article-content ol { list-style-type: decimal; }
+
+.article-content blockquote {
+  border-left: 3px solid #f59e0b;
+  background-color: #fffbeb;
+  padding: 0.75rem 1.25rem;
+  margin: 1.5em 0;
+  font-family: var(--font-cormorant);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: #374151;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.article-content img {
+  border-radius: 0.75rem;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em 0;
+}
+
+.article-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2em 0;
+}
+
+.article-content pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin-bottom: 1.25em;
+}
+
+.article-content code {
+  background: #f3f4f6;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.25em;
+  font-size: 0.9375rem;
+}
+.article-content th,
+.article-content td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+.article-content th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #111827;
+}

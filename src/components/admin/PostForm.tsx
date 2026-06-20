@@ -81,6 +81,7 @@ export function PostForm({ initialData }: PostFormProps) {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDelete] = useTransition();
   const [slugEdited, setSlugEdited] = useState(isEdit);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const {
     register,
@@ -181,18 +182,70 @@ export function PostForm({ initialData }: PostFormProps) {
           />
         </Field>
 
-        <Field
-          label="Conteúdo HTML"
-          error={errors.content?.message}
-          hint="Cole o HTML do artigo. Use <h2>, <p>, <ul>, <blockquote> etc."
-        >
-          <Textarea
-            {...register("content")}
-            rows={20}
-            placeholder="<h2>O bairro da Enseada</h2><p>...</p>"
-            className="resize-y font-mono text-xs"
-          />
-        </Field>
+        {/* Editor / Preview toggle */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-inter text-xs font-medium text-foreground">
+              Conteúdo HTML
+            </Label>
+            <div className="flex rounded-lg border border-border bg-muted/30 p-0.5">
+              <button
+                type="button"
+                onClick={() => setPreviewMode(false)}
+                className={cn(
+                  "rounded-md px-3 py-1 font-inter text-xs transition-all",
+                  !previewMode
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode(true)}
+                className={cn(
+                  "rounded-md px-3 py-1 font-inter text-xs transition-all",
+                  previewMode
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Pré-visualizar
+              </button>
+            </div>
+          </div>
+
+          {!previewMode ? (
+            <>
+              <Textarea
+                {...register("content")}
+                rows={20}
+                placeholder="<h2>O bairro da Enseada</h2><p>...</p>"
+                className="resize-y font-mono text-xs"
+              />
+              {errors.content?.message && (
+                <p className="font-inter text-[11px] text-destructive">{errors.content.message}</p>
+              )}
+              <p className="font-inter text-[11px] text-muted-foreground">
+                Use &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;blockquote&gt;, &lt;strong&gt;, &lt;a&gt;, &lt;img&gt;.
+              </p>
+            </>
+          ) : (
+            <div className="min-h-64 rounded-lg border border-border bg-white p-8">
+              {watch("content") ? (
+                <div
+                  className="article-content"
+                  dangerouslySetInnerHTML={{ __html: watch("content") }}
+                />
+              ) : (
+                <p className="font-inter text-sm text-muted-foreground/50 italic">
+                  Nenhum conteúdo para pré-visualizar.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </Section>
 
       <Separator />

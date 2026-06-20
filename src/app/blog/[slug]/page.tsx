@@ -207,15 +207,7 @@ export default async function BlogPostPage({
             <div>
               {/* Conteúdo HTML armazenado no banco */}
               <div
-                className="prose prose-lg max-w-prose
-                  prose-headings:font-cormorant prose-headings:font-semibold prose-headings:text-gray-900
-                  prose-h2:text-3xl prose-h3:text-2xl
-                  prose-p:font-inter prose-p:leading-relaxed prose-p:text-gray-700
-                  prose-a:text-amber-700 prose-a:no-underline hover:prose-a:underline
-                  prose-strong:text-gray-900
-                  prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:py-1 prose-blockquote:font-cormorant prose-blockquote:text-xl prose-blockquote:italic
-                  prose-img:rounded-xl
-                  prose-ul:font-inter prose-ol:font-inter"
+                className="article-content"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
 
