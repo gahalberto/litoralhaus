@@ -37,6 +37,7 @@ export type PublicPropertyDetail = PublicProperty & {
   seoDescription:    string | null;
   acceptsFinancing:  boolean;
   exclusive:         boolean;
+  updatedAt:         Date;
 };
 
 export type PropertyFilters = {
@@ -138,6 +139,7 @@ export async function getPublicPropertyBySlug(slug: string): Promise<PublicPrope
       amenities:   { select: { amenity:    { select: { label: true } } } },
       proximities: { select: { proximity:  { select: { label: true } } } },
       seoTitle: true, seoDescription: true, acceptsFinancing: true, exclusive: true,
+      updatedAt: true,
     },
   }) as unknown as PublicPropertyDetail | null;
 }

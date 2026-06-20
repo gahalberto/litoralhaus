@@ -14,7 +14,7 @@ import { FeaturedPropertyCard } from "@/components/featured-property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
-import { PropertyJsonLd } from "@/components/json-ld";
+import { ItemListJsonLd } from "@/components/json-ld";
 
 const BASE = "https://litoralhaus.com.br";
 
@@ -69,8 +69,21 @@ export default async function ComprarRegiaoPage({
     getNeighborhoods(region),
   ]);
 
+  const pageUrl = `${BASE}/comprar/${regiao}`;
+
   return (
     <>
+      <ItemListJsonLd
+        name={`Imóveis à venda ${locativo}`}
+        url={pageUrl}
+        description={`Apartamentos, casas e coberturas de médio e alto padrão à venda ${locativo}. Curadoria Litoral Haus — litoral de São Paulo.`}
+        items={properties.slice(0, 20).map((p, i) => ({
+          position: i + 1,
+          name:     p.title,
+          url:      `${BASE}/imoveis/${p.slug}`,
+          image:    p.images[0],
+        }))}
+      />
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
         <div className="border-b border-border px-6 pt-20 pb-6">

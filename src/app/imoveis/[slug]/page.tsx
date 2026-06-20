@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Bed, Bath, Maximize, Car, MapPin } from "lucide-react";
 import { getPublicPropertyBySlug } from "@/lib/public-properties";
 import { PROPERTY_TYPE_LABELS, PROPERTY_TYPE_PLURAL, REGION_LABELS, formatPrice } from "@/lib/property-config";
-import { PropertyJsonLd } from "@/components/json-ld";
+import { PropertyJsonLd, FaqJsonLd, type FaqItem } from "@/components/json-ld";
 import { PropertyGalleryWide } from "@/components/property-gallery-wide";
 import { PropertyMediaTabs } from "@/components/property-media-tabs";
 import { PropertyPricingCard } from "@/components/property-pricing-card";
@@ -95,6 +95,57 @@ export default async function PropertyPage({
     { icon: <Bath      size={18} className="text-amber-500" />, value: p.bathrooms != null ? `${p.bathrooms}` : "—", label: "Banheiros" },
   ];
 
+  // FAQ dinâmico baseado nos dados reais do imóvel
+  const faqItems: FaqItem[] = [];
+  faqItems.push({
+    question: "Como entrar em contato sobre este imóvel?",
+    answer:   `Entre em contato com a Litoral Haus pelo WhatsApp ${whatsappHref.split("?")[0].replace("https://wa.me/", "+").replace(/^(\d{2})(\d{2})/, "+$1 $2 ")} ou pelo site litoralhaus.com.br/contato. Nossa equipe responde em minutos.`,
+  });
+  if (p.priceAsk) {
+    faqItems.push({
+      question: `Qual o preço deste ${PROPERTY_TYPE_LABELS[p.type].toLowerCase()}?`,
+      answer:   `O valor de venda é ${formatPrice(p.priceAsk)}${p.acceptsFinancing ? ", com possibilidade de financiamento bancário" : ""}.`,
+    });
+  }
+  if (p.acceptsFinancing !== undefined) {
+    faqItems.push({
+      question: `Este ${PROPERTY_TYPE_LABELS[p.type].toLowerCase()} aceita financiamento bancário?`,
+      answer:   p.acceptsFinancing
+        ? "Sim, este imóvel aceita financiamento bancário. Entre em contato com a Litoral Haus para orientação sobre as melhores condições."
+        : "Este imóvel não aceita financiamento bancário. Entre em contato para conhecer outras condições de pagamento.",
+    });
+  }
+  if (p.condoFee) {
+    faqItems.push({
+      question: "Qual o valor do condomínio mensal?",
+      answer:   `O condomínio é de ${formatPrice(p.condoFee)} por mês.`,
+    });
+  }
+  if (p.parkingSpots != null) {
+    faqItems.push({
+      question: "Quantas vagas de garagem o imóvel possui?",
+      answer:   p.parkingSpots === 0
+        ? "O imóvel não possui vaga de garagem."
+        : `O imóvel conta com ${p.parkingSpots} vaga${p.parkingSpots !== 1 ? "s" : ""} de garagem.`,
+    });
+  }
+  if (p.areaTotal) {
+    faqItems.push({
+      question: "Qual a área total do imóvel?",
+      answer:   `A área total é de ${Number(p.areaTotal).toLocaleString("pt-BR")} m²${p.areaUsable ? `, sendo ${Number(p.areaUsable).toLocaleString("pt-BR")} m² de área útil` : ""}.`,
+    });
+  }
+  if (p.bedrooms != null) {
+    faqItems.push({
+      question: `Quantos ${p.bedrooms === 1 ? "quarto tem" : "quartos tem"} este imóvel?`,
+      answer:   `O imóvel possui ${p.bedrooms} ${p.bedrooms === 1 ? "dormitório" : "dormitórios"}${p.suites ? `, sendo ${p.suites} suíte${p.suites !== 1 ? "s" : ""}` : ""}.`,
+    });
+  }
+  faqItems.push({
+    question: `Onde fica localizado este imóvel em ${p.city}?`,
+    answer:   `O imóvel está localizado no bairro ${p.neighborhood}, em ${p.city}, SP — litoral de São Paulo.`,
+  });
+
   return (
     <>
       <PropertyJsonLd
@@ -103,9 +154,15 @@ export default async function PropertyPage({
         priceAsk={p.priceAsk ? String(p.priceAsk) : null}
         priceRent={p.priceRent ? String(p.priceRent) : null}
         bedrooms={p.bedrooms} bathrooms={p.bathrooms}
+        suites={p.suites} parkingSpots={p.parkingSpots}
         areaTotal={p.areaTotal ? String(p.areaTotal) : null}
+        areaUsable={p.areaUsable ? String(p.areaUsable) : null}
         images={p.images}
+        amenities={p.amenities.map((a) => a.amenity.label)}
+        highlights={p.highlights.map((h) => h.highlight.label)}
+        updatedAt={p.updatedAt.toISOString()}
       />
+      <FaqJsonLd items={faqItems} />
 
       {/* ── Header escuro ──────────────────────────────────────────────────── */}
       <header className="bg-zinc-950">
@@ -294,6 +351,31 @@ export default async function PropertyPage({
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Perguntas frequentes */}
+              {faqItems.length > 0 && (
+                <div className="bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-gray-400">
+                    Perguntas frequentes
+                  </h2>
+                  <div className="divide-y divide-gray-100">
+                    {faqItems.map((item, i) => (
+                      <details key={i} className="group py-3">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-inter text-sm font-medium text-gray-800 hover:text-amber-600">
+                          {item.question}
+                          <svg
+                            className="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                          >
+                            <path d="m6 9 6 6 6-6"/>
+                          </svg>
+                        </summary>
+                        <p className="mt-2 font-inter text-sm text-gray-600">{item.answer}</p>
+                      </details>
+                    ))}
+                  </div>
                 </div>
               )}
 

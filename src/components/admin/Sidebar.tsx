@@ -16,6 +16,7 @@ import {
   PanelLeftOpen,
   MessageSquare,
   BookOpen,
+  CalendarClock,
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -33,6 +34,7 @@ type NavItem = {
 const NAV_MAIN: NavItem[] = [
   { label: "Dashboard",     href: "/admin",             icon: LayoutDashboard },
   { label: "Leads",         href: "/admin/leads",       icon: TrendingUp      },
+  { label: "Agenda",        href: "/admin/agenda",      icon: CalendarClock   },
   { label: "Imóveis",       href: "/admin/properties",  icon: Building2       },
   { label: "Blog",          href: "/admin/blog",        icon: BookOpen        },
   { label: "Proprietários", href: "/admin/owners",      icon: UserCheck       },

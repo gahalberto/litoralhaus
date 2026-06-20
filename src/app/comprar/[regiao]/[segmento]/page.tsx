@@ -22,6 +22,7 @@ import {
 import { PropertyCard } from "@/components/property-card";
 import { FeaturedPropertyCard } from "@/components/featured-property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
+import { ItemListJsonLd } from "@/components/json-ld";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 import type { PropertyType, Region } from "@prisma/client";
@@ -166,6 +167,21 @@ export default async function ComprarSegmentoPage({
 
   return (
     <>
+      <ItemListJsonLd
+        name={heading}
+        url={canonicalUrl}
+        description={
+          mode.kind === "type"
+            ? `${TYPE_LABEL_PLURAL[mode.type]} de médio e alto padrão à venda ${locative(mode.cidade)}. Curadoria Litoral Haus.`
+            : `Imóveis à venda no bairro ${mode.neighborhood} em ${mode.cidade}. Curadoria Litoral Haus.`
+        }
+        items={properties.slice(0, 20).map((p, i) => ({
+          position: i + 1,
+          name:     p.title,
+          url:      `${BASE}/imoveis/${p.slug}`,
+          image:    p.images[0],
+        }))}
+      />
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
         {/* Header */}

@@ -11,6 +11,7 @@ import { PRICE_RANGES, REGION_LABELS, PROPERTY_TYPE_PLURAL } from "@/lib/propert
 import { PropertyCard } from "@/components/property-card";
 import { FeaturedPropertyCard } from "@/components/featured-property-card";
 import { PropertyFilterBar } from "@/components/property-filter-bar";
+import { ItemListJsonLd } from "@/components/json-ld";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 import Link from "next/link";
@@ -164,6 +165,20 @@ export default async function ImoveisPage({
 
   return (
     <>
+      {/* Só indexa o ItemList na página sem filtros */}
+      {!hasFilters && (
+        <ItemListJsonLd
+          name="Imóveis disponíveis no Litoral de São Paulo"
+          url="https://litoralhaus.com.br/imoveis"
+          description="Portfólio curado de imóveis de médio e alto padrão no Guarujá, Santos e litoral paulista — Litoral Haus."
+          items={properties.slice(0, 20).map((p, i) => ({
+            position: i + 1,
+            name:     p.title,
+            url:      `https://litoralhaus.com.br/imoveis/${p.slug}`,
+            image:    p.images[0],
+          }))}
+        />
+      )}
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
         {/* Header */}

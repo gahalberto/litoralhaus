@@ -341,12 +341,14 @@ model Interaction {
   channel     InteractionChannel
   direction   InteractionDirection @default(OUTBOUND)
   summary     String               @db.Text
-  nextStep    String?
-  nextStepAt  DateTime?
-  performedBy String
+  nextStep     String?
+  nextStepAt   DateTime?
+  completedAt  DateTime?
+  performedBy  String
 
   @@index([leadId])
   @@index([createdAt])
+  @@index([nextStepAt])
 }
 
 // ─── Owner ───────────────────────────────────────────────────────────────────
