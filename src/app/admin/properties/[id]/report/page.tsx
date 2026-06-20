@@ -51,7 +51,7 @@ export default async function PropertyReportPage({
       <nav className="flex items-center gap-2 font-inter text-xs text-muted-foreground">
         <Link href="/admin/properties" className="hover:text-foreground">Imóveis</Link>
         <span>/</span>
-        <Link href={`/admin/properties/${id}/edit`} className="hover:text-foreground truncate max-w-xs">{property.title}</Link>
+        <Link href={`/admin/properties/${id}`} className="hover:text-foreground truncate max-w-xs">{property.title}</Link>
         <span>/</span>
         <span className="text-foreground">Relatório</span>
       </nav>

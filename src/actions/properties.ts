@@ -180,9 +180,10 @@ export async function getPropertyById(id: string) {
   return prisma.property.findUnique({
     where: { id },
     include: {
-      highlights:  { select: { highlightId:  true } },
-      amenities:   { select: { amenityId:    true } },
-      proximities: { select: { proximityId:  true } },
+      highlights:  { select: { highlightId: true, highlight:  { select: { label: true } } } },
+      amenities:   { select: { amenityId:   true, amenity:    { select: { label: true } } } },
+      proximities: { select: { proximityId: true, proximity:  { select: { label: true } } } },
+      _count: { select: { interests: true } },
       owner:       { select: { id: true, name: true, phone: true, email: true, cpf: true } },
       createdBy:   { select: { id: true, name: true, email: true, role: true, avatar: true } },
       agent:       { select: { id: true, name: true, email: true, role: true, avatar: true } },

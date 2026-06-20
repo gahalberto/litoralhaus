@@ -88,7 +88,7 @@ export default async function EditPropertyPage({
           Imóveis
         </Link>
         <span>/</span>
-        <span className="truncate max-w-48 text-foreground">{property.title}</span>
+        <Link href={`/admin/properties/${id}`} className="truncate max-w-48 hover:text-foreground">{property.title}</Link>
         <span>/</span>
         <span className="text-foreground">Editar</span>
       </nav>

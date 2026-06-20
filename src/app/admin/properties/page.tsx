@@ -158,12 +158,15 @@ export default async function PropertiesPage({
                               "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
                               p.active ? "bg-emerald-400" : "bg-zinc-300 dark:bg-zinc-600"
                             )} title={p.active ? "Ativo" : "Inativo"} />
-                            <p className={cn(
-                              "font-inter text-sm font-medium",
-                              p.active ? "text-foreground" : "text-muted-foreground/60"
-                            )}>
+                            <Link
+                              href={`/admin/properties/${p.id}`}
+                              className={cn(
+                                "font-inter text-sm font-medium transition-colors hover:text-amber-600 dark:hover:text-amber-400",
+                                p.active ? "text-foreground" : "text-muted-foreground/60"
+                              )}
+                            >
                               {p.title}
-                            </p>
+                            </Link>
                           </div>
                           <p className="font-inter text-[10px] text-muted-foreground/60">
                             {p.neighborhood}
@@ -222,10 +225,10 @@ export default async function PropertiesPage({
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         <Link
-                          href={`/admin/properties/${p.id}/edit`}
+                          href={`/admin/properties/${p.id}`}
                           className="font-inter text-xs text-muted-foreground hover:text-foreground transition-colors"
                         >
-                          Editar
+                          Visualizar
                         </Link>
                         <Link
                           href={`/admin/properties/${p.id}/report`}

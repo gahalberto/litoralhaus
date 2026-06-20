@@ -6,7 +6,10 @@ import { Calendar, Eye, Tag, MapPin, Pencil, ExternalLink, Clock, ArrowLeft } fr
 import { getAdminPostById } from "@/actions/blog";
 import { getSession } from "@/lib/session";
 import { REGION_LABELS } from "@/lib/property-config";
+import { CopyLinkButton } from "@/components/admin/CopyLinkButton";
 import { cn } from "@/lib/utils";
+
+const BASE = "https://litoralhaus.com.br";
 
 export const metadata: Metadata = { title: "Visualizar Artigo" };
 
@@ -54,6 +57,7 @@ export default async function AdminPostViewPage({
         </div>
 
         <div className="flex items-center gap-2">
+          <CopyLinkButton url={`${BASE}/blog/${post.slug}`} />
           <a
             href={`/blog/${post.slug}`}
             target="_blank"
@@ -213,6 +217,10 @@ export default async function AdminPostViewPage({
                     <ExternalLink size={12} />
                     Ver no site
                   </a>
+                  <CopyLinkButton
+                    url={`${BASE}/blog/${post.slug}`}
+                    className="w-full justify-center"
+                  />
                 </div>
               </div>
 

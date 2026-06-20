@@ -67,7 +67,7 @@ export async function superSearch(query: string): Promise<SuperSearchResult> {
     label:    p.title,
     sublabel: [p.neighborhood, p.city].filter(Boolean).join(", "),
     badge:    p.refCode ?? undefined,
-    href:     `/admin/properties/${p.id}/edit`,
+    href:     `/admin/properties/${p.id}`,
     category: "imovel",
   }));
 
