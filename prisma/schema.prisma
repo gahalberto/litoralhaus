@@ -174,9 +174,10 @@ model Property {
   status      PropertyStatus  @default(DISPONIVEL)
   type        PropertyType    @default(APARTMENT)
   purposes    PropertyPurpose[]
-  active      Boolean         @default(true)
-  featured    Boolean         @default(false)
-  isIsca      Boolean         @default(false)
+  active            Boolean         @default(true)
+  featured          Boolean         @default(false)
+  isIsca            Boolean         @default(false)
+  acceptsFinancing  Boolean         @default(false)
 
   // Categoria dinâmica (substituirá o enum type no futuro)
   categoryId  String?

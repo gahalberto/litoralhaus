@@ -13,9 +13,10 @@ export const propertyFormSchema = z.object({
   type:     z.nativeEnum(PropertyType, { error: "Selecione o tipo" }),
   purposes: z.array(z.nativeEnum(PropertyPurpose)).min(1, "Selecione ao menos uma finalidade"),
   status:   z.nativeEnum(PropertyStatus),
-  active:   z.boolean(),
-  isIsca:   z.boolean(),
-  featured: z.boolean(),
+  active:           z.boolean(),
+  isIsca:           z.boolean(),
+  featured:         z.boolean(),
+  acceptsFinancing: z.boolean(),
 
   // Categoria dinâmica
   categoryId: z.string().optional(),

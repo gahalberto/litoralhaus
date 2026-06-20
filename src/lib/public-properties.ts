@@ -33,6 +33,7 @@ export type PublicPropertyDetail = PublicProperty & {
   amenities:         { amenity:   { label: string } }[];
   seoTitle:          string | null;
   seoDescription:    string | null;
+  acceptsFinancing:  boolean;
 };
 
 export type PropertyFilters = {
@@ -130,7 +131,7 @@ export async function getPublicPropertyBySlug(slug: string): Promise<PublicPrope
       description: true,
       highlights: { select: { highlight: { select: { label: true } } } },
       amenities:  { select: { amenity:   { select: { label: true } } } },
-      seoTitle: true, seoDescription: true,
+      seoTitle: true, seoDescription: true, acceptsFinancing: true,
     },
   }) as unknown as PublicPropertyDetail | null;
 }

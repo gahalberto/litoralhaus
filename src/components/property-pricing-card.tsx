@@ -12,12 +12,13 @@ function WhatsAppIcon() {
 }
 
 interface Props {
-  type:        PropertyType;
-  priceAsk:    string | null;
-  priceRent:   string | null;
-  city:        string;
-  neighborhood: string;
-  whatsappHref: string;
+  type:             PropertyType;
+  priceAsk:         string | null;
+  priceRent:        string | null;
+  city:             string;
+  neighborhood:     string;
+  whatsappHref:     string;
+  acceptsFinancing: boolean;
 }
 
 function formatBRL(value: string | number | null) {
@@ -30,7 +31,7 @@ function formatBRL(value: string | number | null) {
   }).format(num);
 }
 
-export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborhood, whatsappHref }: Props) {
+export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborhood, whatsappHref, acceptsFinancing }: Props) {
   const price    = priceAsk ?? priceRent;
   const priceNum = price ? Number(price) : null;
 
@@ -93,6 +94,25 @@ export function PropertyPricingCard({ type, priceAsk, priceRent, city, neighborh
         <p className="mt-1 font-inter text-[11px] text-white/40">
           Preço da Litoral Haus
         </p>
+
+        {/* Badge financiamento */}
+        <div className="mt-3">
+          {acceptsFinancing ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 px-3 py-1 font-inter text-xs font-semibold text-blue-300">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Aceita Financiamento
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/15 px-3 py-1 font-inter text-xs font-medium text-white/50">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" />
+              </svg>
+              Somente à Vista
+            </span>
+          )}
+        </div>
 
         {/* Divisor */}
         <div className="my-5 h-px bg-white/10" />

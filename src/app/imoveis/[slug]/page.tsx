@@ -296,6 +296,7 @@ export default async function PropertyPage({
                   city={p.city}
                   neighborhood={p.neighborhood}
                   whatsappHref={whatsappHref}
+                  acceptsFinancing={p.acceptsFinancing}
                 />
 
                 {/* CTA secundário mobile — visível só em mobile, abaixo do card */}

@@ -277,9 +277,10 @@ export function PropertyForm({
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: initialData ?? {
-      status:       PropertyStatus.DISPONIVEL,
-      active:       true,
-      type:         PropertyType.APARTMENT,
+      status:           PropertyStatus.DISPONIVEL,
+      active:           true,
+      acceptsFinancing: false,
+      type:             PropertyType.APARTMENT,
       purposes:     [PropertyPurpose.VENDA],
       region:       Region.GUARUJA,
       isIsca:            false,
@@ -336,6 +337,7 @@ export function PropertyForm({
   );
 
   const active            = watch("active");
+  const acceptsFinancing  = watch("acceptsFinancing");
   const isIsca            = watch("isIsca");
   const featured          = watch("featured");
   const showAddressNumber = watch("showAddressNumber");
@@ -509,6 +511,27 @@ export function PropertyForm({
           <Switch
             checked={active}
             onCheckedChange={(v) => setValue("active", v)}
+          />
+        </label>
+
+        {/* Financiamento */}
+        <label className={cn(
+          "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+          acceptsFinancing
+            ? "border-blue-200 bg-blue-50/50 dark:border-blue-800/50 dark:bg-blue-400/5"
+            : "border-border bg-muted/30 hover:bg-muted/50"
+        )}>
+          <div>
+            <p className="font-inter text-sm font-medium text-foreground">
+              {acceptsFinancing ? "Aceita Financiamento" : "Somente à Vista"}
+            </p>
+            <p className="font-inter text-xs text-muted-foreground">
+              {acceptsFinancing ? "Banco aceita financiar este imóvel" : "Pagamento somente à vista"}
+            </p>
+          </div>
+          <Switch
+            checked={acceptsFinancing}
+            onCheckedChange={(v) => setValue("acceptsFinancing", v)}
           />
         </label>
 
