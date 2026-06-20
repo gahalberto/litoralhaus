@@ -140,53 +140,9 @@ export default async function BlogPostPage({
         </div>
       </header>
 
-      {/* ── Hero do artigo ────────────────────────────────────────────────── */}
-      <div className="bg-zinc-950 pb-12 pt-10">
-        <div className="mx-auto max-w-4xl px-6">
-          {/* Localização e tags */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            {post.region && (
-              <span className="rounded-full bg-amber-500 px-3 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white">
-                {REGION_LABELS[post.region]}
-                {post.neighborhood && ` · ${post.neighborhood}`}
-              </span>
-            )}
-            {post.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-0.5 font-inter text-[10px] text-white/50"
-              >
-                <Tag size={9} />
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <h1 className="font-cormorant text-4xl font-semibold leading-tight text-white sm:text-5xl">
-            {post.title}
-          </h1>
-          <p className="mt-4 max-w-2xl font-inter text-base leading-relaxed text-white/60">
-            {post.excerpt}
-          </p>
-
-          {/* Meta */}
-          <div className="mt-6 flex flex-wrap items-center gap-5 font-inter text-xs text-white/40">
-            <span className="flex items-center gap-1.5">
-              <Calendar size={13} />
-              {formatDate(post.publishedAt)}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock size={13} />
-              {readTime} min de leitura
-            </span>
-            <span>Por {post.authorName}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Imagem de capa ─────────────────────────────────────────────────── */}
-      {post.coverImage && (
-        <div className="relative h-64 w-full overflow-hidden bg-gray-200 sm:h-96 lg:h-[480px]">
+      {/* ── Imagem de capa ────────────────────────────────────────────────── */}
+      {post.coverImage ? (
+        <div className="relative h-64 w-full overflow-hidden bg-zinc-900 sm:h-105 lg:h-130">
           <Image
             src={post.coverImage}
             alt={post.title}
@@ -195,6 +151,87 @@ export default async function BlogPostPage({
             sizes="100vw"
             className="object-cover"
           />
+          {/* gradiente no rodapé para o título deslizar por cima */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+          {/* Tags sobrepostas */}
+          <div className="absolute left-6 top-6 flex flex-wrap gap-2">
+            {post.region && (
+              <span className="rounded-full bg-amber-500 px-3 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white shadow">
+                {REGION_LABELS[post.region]}
+                {post.neighborhood && ` · ${post.neighborhood}`}
+              </span>
+            )}
+            {post.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="flex items-center gap-1 rounded-full border border-white/20 bg-black/30 px-2.5 py-0.5 font-inter text-[10px] text-white/80 backdrop-blur-sm"
+              >
+                <Tag size={9} />
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Título sobre a imagem */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-16">
+            <div className="mx-auto max-w-4xl">
+              <h1 className="font-cormorant text-3xl font-semibold leading-tight text-white drop-shadow-md sm:text-5xl">
+                {post.title}
+              </h1>
+              <div className="mt-4 flex flex-wrap items-center gap-4 font-inter text-xs text-white/60">
+                <span className="flex items-center gap-1.5">
+                  <Calendar size={12} />
+                  {formatDate(post.publishedAt)}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock size={12} />
+                  {readTime} min de leitura
+                </span>
+                <span>Por {post.authorName}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Sem imagem: hero escuro simples */
+        <div className="bg-zinc-950 pb-12 pt-10">
+          <div className="mx-auto max-w-4xl px-6">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              {post.region && (
+                <span className="rounded-full bg-amber-500 px-3 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white">
+                  {REGION_LABELS[post.region]}
+                  {post.neighborhood && ` · ${post.neighborhood}`}
+                </span>
+              )}
+              {post.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-0.5 font-inter text-[10px] text-white/50"
+                >
+                  <Tag size={9} />
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <h1 className="font-cormorant text-4xl font-semibold leading-tight text-white sm:text-5xl">
+              {post.title}
+            </h1>
+            <div className="mt-6 flex flex-wrap items-center gap-5 font-inter text-xs text-white/40">
+              <span className="flex items-center gap-1.5"><Calendar size={13} />{formatDate(post.publishedAt)}</span>
+              <span className="flex items-center gap-1.5"><Clock size={13} />{readTime} min de leitura</span>
+              <span>Por {post.authorName}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Excerpt (só quando tem imagem, fica abaixo do hero) ────────────── */}
+      {post.coverImage && post.excerpt && (
+        <div className="border-b border-gray-100 bg-white px-6 py-6">
+          <p className="mx-auto max-w-4xl font-inter text-base leading-relaxed text-gray-500">
+            {post.excerpt}
+          </p>
         </div>
       )}
 
