@@ -45,6 +45,12 @@ export function Navbar() {
               Imóveis
             </Link>
             <Link
+              href="/blog"
+              className="hidden font-inter text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              Blog
+            </Link>
+            <Link
               href="/contato"
               className="hidden font-inter text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:block"
             >
