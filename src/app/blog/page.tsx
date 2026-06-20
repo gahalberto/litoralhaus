@@ -44,7 +44,7 @@ export default async function BlogPage() {
       <Navbar />
 
       {/* ── Hero editorial ──────────────────────────────────────────────── */}
-      <section className="bg-zinc-950 pb-0 pt-16">
+      <section className="bg-zinc-950 pb-0 pt-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-10 border-b border-white/10 pb-6">
             <p className="font-inter text-[10px] uppercase tracking-[0.25em] text-amber-400">
