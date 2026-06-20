@@ -148,9 +148,10 @@ export async function getAdminPostById(id: string) {
     where: { id },
     select: {
       id: true, title: true, slug: true, excerpt: true, content: true,
-      coverImage: true, published: true, publishedAt: true, authorName: true,
-      region: true, city: true, neighborhood: true,
-      tags: true, seoTitle: true, seoDescription: true,
+      coverImage: true, published: true, publishedAt: true, updatedAt: true,
+      authorName: true, region: true, city: true, neighborhood: true,
+      tags: true, seoTitle: true, seoDescription: true, viewCount: true,
+      createdAt: true,
     },
   });
 }

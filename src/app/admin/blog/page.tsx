@@ -64,7 +64,12 @@ export default async function AdminBlogPage() {
                 <tr key={p.id} className="group transition-colors hover:bg-muted/20">
                   {/* Título */}
                   <td className="px-5 py-3">
-                    <p className="font-inter text-sm font-medium text-foreground">{p.title}</p>
+                    <Link
+                      href={`/admin/blog/${p.id}`}
+                      className="font-inter text-sm font-medium text-foreground transition-colors hover:text-amber-600 dark:hover:text-amber-400"
+                    >
+                      {p.title}
+                    </Link>
                     <p className="font-inter text-[10px] text-muted-foreground/60">/blog/{p.slug}</p>
                   </td>
 
@@ -134,10 +139,10 @@ export default async function AdminBlogPage() {
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <Link
-                        href={`/admin/blog/${p.id}/edit`}
+                        href={`/admin/blog/${p.id}`}
                         className="font-inter text-xs text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        Editar
+                        Visualizar
                       </Link>
                       <a
                         href={`/blog/${p.slug}`}
@@ -145,7 +150,7 @@ export default async function AdminBlogPage() {
                         rel="noopener noreferrer"
                         className="font-inter text-xs text-amber-600 transition-colors hover:text-amber-500"
                       >
-                        Ver
+                        Site ↗
                       </a>
                     </div>
                   </td>

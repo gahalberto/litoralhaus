@@ -75,7 +75,7 @@ export async function superSearch(query: string): Promise<SuperSearchResult> {
     id:       p.id,
     label:    p.title,
     sublabel: p.published ? "Publicado" : "Rascunho",
-    href:     `/admin/blog/${p.id}/edit`,
+    href:     `/admin/blog/${p.id}`,
     category: "blog",
   }));
 
