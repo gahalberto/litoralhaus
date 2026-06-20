@@ -7,6 +7,7 @@ import { leadEditSchema, type LeadEditData } from "@/types/lead";
 import { updateLead } from "@/actions/leads";
 import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
+import { PhoneInput } from "@/components/admin/PhoneInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,13 +68,25 @@ export function LeadEditForm({ leadId, defaultValues }: Props) {
           <input {...register("name")} className={inputCls} />
         </Field>
         <Field label="Telefone *" error={errors.phone?.message}>
-          <input {...register("phone")} className={inputCls} />
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput value={field.value} onChange={field.onChange} />
+            )}
+          />
         </Field>
         <Field label="E-mail" error={errors.email?.message}>
           <input {...register("email")} type="email" className={inputCls} />
         </Field>
         <Field label="WhatsApp" error={errors.whatsapp?.message}>
-          <input {...register("whatsapp")} placeholder="Se diferente do telefone" className={inputCls} />
+          <Controller
+            name="whatsapp"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput value={field.value ?? ""} onChange={field.onChange} />
+            )}
+          />
         </Field>
         <Field label="Tipo" error={errors.type?.message}>
           <select {...register("type")} className={selectCls}>

@@ -8,6 +8,7 @@ import { leadEditSchema, type LeadEditData } from "@/types/lead";
 import { createLead } from "@/actions/leads";
 import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
+import { PhoneInput } from "@/components/admin/PhoneInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,14 +77,26 @@ export function CreateLeadForm() {
         <Field label="Nome *" error={errors.name?.message}>
           <input {...register("name")} placeholder="João Silva" className={inputCls} />
         </Field>
-        <Field label="Telefone *" error={errors.phone?.message} hint="Ex: 13999998888">
-          <input {...register("phone")} placeholder="13 99999-8888" className={inputCls} />
+        <Field label="Telefone *" error={errors.phone?.message}>
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput value={field.value} onChange={field.onChange} />
+            )}
+          />
         </Field>
         <Field label="E-mail" error={errors.email?.message}>
           <input {...register("email")} type="email" placeholder="joao@email.com" className={inputCls} />
         </Field>
-        <Field label="WhatsApp" error={errors.whatsapp?.message}>
-          <input {...register("whatsapp")} placeholder="Se diferente do telefone" className={inputCls} />
+        <Field label="WhatsApp" error={errors.whatsapp?.message} hint="Preencha se diferente do telefone">
+          <Controller
+            name="whatsapp"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput value={field.value ?? ""} onChange={field.onChange} />
+            )}
+          />
         </Field>
         <Field label="Tipo" error={errors.type?.message}>
           <select {...register("type")} className={selectCls}>
