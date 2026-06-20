@@ -31,9 +31,10 @@ function useBreadcrumbs() {
 interface Props {
   onMenuClick:      () => void;
   sidebarCollapsed?: boolean;
+  onSearchOpen:     () => void;
 }
 
-export function AdminHeader({ onMenuClick, sidebarCollapsed: _ }: Props) {
+export function AdminHeader({ onMenuClick, sidebarCollapsed: _, onSearchOpen }: Props) {
   const crumbs = useBreadcrumbs();
 
   return (
@@ -71,18 +72,19 @@ export function AdminHeader({ onMenuClick, sidebarCollapsed: _ }: Props) {
         ))}
       </nav>
 
-      {/* Search — hidden on very small screens */}
-      <div className="hidden sm:flex items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3 py-1.5 w-56 xl:w-72 transition-all">
+      {/* Search trigger */}
+      <button
+        onClick={onSearchOpen}
+        className="hidden sm:flex items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3 py-1.5 w-56 xl:w-72 transition-colors hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+      >
         <Search size={13} strokeWidth={2} className="shrink-0 text-zinc-400" />
-        <input
-          type="search"
-          placeholder="Buscar..."
-          className="flex-1 min-w-0 bg-transparent font-inter text-xs text-zinc-700 dark:text-zinc-300 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none"
-        />
-        <kbd className="hidden xl:inline-flex shrink-0 items-center gap-0.5 rounded border border-zinc-200 dark:border-zinc-700 px-1.5 py-0.5 font-inter text-[9px] text-zinc-400 dark:text-zinc-600">
+        <span className="flex-1 min-w-0 text-left font-inter text-xs text-zinc-400">
+          Buscar imóvel, post, proprietário...
+        </span>
+        <kbd className="hidden xl:inline-flex shrink-0 items-center rounded border border-zinc-200 dark:border-zinc-700 px-1.5 py-0.5 font-inter text-[9px] text-zinc-400 dark:text-zinc-600">
           ⌘K
         </kbd>
-      </div>
+      </button>
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
