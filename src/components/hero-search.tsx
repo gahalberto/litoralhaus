@@ -38,7 +38,12 @@ export function HeroSearch({ regions }: { regions: Region[] }) {
             <p className="mb-0.5 font-inter text-[9px] uppercase tracking-widest text-stone-500">
               Onde você quer morar?
             </p>
-            <select value={region} onChange={(e) => setRegion(e.target.value)} className={selectCls}>
+            <select
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className={selectCls}
+              aria-label="Selecione a cidade ou região"
+            >
               <option value="" className="bg-stone-900">Todas as cidades</option>
               {regions.map((r) => (
                 <option key={r} value={r} className="bg-stone-900">
@@ -59,7 +64,12 @@ export function HeroSearch({ regions }: { regions: Region[] }) {
             <p className="mb-0.5 font-inter text-[9px] uppercase tracking-widest text-stone-500">
               Valor até
             </p>
-            <select value={price} onChange={(e) => setPrice(e.target.value)} className={selectCls}>
+            <select
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className={selectCls}
+              aria-label="Selecione o valor máximo"
+            >
               <option value="" className="bg-stone-900">Qualquer valor</option>
               {PRICE_RANGES.map((range, i) => (
                 <option key={i} value={String(i)} className="bg-stone-900">

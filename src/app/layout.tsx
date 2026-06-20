@@ -3,10 +3,15 @@ import { Cormorant_Garamond, Inter, Geist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
 import { ThemeProvider }  from "@/components/theme-provider";
 import { Toaster }        from "@/components/ui/sonner";
 import { AgentJsonLd }    from "@/components/json-ld";
-import { WhatsAppFab }    from "@/components/WhatsAppFab";
+
+const WhatsAppFab = dynamic(
+  () => import("@/components/WhatsAppFab").then((m) => m.WhatsAppFab),
+  { ssr: false }
+);
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
