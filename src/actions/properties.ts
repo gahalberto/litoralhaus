@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugify";
 import { propertyFormSchema, type PropertyActionResult } from "@/types/property";
-import { PropertyStatus, PropertyType, Region } from "@prisma/client";
+import { PropertyStatus, PropertyType, PropertyPurpose, Region } from "@prisma/client";
 import { requireSession } from "@/lib/session";
 
 function calcNextReview(intervalDays: number): Date {
@@ -390,17 +390,34 @@ export type PropertyRow = {
 };
 
 export async function getProperties(filters?: {
-  status?: PropertyStatus;
-  type?: PropertyType;
-  isIsca?: boolean;
-  region?: Region;
+  q?:        string;
+  status?:   PropertyStatus;
+  type?:     PropertyType;
+  isIsca?:   boolean;
+  region?:   Region;
+  active?:   boolean;
+  featured?: boolean;
+  purpose?:  PropertyPurpose;
 }): Promise<PropertyRow[]> {
+  const q = filters?.q?.trim();
   return prisma.property.findMany({
     where: {
-      ...(filters?.status  && { status:  filters.status  }),
-      ...(filters?.type    && { type:    filters.type    }),
-      ...(filters?.region  && { region:  filters.region  }),
-      ...(filters?.isIsca !== undefined && { isIsca: filters.isIsca }),
+      ...(filters?.status   && { status:  filters.status  }),
+      ...(filters?.type     && { type:    filters.type    }),
+      ...(filters?.region   && { region:  filters.region  }),
+      ...(filters?.isIsca  !== undefined && { isIsca:   filters.isIsca   }),
+      ...(filters?.active  !== undefined && { active:   filters.active   }),
+      ...(filters?.featured !== undefined && { featured: filters.featured }),
+      ...(filters?.purpose  && { purposes: { has: filters.purpose } }),
+      ...(q && {
+        OR: [
+          { refCode:      { contains: q, mode: "insensitive" } },
+          { title:        { contains: q, mode: "insensitive" } },
+          { address:      { contains: q, mode: "insensitive" } },
+          { neighborhood: { contains: q, mode: "insensitive" } },
+          { city:         { contains: q, mode: "insensitive" } },
+        ],
+      }),
     },
     orderBy: { createdAt: "desc" },
     select: {

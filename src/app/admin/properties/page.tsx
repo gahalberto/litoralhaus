@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PropertyStatus, PropertyType, Region } from "@prisma/client";
+import { Suspense } from "react";
+import { PropertyStatus, PropertyType, PropertyPurpose, Region } from "@prisma/client";
 import { getProperties } from "@/actions/properties";
 import {
   PROPERTY_TYPE_LABELS,
@@ -8,11 +9,15 @@ import {
   REGION_LABELS,
   formatPrice,
 } from "@/lib/property-config";
+import {
+  PropertySearchInput,
+  PropertyFilterPills,
+  PropertyAdvancedFilters,
+  ClearAllFilters,
+} from "@/components/admin/PropertyFiltersBar";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Imóveis" };
-
-const FILTER_ALL = "all";
 
 export default async function PropertiesPage({
   searchParams,
@@ -21,34 +26,38 @@ export default async function PropertiesPage({
 }) {
   const sp = await searchParams;
 
-  const statusFilter  = sp.status  as PropertyStatus  | undefined;
-  const typeFilter    = sp.type    as PropertyType    | undefined;
-  const regionFilter  = sp.region  as Region          | undefined;
-  const iscaFilter    = sp.isca === "1" ? true : sp.isca === "0" ? false : undefined;
+  const statusFilter   = sp.status  as PropertyStatus  | undefined;
+  const typeFilter     = sp.type    as PropertyType    | undefined;
+  const regionFilter   = sp.region  as Region          | undefined;
+  const purposeFilter  = sp.purpose as PropertyPurpose | undefined;
+  const iscaFilter     = sp.isca    === "1" ? true  : sp.isca    === "0" ? false : undefined;
+  const activeFilter   = sp.active  === "1" ? true  : sp.active  === "0" ? false : undefined;
+  const featuredFilter = sp.featured === "1" ? true : sp.featured === "0" ? false : undefined;
+  const q              = sp.q?.trim() || undefined;
 
   const properties = await getProperties({
-    status: statusFilter && Object.values(PropertyStatus).includes(statusFilter) ? statusFilter : undefined,
-    type:   typeFilter   && Object.values(PropertyType).includes(typeFilter)     ? typeFilter   : undefined,
-    region: regionFilter && Object.values(Region).includes(regionFilter)         ? regionFilter : undefined,
-    isIsca: iscaFilter,
+    q,
+    status:   statusFilter  && Object.values(PropertyStatus).includes(statusFilter)   ? statusFilter   : undefined,
+    type:     typeFilter    && Object.values(PropertyType).includes(typeFilter)        ? typeFilter     : undefined,
+    region:   regionFilter  && Object.values(Region).includes(regionFilter)           ? regionFilter   : undefined,
+    purpose:  purposeFilter && Object.values(PropertyPurpose).includes(purposeFilter) ? purposeFilter  : undefined,
+    isIsca:   iscaFilter,
+    active:   activeFilter,
+    featured: featuredFilter,
   });
 
-  function filterHref(key: string, value: string) {
-    const p = new URLSearchParams(sp);
-    if (value === FILTER_ALL) p.delete(key);
-    else p.set(key, value);
-    const q = p.toString();
-    return `/admin/properties${q ? `?${q}` : ""}`;
-  }
+  const hasFilters = Object.keys(sp).length > 0;
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
+
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex shrink-0 items-center justify-between border-b border-border px-8 py-4">
         <div>
           <h1 className="font-cormorant text-2xl font-light text-foreground">Imóveis</h1>
           <p className="mt-0.5 font-inter text-xs text-muted-foreground">
             {properties.length} {properties.length === 1 ? "imóvel" : "imóveis"}
+            {hasFilters && <span className="ml-1 text-muted-foreground/50">(filtrado)</span>}
           </p>
         </div>
         <Link
@@ -59,59 +68,48 @@ export default async function PropertiesPage({
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="flex shrink-0 items-center gap-6 border-b border-border px-8 py-3 overflow-x-auto">
-        {/* Status */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground/60 mr-1">Status</span>
-          <FilterPill href={filterHref("status", FILTER_ALL)} active={!statusFilter}>Todos</FilterPill>
-          {Object.values(PropertyStatus).map((s) => (
-            <FilterPill key={s} href={filterHref("status", s)} active={statusFilter === s}>
-              {PROPERTY_STATUS_CONFIG[s].label}
-            </FilterPill>
-          ))}
-        </div>
-
-        <div className="h-4 w-px shrink-0 bg-border" />
-
-        {/* Tipo */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground/60 mr-1">Tipo</span>
-          <FilterPill href={filterHref("type", FILTER_ALL)} active={!typeFilter}>Todos</FilterPill>
-          {Object.values(PropertyType).map((t) => (
-            <FilterPill key={t} href={filterHref("type", t)} active={typeFilter === t}>
-              {PROPERTY_TYPE_LABELS[t]}
-            </FilterPill>
-          ))}
-        </div>
-
-        <div className="h-4 w-px shrink-0 bg-border" />
-
-        {/* Isca */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-inter text-[10px] uppercase tracking-widest text-muted-foreground/60 mr-1">Isca</span>
-          <FilterPill href={filterHref("isca", FILTER_ALL)} active={iscaFilter === undefined}>Todos</FilterPill>
-          <FilterPill href={filterHref("isca", "1")} active={iscaFilter === true}>Ativa</FilterPill>
-          <FilterPill href={filterHref("isca", "0")} active={iscaFilter === false}>Inativa</FilterPill>
+      {/* ── Search + Advanced ─────────────────────────────────────────────── */}
+      <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-8 py-3">
+        <Suspense>
+          <PropertySearchInput defaultValue={q ?? ""} />
+        </Suspense>
+        <div className="flex items-center gap-3">
+          <Suspense>
+            <ClearAllFilters />
+          </Suspense>
+          <Suspense>
+            <PropertyAdvancedFilters />
+          </Suspense>
         </div>
       </div>
 
-      {/* Table */}
+      {/* ── Filter pills ──────────────────────────────────────────────────── */}
+      <div className="shrink-0 overflow-x-auto border-b border-border px-8 py-2.5">
+        <Suspense>
+          <PropertyFilterPills />
+        </Suspense>
+      </div>
+
+      {/* ── Table ─────────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-auto">
         {properties.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
             <p className="font-cormorant text-2xl font-light text-muted-foreground">
-              Nenhum imóvel cadastrado
+              {hasFilters ? "Nenhum imóvel encontrado" : "Nenhum imóvel cadastrado"}
             </p>
             <p className="font-inter text-xs text-muted-foreground/60">
-              Clique em &quot;Cadastrar&quot; para adicionar o primeiro imóvel ao portfólio.
+              {hasFilters
+                ? "Tente ajustar os filtros ou a busca."
+                : "Clique em \"Cadastrar\" para adicionar o primeiro imóvel ao portfólio."}
             </p>
-            <Link
-              href="/admin/properties/new"
-              className="mt-2 inline-flex items-center gap-2 border border-border px-5 py-2.5 font-inter text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-            >
-              + Cadastrar primeiro imóvel
-            </Link>
+            {!hasFilters && (
+              <Link
+                href="/admin/properties/new"
+                className="mt-2 inline-flex items-center gap-2 border border-border px-5 py-2.5 font-inter text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+              >
+                + Cadastrar primeiro imóvel
+              </Link>
+            )}
           </div>
         ) : (
           <table className="w-full min-w-215 border-collapse">
@@ -131,10 +129,8 @@ export default async function PropertiesPage({
               {properties.map((p) => {
                 const statusCfg = PROPERTY_STATUS_CONFIG[p.status];
                 return (
-                  <tr
-                    key={p.id}
-                    className="group transition-colors hover:bg-muted/20"
-                  >
+                  <tr key={p.id} className="group transition-colors hover:bg-muted/20">
+
                     {/* Ref */}
                     <td className="px-5 py-3">
                       {p.refCode ? (
@@ -154,10 +150,13 @@ export default async function PropertiesPage({
                         )}
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className={cn(
-                              "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
-                              p.active ? "bg-emerald-400" : "bg-zinc-300 dark:bg-zinc-600"
-                            )} title={p.active ? "Ativo" : "Inativo"} />
+                            <span
+                              className={cn(
+                                "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+                                p.active ? "bg-emerald-400" : "bg-zinc-300 dark:bg-zinc-600"
+                              )}
+                              title={p.active ? "Ativo" : "Inativo"}
+                            />
                             <Link
                               href={`/admin/properties/${p.id}`}
                               className={cn(
@@ -214,7 +213,7 @@ export default async function PropertiesPage({
                       )}
                     </td>
 
-                    {/* Leads interessados */}
+                    {/* Leads */}
                     <td className="px-5 py-3">
                       <span className="font-inter text-xs tabular-nums text-muted-foreground">
                         {p._count.interests}
@@ -246,29 +245,5 @@ export default async function PropertiesPage({
         )}
       </div>
     </div>
-  );
-}
-
-function FilterPill({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "rounded px-2.5 py-1 font-inter text-[11px] transition-colors",
-        active
-          ? "bg-foreground text-background"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {children}
-    </Link>
   );
 }
