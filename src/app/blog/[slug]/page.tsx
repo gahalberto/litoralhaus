@@ -142,7 +142,7 @@ export default async function BlogPostPage({
 
       {/* ── Imagem de capa ────────────────────────────────────────────────── */}
       {post.coverImage ? (
-        <div className="relative h-64 w-full overflow-hidden bg-zinc-900 sm:h-105 lg:h-130">
+        <div className="relative h-80 w-full overflow-hidden bg-zinc-900 sm:h-105 lg:h-130">
           <Image
             src={post.coverImage}
             alt={post.title}
@@ -151,35 +151,40 @@ export default async function BlogPostPage({
             sizes="100vw"
             className="object-cover"
           />
-          {/* gradiente no rodapé para o título deslizar por cima */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+          {/* gradiente cobre 70% do rodapé para acomodar títulos longos */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
 
-          {/* Tags sobrepostas */}
-          <div className="absolute left-6 top-6 flex flex-wrap gap-2">
-            {post.region && (
-              <span className="rounded-full bg-amber-500 px-3 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white shadow">
-                {REGION_LABELS[post.region]}
-                {post.neighborhood && ` · ${post.neighborhood}`}
-              </span>
-            )}
-            {post.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="flex items-center gap-1 rounded-full border border-white/20 bg-black/30 px-2.5 py-0.5 font-inter text-[10px] text-white/80 backdrop-blur-sm"
-              >
-                <Tag size={9} />
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Título sobre a imagem */}
-          <div className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-16">
+          {/* Tags + título + meta — tudo no mesmo bloco, sem risco de sobreposição */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 pb-7 pt-20">
             <div className="mx-auto max-w-4xl">
-              <h1 className="font-cormorant text-3xl font-semibold leading-tight text-white drop-shadow-md sm:text-5xl">
+              {/* Tags */}
+              {(post.region || post.tags.length > 0) && (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {post.region && (
+                    <span className="rounded-full bg-amber-500 px-3 py-0.5 font-inter text-[10px] font-bold uppercase tracking-widest text-white shadow">
+                      {REGION_LABELS[post.region]}
+                      {post.neighborhood && ` · ${post.neighborhood}`}
+                    </span>
+                  )}
+                  {post.tags.slice(0, 2).map((tag) => (
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 rounded-full border border-white/20 bg-black/30 px-2.5 py-0.5 font-inter text-[10px] text-white/80 backdrop-blur-sm"
+                    >
+                      <Tag size={9} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Título — menor em mobile para caber sem problema */}
+              <h1 className="font-cormorant text-2xl font-semibold leading-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
                 {post.title}
               </h1>
-              <div className="mt-4 flex flex-wrap items-center gap-4 font-inter text-xs text-white/60">
+
+              {/* Meta */}
+              <div className="mt-3 flex flex-wrap items-center gap-3 font-inter text-xs text-white/60">
                 <span className="flex items-center gap-1.5">
                   <Calendar size={12} />
                   {formatDate(post.publishedAt)}

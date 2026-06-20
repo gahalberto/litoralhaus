@@ -138,6 +138,7 @@ export async function getAdminPosts() {
       published: true, publishedAt: true,
       region: true, neighborhood: true,
       tags: true, updatedAt: true,
+      viewCount: true,
     },
   });
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdminPosts } from "@/actions/blog";
 import { REGION_LABELS } from "@/lib/property-config";
+import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Blog" };
@@ -48,7 +49,7 @@ export default async function AdminBlogPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                {["Título", "Região / Bairro", "Tags", "Status", "Data", ""].map((h) => (
+                {["Título", "Região / Bairro", "Tags", "Status", "Views", "Data", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left font-inter text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
@@ -111,6 +112,14 @@ export default async function AdminBlogPage() {
                         )}
                       />
                       {p.published ? "Publicado" : "Rascunho"}
+                    </span>
+                  </td>
+
+                  {/* Views */}
+                  <td className="px-5 py-3">
+                    <span className="inline-flex items-center gap-1.5 font-inter text-sm tabular-nums text-muted-foreground">
+                      <Eye size={13} className={cn(p.viewCount > 0 ? "text-amber-500" : "text-muted-foreground/30")} />
+                      {p.viewCount.toLocaleString("pt-BR")}
                     </span>
                   </td>
 

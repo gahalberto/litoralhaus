@@ -476,6 +476,8 @@ model Post {
   published   Boolean   @default(false)
   publishedAt DateTime?
 
+  viewCount  Int @default(0)
+
   authorName String @default("Litoral Haus")
 
   // Local SEO — bairro e cidade do artigo
