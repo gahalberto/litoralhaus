@@ -45,3 +45,13 @@ export const TYPE_LABEL_PLURAL: Record<PropertyType, string> = {
   COMMERCIAL:"Imóveis Comerciais",
   CONDO:     "Condomínios",
 };
+
+/** "Jardim Enseada" → "jardim-enseada" */
+export function slugifyNeighborhood(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
