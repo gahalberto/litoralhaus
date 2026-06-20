@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { REGION_TO_SLUG, TYPE_TO_SLUG, slugifyNeighborhood } from "@/lib/seo-slugs";
+import { getAllPostSlugs } from "@/lib/blog";
 
 const BASE = "https://litoralhaus.com.br";
 
@@ -15,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [
     { url: BASE,              lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
     { url: `${BASE}/imoveis`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/blog`,    lastModified: new Date(), changeFrequency: "weekly",  priority: 0.85 },
     { url: `${BASE}/contato`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
   ];
 
@@ -64,5 +66,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority:        0.7,
   }));
 
-  return [...staticUrls, ...regionUrls, ...typeUrls, ...neighborhoodUrls, ...propertyUrls];
+  // Posts do blog
+  const postSlugs = await getAllPostSlugs();
+  const blogUrls: MetadataRoute.Sitemap = postSlugs.map((slug) => ({
+    url:             `${BASE}/blog/${slug}`,
+    lastModified:    new Date(),
+    changeFrequency: "monthly" as const,
+    priority:        0.75,
+  }));
+
+  return [...staticUrls, ...regionUrls, ...typeUrls, ...neighborhoodUrls, ...propertyUrls, ...blogUrls];
 }

@@ -5,6 +5,18 @@
 
 const BASE = "https://litoralhaus.com.br";
 
+// ─── Tipos públicos ───────────────────────────────────────────────────────────
+
+export interface ArticleSchemaProps {
+  slug:        string;
+  title:       string;
+  excerpt:     string;
+  coverImage:  string | null;
+  authorName:  string;
+  publishedAt: Date | null;
+  updatedAt:   Date;
+}
+
 // ─── Tipos internos ───────────────────────────────────────────────────────────
 
 interface AgentSchemaProps {
@@ -145,6 +157,57 @@ export function PropertyJsonLd(p: PropertySchemaProps) {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(clean) }}
+    />
+  );
+}
+
+// ─── Article (Blog) ───────────────────────────────────────────────────────────
+
+export function ArticleJsonLd(p: ArticleSchemaProps) {
+  const url = `${BASE}/blog/${p.slug}`;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type":    "Article",
+    "@id":      url,
+    headline:   p.title,
+    description: p.excerpt,
+    url,
+    ...(p.coverImage && { image: [p.coverImage] }),
+    datePublished:  p.publishedAt?.toISOString() ?? new Date().toISOString(),
+    dateModified:   p.updatedAt.toISOString(),
+    author: {
+      "@type": "Organization",
+      name:    p.authorName,
+      url:     BASE,
+    },
+    publisher: {
+      "@type": "Organization",
+      name:    "Litoral Haus",
+      url:     BASE,
+      logo: {
+        "@type": "ImageObject",
+        url:     `${BASE}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id":   url,
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home",  item: BASE },
+        { "@type": "ListItem", position: 2, name: "Blog",  item: `${BASE}/blog` },
+        { "@type": "ListItem", position: 3, name: p.title, item: url },
+      ],
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
   );
 }

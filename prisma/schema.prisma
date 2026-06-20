@@ -246,6 +246,7 @@ model Property {
   interests PropertyInterest[]
   visits    Visit[]
   logs      PropertyLog[]
+  posts     PostProperty[]
 
   @@index([refCode])
   @@index([region, status])
@@ -457,4 +458,52 @@ model PropertyLog {
 
   @@index([propertyId])
   @@index([createdAt])
+}
+
+// ─── Blog ─────────────────────────────────────────────────────────────────────
+
+model Post {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title      String
+  slug       String   @unique
+  excerpt    String   @db.Text
+  content    String   @db.Text
+  coverImage String?
+
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+
+  authorName String @default("Litoral Haus")
+
+  // Local SEO — bairro e cidade do artigo
+  region       Region?
+  city         String?
+  neighborhood String?
+
+  // Tags livres (ex: "mercado imobiliário", "dicas de compra")
+  tags String[]
+
+  // SEO overrides
+  seoTitle       String?
+  seoDescription String?
+
+  relatedProperties PostProperty[]
+
+  @@index([published, publishedAt])
+  @@index([region])
+  @@index([slug])
+}
+
+model PostProperty {
+  postId     String
+  propertyId String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@id([postId, propertyId])
+  @@index([postId])
+  @@index([propertyId])
 }
