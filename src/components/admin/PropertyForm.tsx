@@ -31,6 +31,7 @@ import { CatalogPicker }      from "@/components/admin/CatalogPicker";
 import { ImageUploader }      from "@/components/admin/ImageUploader";
 import { OwnerSearchInput }   from "@/components/admin/OwnerSearchInput";
 import { UserSearchInput }    from "@/components/admin/UserSearchInput";
+import { RichTextEditor }     from "@/components/admin/RichTextEditor";
 import { createHighlight, createAmenity, createProximity, type CatalogItem } from "@/actions/catalog";
 import { createPropertyCategory } from "@/actions/property-categories";
 import { cn }            from "@/lib/utils";
@@ -788,11 +789,9 @@ export function PropertyForm({
         description="Texto de venda exibido no anúncio."
       >
         <Field label="Descrição" error={errors.description?.message}>
-          <Textarea
-            {...register("description")}
-            rows={5}
-            placeholder="Descreva o imóvel com detalhes que convertem: vista, acabamento, localização..."
-            className="font-inter text-sm"
+          <RichTextEditor
+            value={watch("description") ?? ""}
+            onChange={(html) => setValue("description", html, { shouldValidate: true })}
           />
         </Field>
       </Section>
