@@ -52,6 +52,16 @@ export const metadata: Metadata = {
     "imóveis Guarujá médio padrão",
     "apartamento litoral São Paulo",
   ],
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "500x500", type: "image/png" },
+      { url: "/icon.png", sizes: "32x32",   type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "500x500", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+  },
   authors: [{ name: "Litoral Haus", url: BASE_URL }],
   creator: "Litoral Haus",
   publisher: "Litoral Haus",
