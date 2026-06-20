@@ -27,7 +27,7 @@ export async function PropertyShowcase({ region, neighborhood, title }: Property
     : "Imóveis em destaque");
 
   return (
-    <aside className="not-prose my-10 rounded-2xl border border-amber-100 bg-amber-50/60 p-6">
+    <aside className="not-prose my-10 rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-center justify-between">
         <div>
           <p className="font-inter text-[10px] uppercase tracking-widest text-amber-600">
