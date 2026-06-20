@@ -7,6 +7,7 @@ import { REGION_LABELS } from "@/lib/property-config";
 import { ArticleJsonLd } from "@/components/json-ld";
 import { PropertyShowcase } from "@/components/blog/PropertyShowcase";
 import { WhatsAppCTA } from "@/components/blog/WhatsAppCTA";
+import { WhatsAppGroupBanner } from "@/components/blog/WhatsAppGroupBanner";
 import { Footer } from "@/components/sections/Footer";
 import { Calendar, Clock, ArrowLeft, Tag } from "lucide-react";
 
@@ -64,6 +65,14 @@ export async function generateMetadata({
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function splitContentAtMiddle(html: string): [string, string] {
+  const mid = Math.floor(html.length / 2);
+  // encontra o </p> mais próximo após o ponto médio para não cortar dentro de uma tag
+  const cut = html.indexOf("</p>", mid);
+  if (cut === -1) return [html, ""];
+  return [html.slice(0, cut + 4), html.slice(cut + 4)];
+}
 
 function formatDate(date: Date | null): string {
   if (!date) return "";
@@ -247,11 +256,19 @@ export default async function BlogPostPage({
 
             {/* ── Coluna principal ────────────────────────────────────────── */}
             <div>
-              {/* Conteúdo HTML armazenado no banco */}
-              <div
-                className="article-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+              {/* Conteúdo HTML com banner do grupo no meio */}
+              {(() => {
+                const [firstHalf, secondHalf] = splitContentAtMiddle(post.content);
+                return (
+                  <>
+                    <div className="article-content" dangerouslySetInnerHTML={{ __html: firstHalf }} />
+                    <WhatsAppGroupBanner />
+                    {secondHalf && (
+                      <div className="article-content" dangerouslySetInnerHTML={{ __html: secondHalf }} />
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Showcase de imóveis relacionados ao artigo (via PostProperty) */}
               {hasRelatedProperties && (
