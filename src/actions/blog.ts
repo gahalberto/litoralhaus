@@ -2,34 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod/v4";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugify";
 import { requireSession } from "@/lib/session";
-import { Region } from "@prisma/client";
+import { postFormSchema, type PostActionResult } from "@/types/blog";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
-
-export const postFormSchema = z.object({
-  id:           z.string().optional(),
-  title:        z.string().min(3, "Título obrigatório"),
-  slug:         z.string().min(3, "Slug obrigatório").regex(/^[a-z0-9-]+$/, "Slug: apenas letras minúsculas, números e hífens"),
-  excerpt:      z.string().min(10, "Resumo obrigatório"),
-  content:      z.string().min(10, "Conteúdo obrigatório"),
-  coverImage:   z.string().optional(),
-  published:    z.boolean(),
-  publishedAt:  z.string().optional(),
-  authorName:   z.string(),
-  region:       z.nativeEnum(Region).optional().nullable(),
-  city:         z.string().optional(),
-  neighborhood: z.string().optional(),
-  tagsRaw:      z.string().optional(),
-  seoTitle:     z.string().optional(),
-  seoDescription: z.string().optional(),
-});
-
-export type PostFormData   = z.infer<typeof postFormSchema>;
-export type PostActionResult = { success: true; id: string } | { success: false; error: string };
+export type { PostFormData, PostActionResult } from "@/types/blog";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

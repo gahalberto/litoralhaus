@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { Region } from "@prisma/client";
 import { toast } from "sonner";
 
-import { postFormSchema, type PostFormData, createPost, updatePost, deletePost } from "@/actions/blog";
+import { postFormSchema, type PostFormData } from "@/types/blog";
+import { createPost, updatePost, deletePost } from "@/actions/blog";
 import { slugify } from "@/lib/slugify";
 import { REGION_LABELS } from "@/lib/property-config";
 import { Button }   from "@/components/ui/button";
