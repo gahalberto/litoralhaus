@@ -3,7 +3,8 @@
 import { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { submitContact, contactFormSchema, type ContactFormData } from "@/actions/contacts";
+import { submitContact } from "@/actions/contacts";
+import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
 const inputCls =
   "w-full rounded-none border-b border-stone-700 bg-transparent px-0 py-3 font-inter text-sm text-stone-100 placeholder-stone-600 outline-none transition-colors duration-200 focus:border-amber-400 focus:placeholder-stone-500";
