@@ -9,7 +9,7 @@ import { PropertyType, PropertyStatus, Region } from "@prisma/client";
 import { propertyFormSchema, type PropertyFormData } from "@/types/property";
 import { createProperty, updateProperty } from "@/actions/properties";
 import { slugify } from "@/lib/slugify";
-import { fetchCep, formatCep } from "@/lib/cep";
+import { fetchCep, formatCep, geocodeAddress } from "@/lib/cep";
 import {
   PROPERTY_TYPE_LABELS,
   PROPERTY_STATUS_CONFIG,
@@ -297,7 +297,7 @@ export function PropertyForm({
     if (!isEdit && title) setValue("slug", slugify(title), { shouldValidate: false });
   }, [title, setValue, isEdit]);
 
-  // CEP auto-fill
+  // CEP auto-fill + geocoding
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "error">("idle");
   const cepValue = watch("cep");
   useEffect(() => {
@@ -307,15 +307,22 @@ export function PropertyForm({
       return;
     }
     setCepStatus("loading");
-    fetchCep(digits).then((data) => {
+    fetchCep(digits).then(async (data) => {
       if (!data) {
         setCepStatus("error");
         return;
       }
-      setValue("city",         data.localidade,  { shouldValidate: true });
-      setValue("neighborhood", data.bairro,       { shouldValidate: true });
-      setValue("address",      data.logradouro,   { shouldValidate: true });
+      setValue("city",         data.localidade, { shouldValidate: true });
+      setValue("neighborhood", data.bairro,      { shouldValidate: true });
+      setValue("address",      data.logradouro,  { shouldValidate: true });
       setCepStatus("idle");
+
+      // Geocoding em background — não bloqueia o formulário
+      const coords = await geocodeAddress(data.logradouro, data.bairro, data.localidade, data.uf);
+      if (coords) {
+        setValue("latitude",  coords.lat);
+        setValue("longitude", coords.lng);
+      }
     });
   }, [cepValue, setValue]);
 

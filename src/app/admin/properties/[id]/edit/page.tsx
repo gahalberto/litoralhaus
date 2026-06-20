@@ -66,6 +66,8 @@ export default async function EditPropertyPage({
     refCode:    property.refCode ?? undefined,
     seoTitle:       property.seoTitle ?? "",
     seoDescription: property.seoDescription ?? "",
+    latitude:       property.latitude  ? Number(property.latitude)  : undefined,
+    longitude:      property.longitude ? Number(property.longitude) : undefined,
   };
 
   const isAdmin = session?.role === "ADMIN";

@@ -41,9 +41,12 @@ function formatPhone(digits: string, cc: string): string {
 function parsePhone(stored: string): { cc: string; local: string } {
   const s = stored.trim();
   if (!s) return { cc: "55", local: "" };
-  const m = s.match(/^\+?(\d{1,4})(\d*)$/);
-  if (m) return { cc: m[1], local: m[2] };
-  return { cc: "55", local: s.replace(/\D/g, "") };
+  const raw = s.startsWith("+") ? s.slice(1) : s.replace(/\D/g, "");
+  // +55 (Brasil) — o código do país tem exatamente 2 dígitos
+  if (raw.startsWith("55") && raw.length > 2) {
+    return { cc: "55", local: raw.slice(2) };
+  }
+  return { cc: "55", local: raw };
 }
 
 // Classe do campo de código do país — sem w-full para não conflitar com a largura explícita

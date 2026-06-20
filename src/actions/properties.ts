@@ -113,6 +113,8 @@ export async function createProperty(
         ownerPhone: d.ownerPhone || undefined,
         seoTitle:       d.seoTitle,
         seoDescription: d.seoDescription,
+        latitude:       d.latitude  !== undefined ? d.latitude  : undefined,
+        longitude:      d.longitude !== undefined ? d.longitude : undefined,
         // Responsáveis
         createdById: session.userId,
         agentId:     d.agentId || session.userId,
@@ -272,6 +274,8 @@ export async function updateProperty(
     reviewIntervalDays: toNum(d.reviewIntervalDays) ?? 90,
     seoTitle:           d.seoTitle ?? null,
     seoDescription:     d.seoDescription ?? null,
+    latitude:           d.latitude  ?? null,
+    longitude:          d.longitude ?? null,
   };
 
   // Gera logs por campo alterado

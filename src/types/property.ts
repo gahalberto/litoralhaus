@@ -56,6 +56,10 @@ export const propertyFormSchema = z.object({
   ownerPhone: z.string().optional(),
   agentId:    z.string().optional(),
 
+  // Coordenadas (preenchidas automaticamente pelo geocoding do CEP)
+  latitude:  z.number().optional(),
+  longitude: z.number().optional(),
+
   // SEO
   seoTitle:       z.string().max(70, "Máximo 70 caracteres para SEO").optional(),
   seoDescription: z.string().max(160, "Máximo 160 caracteres para SEO").optional(),
