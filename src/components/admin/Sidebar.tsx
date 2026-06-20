@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   MessageSquare,
+  BookOpen,
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -33,6 +34,7 @@ const NAV_MAIN: NavItem[] = [
   { label: "Dashboard",     href: "/admin",             icon: LayoutDashboard },
   { label: "Leads",         href: "/admin/leads",       icon: TrendingUp      },
   { label: "Imóveis",       href: "/admin/properties",  icon: Building2       },
+  { label: "Blog",          href: "/admin/blog",        icon: BookOpen        },
   { label: "Proprietários", href: "/admin/owners",      icon: UserCheck       },
   { label: "Mensagens",     href: "/admin/contacts",    icon: MessageSquare   },
   { label: "Equipe",        href: "/admin/team",        icon: Users, soon: true },
