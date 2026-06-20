@@ -772,10 +772,10 @@ export function PropertyForm({
             />
           </Field>
           <Field label="Condomínio (R$)">
-            <input {...register("condoFee")} type="number" step="10" className={inputCls} />
+            <input {...register("condoFee")} type="number" step="0.01" min="0" className={inputCls} />
           </Field>
           <Field label="IPTU/ano (R$)">
-            <input {...register("iptu")} type="number" step="100" className={inputCls} />
+            <input {...register("iptu")} type="number" step="0.01" min="0" className={inputCls} />
           </Field>
         </FieldGroup>
       </Section>
