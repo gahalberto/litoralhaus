@@ -17,7 +17,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE,              lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
     { url: `${BASE}/imoveis`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
     { url: `${BASE}/blog`,    lastModified: new Date(), changeFrequency: "weekly",  priority: 0.85 },
-    { url: `${BASE}/contato`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/contato`,    lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/privacidade`, lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/termos`,      lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
   ];
 
   // /comprar/[regiao] — uma por cidade
