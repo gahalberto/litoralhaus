@@ -37,6 +37,21 @@ export const PROPERTY_STATUS_CONFIG: Record<
     badge: "bg-stone-100 text-stone-500 dark:bg-stone-700/40 dark:text-stone-400",
     dot:   "bg-stone-400",
   },
+  ALUGADO: {
+    label: "Alugado",
+    badge: "bg-blue-100 text-blue-700 dark:bg-blue-400/10 dark:text-blue-300",
+    dot:   "bg-blue-400",
+  },
+  DESISTENCIA: {
+    label: "Desistência",
+    badge: "bg-red-100 text-red-700 dark:bg-red-400/10 dark:text-red-300",
+    dot:   "bg-red-400",
+  },
+  OUTROS: {
+    label: "Outros",
+    badge: "bg-zinc-100 text-zinc-500 dark:bg-zinc-700/40 dark:text-zinc-400",
+    dot:   "bg-zinc-400",
+  },
 };
 
 export const REGION_LABELS: Record<Region, string> = {

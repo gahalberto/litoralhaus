@@ -153,9 +153,18 @@ export default async function PropertiesPage({
                           <span title="Destaque" className="text-amber-500 dark:text-amber-400 text-sm">★</span>
                         )}
                         <div>
-                          <p className="font-inter text-sm font-medium text-foreground">
-                            {p.title}
-                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <span className={cn(
+                              "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+                              p.active ? "bg-emerald-400" : "bg-zinc-300 dark:bg-zinc-600"
+                            )} title={p.active ? "Ativo" : "Inativo"} />
+                            <p className={cn(
+                              "font-inter text-sm font-medium",
+                              p.active ? "text-foreground" : "text-muted-foreground/60"
+                            )}>
+                              {p.title}
+                            </p>
+                          </div>
                           <p className="font-inter text-[10px] text-muted-foreground/60">
                             {p.neighborhood}
                           </p>

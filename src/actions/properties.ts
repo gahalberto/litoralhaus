@@ -77,6 +77,7 @@ export async function createProperty(
         slug,
         type:         d.type,
         status:       d.status,
+        active:       d.active,
         isIsca:       d.isIsca,
         featured:     d.featured,
         region:       d.region,
@@ -248,6 +249,7 @@ export async function updateProperty(
     title:              d.title,
     slug:               d.slug || slugify(d.title),
     status:             d.status,
+    active:             d.active,
     purposes:           d.purposes,
     type:               d.type,
     categoryId:         d.categoryId || null,
@@ -355,6 +357,7 @@ export type PropertyRow = {
   title: string;
   type: PropertyType;
   status: PropertyStatus;
+  active: boolean;
   city: string;
   neighborhood: string;
   priceAsk: string | null;
@@ -380,7 +383,7 @@ export async function getProperties(filters?: {
     },
     orderBy: { createdAt: "desc" },
     select: {
-      id: true, refCode: true, title: true, type: true, status: true,
+      id: true, refCode: true, title: true, type: true, status: true, active: true,
       city: true, neighborhood: true, region: true,
       priceAsk: true, isIsca: true, featured: true, createdAt: true,
       _count: { select: { interests: true } },

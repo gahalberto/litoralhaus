@@ -60,6 +60,9 @@ enum PropertyStatus {
   DISPONIVEL
   RESERVADO
   VENDIDO
+  ALUGADO
+  DESISTENCIA
+  OUTROS
 }
 
 enum InteractionChannel {
@@ -171,6 +174,7 @@ model Property {
   status      PropertyStatus  @default(DISPONIVEL)
   type        PropertyType    @default(APARTMENT)
   purposes    PropertyPurpose[]
+  active      Boolean         @default(true)
   featured    Boolean         @default(false)
   isIsca      Boolean         @default(false)
 

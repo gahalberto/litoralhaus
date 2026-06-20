@@ -278,6 +278,7 @@ export function PropertyForm({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: initialData ?? {
       status:       PropertyStatus.DISPONIVEL,
+      active:       true,
       type:         PropertyType.APARTMENT,
       purposes:     [PropertyPurpose.VENDA],
       region:       Region.GUARUJA,
@@ -334,6 +335,7 @@ export function PropertyForm({
     initialData?.amenityIds ?? []
   );
 
+  const active            = watch("active");
   const isIsca            = watch("isIsca");
   const featured          = watch("featured");
   const showAddressNumber = watch("showAddressNumber");
@@ -488,6 +490,27 @@ export function PropertyForm({
             </select>
           </Field>
         </FieldGroup>
+
+        {/* Ativo */}
+        <label className={cn(
+          "flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 transition-colors",
+          active
+            ? "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-400/5"
+            : "border-border bg-muted/30 hover:bg-muted/50"
+        )}>
+          <div>
+            <p className="font-inter text-sm font-medium text-foreground">
+              {active ? "Imóvel Ativo" : "Imóvel Inativo"}
+            </p>
+            <p className="font-inter text-xs text-muted-foreground">
+              {active ? "Visível no site e nas buscas" : "Oculto do site e das buscas"}
+            </p>
+          </div>
+          <Switch
+            checked={active}
+            onCheckedChange={(v) => setValue("active", v)}
+          />
+        </label>
 
         {/* Isca + Destaque */}
         <FieldGroup cols={2}>

@@ -33,6 +33,7 @@ export default async function EditPropertyPage({
     slug:         property.slug,
     type:         property.type,
     status:       property.status,
+    active:       property.active,
     isIsca:       property.isIsca,
     featured:     property.featured,
     region:       property.region,
