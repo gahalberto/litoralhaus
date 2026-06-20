@@ -94,6 +94,10 @@ export async function generateMetadata({
   const type   = typeParam   && Object.values(PropertyType).includes(typeParam)   ? typeParam   : undefined;
   const region = regionParam && Object.values(Region).includes(regionParam)       ? regionParam : undefined;
 
+  // Páginas com filtros activos não devem ser indexadas — as URLs canônicas para
+  // conteúdo filtrado por região/tipo/bairro são as landing pages /comprar/[regiao]/[segmento].
+  const hasQueryFilters = !!(type || region || neighborhood);
+
   const count = await prisma.property.count({
     where: {
       status: "DISPONIVEL",
@@ -115,7 +119,10 @@ export async function generateMetadata({
       type: "website", locale: "pt_BR", url: canonicalUrl,
       siteName: "Litoral Haus", title: `${heading} | Litoral Haus`, description,
     },
-    robots: { index: true, follow: true },
+    // Filtros via query param → noindex para evitar duplicação com as landing pages
+    robots: hasQueryFilters
+      ? { index: false, follow: true }
+      : { index: true,  follow: true },
   };
 }
 
