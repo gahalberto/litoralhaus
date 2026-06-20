@@ -44,6 +44,12 @@ export function Navbar() {
             >
               Imóveis
             </Link>
+            <Link
+              href="/contato"
+              className="hidden font-inter text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              Contato
+            </Link>
             <button
               onClick={() => setModalOpen(true)}
               className="border border-border px-5 py-2 font-inter text-xs font-medium uppercase tracking-widest text-foreground transition-all duration-200 hover:border-amber-500 hover:text-amber-600 dark:hover:border-amber-400 dark:hover:text-amber-400"
