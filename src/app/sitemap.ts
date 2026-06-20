@@ -14,8 +14,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // URLs estáticas
   const staticUrls: MetadataRoute.Sitemap = [
-    { url: BASE,           lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/imoveis`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: BASE,              lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
+    { url: `${BASE}/imoveis`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/contato`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
   ];
 
   // Páginas de listagem por região (para SEO programático)

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PropertyType, Region } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import {
   getPublicProperties,
   getAvailableRegions,
@@ -93,12 +94,28 @@ export async function generateMetadata({
   const type   = typeParam   && Object.values(PropertyType).includes(typeParam)   ? typeParam   : undefined;
   const region = regionParam && Object.values(Region).includes(regionParam)       ? regionParam : undefined;
 
+  const count = await prisma.property.count({
+    where: {
+      status: "DISPONIVEL",
+      ...(type   && { type }),
+      ...(region && { region }),
+      ...(neighborhood && { neighborhood: { contains: neighborhood, mode: "insensitive" } }),
+    },
+  });
+
   const heading     = buildHeading({ type, region, neighborhood });
-  const description = buildDescription({ type, region, neighborhood, count: 0 });
+  const description = buildDescription({ type, region, neighborhood, count });
+  const canonicalUrl = `https://litoralhaus.com.br/imoveis`;
 
   return {
     title:       `${heading} | Litoral Haus`,
-    description: description.replace(/^0 /, ""),
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: "website", locale: "pt_BR", url: canonicalUrl,
+      siteName: "Litoral Haus", title: `${heading} | Litoral Haus`, description,
+    },
+    robots: { index: true, follow: true },
   };
 }
 

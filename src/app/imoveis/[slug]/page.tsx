@@ -24,19 +24,27 @@ export async function generateMetadata({
   if (!p) return { title: "Imóvel não encontrado" };
 
   const canonicalUrl = `${BASE}/imoveis/${slug}`;
+
   const title =
     p.seoTitle ||
-    `${PROPERTY_TYPE_LABELS[p.type]} ${p.neighborhood} ${REGION_LABELS[p.region]} | Litoral Haus`;
+    `${PROPERTY_TYPE_LABELS[p.type]} em ${p.neighborhood}, ${p.city} | Litoral Haus`;
 
-  const rawDesc =
-    p.seoDescription ||
-    (p.description ? p.description.split("\n")[0].slice(0, 155) : null) ||
-    `${PROPERTY_TYPE_LABELS[p.type]} à venda em ${p.neighborhood}, ${p.city}.${
-      p.bedrooms ? ` ${p.bedrooms} dormitórios.` : ""
-    }${p.areaTotal ? ` ${Number(p.areaTotal).toLocaleString("pt-BR")} m².` : ""}${
-      p.priceAsk ? " " + formatPrice(p.priceAsk) + "." : ""
-    } Litoral Haus.`;
-
+  // Monta descrição estruturada com dados reais (não usa campo "Descrição" do imóvel,
+  // que pode conter formatação interna imprópria para meta tags)
+  const descParts: string[] = [];
+  {
+    let intro = `${PROPERTY_TYPE_LABELS[p.type]} à venda em ${p.neighborhood}, ${p.city}.`;
+    if (p.areaTotal)    intro += ` ${Number(p.areaTotal).toLocaleString("pt-BR")} m².`;
+    if (p.bedrooms)     intro += ` ${p.bedrooms} dorm.`;
+    if (p.parkingSpots != null) intro += ` ${p.parkingSpots} vaga${p.parkingSpots !== 1 ? "s" : ""}.`;
+    descParts.push(intro);
+    if (p.priceAsk)         descParts.push(`Preço: ${formatPrice(p.priceAsk)}.`);
+    if (p.condoFee)         descParts.push(`Cond. ${formatPrice(p.condoFee)}/mês.`);
+    if (p.acceptsFinancing) descParts.push("Aceita financiamento bancário.");
+    descParts.push("Atendimento personalizado — Litoral Haus.");
+  }
+  const autoDesc = descParts.join(" ");
+  const rawDesc = p.seoDescription || autoDesc;
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
 
   return {
