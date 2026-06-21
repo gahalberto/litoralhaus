@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
 import type { Lead } from "@prisma/client";
 import { LeadStatus } from "@prisma/client";
 import {
@@ -42,11 +43,25 @@ export function LeadCard({ lead }: LeadCardProps) {
         <p className="font-inter text-sm font-medium leading-snug text-card-foreground">
           {lead.name}
         </p>
-        {lead.score > 0 && (
-          <span className="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-inter text-[9px] font-medium tabular-nums text-amber-700 dark:bg-amber-400/10 dark:text-amber-400">
-            {lead.score}pts
-          </span>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {lead.score > 0 && (
+            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-inter text-[9px] font-medium tabular-nums text-amber-700 dark:bg-amber-400/10 dark:text-amber-400">
+              {lead.score}pts
+            </span>
+          )}
+          <Link
+            href={`/admin/leads/${lead.id}`}
+            title="Abrir lead"
+            onClick={(e) => e.stopPropagation()}
+            className="rounded p-0.5 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-muted hover:text-foreground"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </Link>
+        </div>
       </div>
 
       {/* Meta */}
