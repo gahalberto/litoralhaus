@@ -79,7 +79,7 @@ export function LeadCard({ lead }: LeadCardProps) {
 
       {/* Phone / WhatsApp */}
       <a
-        href={`https://wa.me/55${lead.phone}`}
+        href={`https://wa.me/55${lead.phone.replace(/\D/g, "")}`}
         target="_blank"
         rel="noopener noreferrer"
         className="mb-3 flex items-center gap-1.5 font-inter text-xs text-muted-foreground transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
