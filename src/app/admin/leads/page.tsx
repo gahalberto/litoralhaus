@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { LeadStatus, LeadType, LeadSource } from "@prisma/client";
 import { KanbanColumn } from "@/components/admin/KanbanColumn";
+import { KanbanBoard } from "@/components/admin/KanbanBoard";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { searchLeads } from "@/actions/leads";
 import { cn } from "@/lib/utils";
@@ -187,15 +188,9 @@ export default async function LeadsPage({
       ) : (
         /* ── MODO KANBAN ── */
         <div className="flex-1 overflow-x-auto bg-muted/30">
-          <div className="flex h-full gap-3 p-6" style={{ minWidth: "max-content" }}>
-            {Object.values(LeadStatus).map((status) => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                leads={(leads as Parameters<typeof KanbanColumn>[0]["leads"]).filter((l) => l.status === status)}
-              />
-            ))}
-          </div>
+          <KanbanBoard
+            initialLeads={leads as Parameters<typeof KanbanBoard>[0]["initialLeads"]}
+          />
         </div>
       )}
     </div>

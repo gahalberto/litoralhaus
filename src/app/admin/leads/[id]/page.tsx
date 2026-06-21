@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getLeadById, deleteLead } from "@/actions/leads";
 import { LeadEditForm } from "@/components/admin/LeadEditForm";
 import { AddInteractionForm } from "@/components/admin/AddInteractionForm";
+import { ScheduleTaskForm } from "@/components/admin/ScheduleTaskForm";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { PROPERTY_TYPE_LABELS, PROPERTY_STATUS_CONFIG, formatPrice } from "@/lib/property-config";
 
@@ -152,36 +153,73 @@ export default async function LeadDetailPage({
             <span className="font-inter text-xs text-muted-foreground">{lead.interactions.length}</span>
           </div>
 
-          <AddInteractionForm leadId={id} />
+          <div className="flex flex-wrap gap-2">
+            <AddInteractionForm leadId={id} />
+            <ScheduleTaskForm leadId={id} />
+          </div>
 
           {lead.interactions.length === 0 ? (
             <p className="font-inter text-sm text-muted-foreground">Nenhum contato registrado.</p>
           ) : (
             <div className="space-y-3">
-              {lead.interactions.map((i) => (
-                <div key={i.id} className="rounded-xl border border-border bg-card p-4 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{CHANNEL_ICON[i.channel] ?? "📌"}</span>
-                      <span className="font-inter text-xs font-semibold text-foreground">
-                        {CHANNEL_LABEL[i.channel] ?? i.channel}
-                      </span>
-                      <span className="font-inter text-[10px] text-muted-foreground">
-                        · {i.direction === "INBOUND" ? "receptivo" : "ativo"}
-                      </span>
+              {lead.interactions.map((i) => {
+                const isTask      = !!i.nextStep && !!i.nextStepAt;
+                const isCompleted = isTask && !!(i as typeof i & { completedAt: Date | null }).completedAt;
+                const isOverdue   = isTask && !isCompleted && new Date(i.nextStepAt!) < new Date();
+
+                return (
+                  <div
+                    key={i.id}
+                    className={`rounded-xl border p-4 space-y-2 ${
+                      isTask
+                        ? isCompleted
+                          ? "border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-500/5"
+                          : isOverdue
+                          ? "border-red-200 dark:border-red-500/30 bg-red-50/40 dark:bg-red-500/5"
+                          : "border-amber-200 dark:border-amber-500/30 bg-amber-50/40 dark:bg-amber-500/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{CHANNEL_ICON[i.channel] ?? "📌"}</span>
+                        <span className="font-inter text-xs font-semibold text-foreground">
+                          {CHANNEL_LABEL[i.channel] ?? i.channel}
+                        </span>
+                        {isTask && (
+                          <span className={`rounded-full px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest ${
+                            isCompleted
+                              ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                              : isOverdue
+                              ? "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400"
+                              : "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                          }`}>
+                            {isCompleted ? "✓ Concluída" : isOverdue ? "⚠ Atrasada" : "Agendada"}
+                          </span>
+                        )}
+                        {!isTask && (
+                          <span className="font-inter text-[10px] text-muted-foreground">
+                            · {i.direction === "INBOUND" ? "receptivo" : "ativo"}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-inter text-[10px] text-muted-foreground shrink-0">{fmt(i.createdAt)}</span>
                     </div>
-                    <span className="font-inter text-[10px] text-muted-foreground shrink-0">{fmt(i.createdAt)}</span>
+                    <p className="font-inter text-xs leading-relaxed text-foreground">{i.summary}</p>
+                    {i.nextStep && (
+                      <p className={`font-inter text-[11px] font-medium ${
+                        isCompleted ? "text-emerald-600 dark:text-emerald-400" :
+                        isOverdue   ? "text-red-600 dark:text-red-400" :
+                                      "text-amber-600 dark:text-amber-400"
+                      }`}>
+                        → {i.nextStep}
+                        {i.nextStepAt && ` · ${fmt(i.nextStepAt)}`}
+                      </p>
+                    )}
+                    <p className="font-inter text-[10px] text-muted-foreground/60">por {i.performedBy}</p>
                   </div>
-                  <p className="font-inter text-xs leading-relaxed text-foreground">{i.summary}</p>
-                  {i.nextStep && (
-                    <p className="font-inter text-[11px] text-amber-600">
-                      → {i.nextStep}
-                      {i.nextStepAt && ` · ${fmt(i.nextStepAt)}`}
-                    </p>
-                  )}
-                  <p className="font-inter text-[10px] text-muted-foreground/60">por {i.performedBy}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
