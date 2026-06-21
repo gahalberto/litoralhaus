@@ -24,7 +24,7 @@ function minDateTime() {
   return d.toISOString().slice(0, 16);
 }
 
-export function ScheduleTaskForm({ leadId }: { leadId: string }) {
+export function ScheduleTaskForm({ leadId, userName }: { leadId: string; userName: string }) {
   const [open, setOpen]     = useState(false);
   const [isPending, start]  = useTransition();
   const [error, setError]   = useState("");
@@ -33,12 +33,11 @@ export function ScheduleTaskForm({ leadId }: { leadId: string }) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
 
-    const task      = fd.get("task")?.toString()      ?? "";
+    const task        = fd.get("task")?.toString()        ?? "";
     const scheduledAt = fd.get("scheduledAt")?.toString() ?? "";
-    const channel   = fd.get("channel")?.toString()   ?? "PHONE";
-    const who       = fd.get("who")?.toString()        ?? "";
+    const channel     = fd.get("channel")?.toString()     ?? "PHONE";
 
-    if (!task || !scheduledAt || !who) {
+    if (!task || !scheduledAt) {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -51,7 +50,7 @@ export function ScheduleTaskForm({ leadId }: { leadId: string }) {
         summary:     `Tarefa agendada: ${task}`,
         nextStep:    task,
         nextStepAt:  scheduledAt,
-        performedBy: who,
+        performedBy: userName,
       });
 
       if (res.success) {
@@ -128,18 +127,9 @@ export function ScheduleTaskForm({ leadId }: { leadId: string }) {
         </div>
       </div>
 
-      {/* Responsável */}
-      <div className="flex flex-col gap-1.5">
-        <Label className="font-inter text-xs uppercase tracking-wider text-muted-foreground">
-          Responsável *
-        </Label>
-        <input
-          name="who"
-          placeholder="Seu nome"
-          required
-          className={inputCls}
-        />
-      </div>
+      <p className="font-inter text-[11px] text-muted-foreground">
+        Responsável: <span className="font-medium text-foreground">{userName}</span>
+      </p>
 
       {error && <p className="font-inter text-xs text-destructive">{error}</p>}
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getLeadById, deleteLead } from "@/actions/leads";
+import { requireSession } from "@/lib/session";
 import { LeadEditForm } from "@/components/admin/LeadEditForm";
 import { AddInteractionForm } from "@/components/admin/AddInteractionForm";
 import { ScheduleTaskForm } from "@/components/admin/ScheduleTaskForm";
@@ -36,8 +37,9 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const lead = await getLeadById(id);
+  const [lead, session] = await Promise.all([getLeadById(id), requireSession()]);
   if (!lead) notFound();
+  const userName = session.name;
 
   const cfg = LEAD_STATUS_CONFIG[lead.status];
 
@@ -154,8 +156,8 @@ export default async function LeadDetailPage({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <AddInteractionForm leadId={id} />
-            <ScheduleTaskForm leadId={id} />
+            <AddInteractionForm leadId={id} userName={userName} />
+            <ScheduleTaskForm leadId={id} userName={userName} />
           </div>
 
           {lead.interactions.length === 0 ? (

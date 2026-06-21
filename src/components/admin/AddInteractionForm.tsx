@@ -16,7 +16,7 @@ const CHANNEL_LABELS = {
   VISIT: "Visita", VIDEO_CALL: "Videochamada", NOTE: "Anotação",
 };
 
-export function AddInteractionForm({ leadId }: { leadId: string }) {
+export function AddInteractionForm({ leadId, userName }: { leadId: string; userName: string }) {
   const [open, setOpen]         = useState(false);
   const [isPending, start]      = useTransition();
   const [error, setError]       = useState("");
@@ -32,7 +32,7 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
         summary:     fd.get("summary")?.toString() ?? "",
         nextStep:    fd.get("nextStep")?.toString() || undefined,
         nextStepAt:  fd.get("nextStepAt")?.toString() || undefined,
-        performedBy: fd.get("performedBy")?.toString() ?? "",
+        performedBy: userName,
       });
       if (res.success) { setOpen(false); setError(""); (e.target as HTMLFormElement).reset(); }
       else setError(res.error);
@@ -63,8 +63,8 @@ export function AddInteractionForm({ leadId }: { leadId: string }) {
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label className="font-inter text-xs uppercase tracking-wider text-muted-foreground">Realizado por *</Label>
-          <input name="performedBy" placeholder="Seu nome" required className={inputCls} />
+          <Label className="font-inter text-xs uppercase tracking-wider text-muted-foreground">Realizado por</Label>
+          <input value={userName} readOnly className={`${inputCls} text-muted-foreground bg-muted/50 cursor-default`} />
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
