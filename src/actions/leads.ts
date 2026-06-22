@@ -189,14 +189,16 @@ export async function findLeadsByPhone(
   phone: string,
   excludeId?: string,
 ): Promise<DuplicateLead[]> {
-  // usa os últimos 8 dígitos para tolerar variações de formatação
   const digits = phone.replace(/\D/g, "");
   if (digits.length < 6) return [];
-  const tail = digits.slice(-8);
 
-  const leads = await prisma.lead.findMany({
+  // Os últimos 4 dígitos aparecem continuamente em qualquer formato de telefone
+  // Ex: "(13) 99607-4897" contém "4897" mas não "96074897" (quebrado pelo traço)
+  const tail4 = digits.slice(-4);
+
+  const candidates = await prisma.lead.findMany({
     where: {
-      phone:       { contains: tail },
+      phone:       { contains: tail4 },
       ...(excludeId && { id: { not: excludeId } }),
     },
     orderBy: { createdAt: "desc" },
@@ -213,7 +215,10 @@ export async function findLeadsByPhone(
     },
   });
 
-  return leads;
+  // Filtra por comparação de dígitos completos (os últimos 9 para cobrir 9º dígito móvel)
+  return candidates.filter(
+    (l) => l.phone.replace(/\D/g, "").slice(-9) === digits.slice(-9),
+  );
 }
 
 // ─── Excluir lead ─────────────────────────────────────────────────────────────
