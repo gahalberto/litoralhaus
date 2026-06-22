@@ -40,7 +40,7 @@ export default async function LeadDetailPage({
   const [lead, session] = await Promise.all([getLeadById(id), requireSession()]);
   if (!lead) notFound();
 
-  const previousLeads = await findLeadsByPhone(lead.phone, id);
+  const previousLeads = await findLeadsByPhone(lead.phone, id).catch(() => []);
   const userName = session.name;
 
   const cfg = LEAD_STATUS_CONFIG[lead.status];
@@ -280,8 +280,7 @@ export default async function LeadDetailPage({
                             WHATSAPP: "WhatsApp", EMAIL: "E-mail", PHONE: "Telefone",
                             VISIT: "Visita", VIDEO_CALL: "Videochamada", NOTE: "Anotação",
                           };
-                          const isTask      = !!i.nextStep && !!i.nextStepAt;
-                          const isCompleted = isTask && !!i.completedAt;
+                          const isTask = !!i.nextStep && !!i.nextStepAt;
                           return (
                             <div key={i.id} className="rounded-lg border border-border bg-card px-3 py-2.5 space-y-1">
                               <div className="flex items-center justify-between gap-2">
@@ -289,12 +288,8 @@ export default async function LeadDetailPage({
                                   <span className="text-xs">{CHAN_ICON[i.channel] ?? "📌"}</span>
                                   <span className="font-inter text-xs font-medium text-foreground">{CHAN_LABEL[i.channel] ?? i.channel}</span>
                                   {isTask && (
-                                    <span className={`ml-1 rounded-full px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest ${
-                                      isCompleted
-                                        ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
-                                        : "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400"
-                                    }`}>
-                                      {isCompleted ? "✓ Concluída" : "Tarefa"}
+                                    <span className="ml-1 rounded-full px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">
+                                      Tarefa
                                     </span>
                                   )}
                                 </div>

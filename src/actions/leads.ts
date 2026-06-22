@@ -181,7 +181,6 @@ export type DuplicateLead = {
     nextStepAt:  Date   | null;
     performedBy: string;
     createdAt:   Date;
-    completedAt: Date | null;
   }[];
 };
 
@@ -209,7 +208,6 @@ export async function findLeadsByPhone(
         select: {
           id: true, channel: true, direction: true, summary: true,
           nextStep: true, nextStepAt: true, performedBy: true, createdAt: true,
-          completedAt: true,
         },
       },
     },
