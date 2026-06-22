@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Search, Bell, ChevronRight } from "lucide-react";
+import { Menu, Search, ChevronRight } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { NotificationBell } from "@/components/admin/NotificationBell";
 
 const SEGMENT_LABELS: Record<string, string> = {
   admin:      "Dashboard",
@@ -88,16 +89,7 @@ export function AdminHeader({ onMenuClick, sidebarCollapsed: _, onSearchOpen }: 
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
-        {/* Notifications */}
-        <button
-          className="relative flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          aria-label="Notificações"
-        >
-          <Bell size={16} strokeWidth={1.8} />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-400 ring-2 ring-white dark:ring-zinc-950" />
-        </button>
-
-        {/* Theme toggle */}
+        <NotificationBell />
         <ModeToggle variant="icon" />
       </div>
     </header>
