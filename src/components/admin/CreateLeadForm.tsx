@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { leadEditSchema, type LeadEditData } from "@/types/lead";
-import { createLead } from "@/actions/leads";
+import { createLead, findLeadsByPhone, type DuplicateLead } from "@/actions/leads";
 import { LeadStatus, LeadSource, LeadType, BudgetRange, Region } from "@prisma/client";
 import { LEAD_STATUS_CONFIG, BUDGET_LABELS } from "@/lib/lead-config";
 import { PhoneInput } from "@/components/admin/PhoneInput";
@@ -50,6 +50,12 @@ export function CreateLeadForm() {
   const router = useRouter();
   const [isPending, start] = useTransition();
   const [serverError, setServerError] = useState("");
+  const [duplicates, setDuplicates] = useState<DuplicateLead[]>([]);
+
+  async function handlePhoneBlur(phone: string) {
+    const found = await findLeadsByPhone(phone);
+    setDuplicates(found);
+  }
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<LeadEditData>({
     resolver: zodResolver(leadEditSchema),
@@ -82,7 +88,11 @@ export function CreateLeadForm() {
             name="phone"
             control={control}
             render={({ field }) => (
-              <PhoneInput value={field.value} onChange={field.onChange} />
+              <PhoneInput
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={() => handlePhoneBlur(field.value)}
+              />
             )}
           />
         </Field>
@@ -171,6 +181,40 @@ export function CreateLeadForm() {
           className="font-inter text-sm"
         />
       </Field>
+
+      {duplicates.length > 0 && (
+        <div className="rounded-lg border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 px-4 py-3 space-y-2">
+          <p className="font-inter text-xs font-semibold text-amber-800 dark:text-amber-400">
+            ⚠ Este telefone já está cadastrado em {duplicates.length === 1 ? "1 lead" : `${duplicates.length} leads`}:
+          </p>
+          {duplicates.map((dup) => (
+            <div key={dup.id} className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <span className="font-inter text-xs font-medium text-amber-900 dark:text-amber-300">{dup.name}</span>
+                <span className="ml-2 font-inter text-[10px] text-amber-700 dark:text-amber-400">
+                  {LEAD_STATUS_CONFIG[dup.status]?.label ?? dup.status}
+                </span>
+                {dup.interactions.length > 0 && (
+                  <span className="ml-2 font-inter text-[10px] text-amber-600 dark:text-amber-500">
+                    · {dup.interactions.length} interaç{dup.interactions.length === 1 ? "ão" : "ões"}
+                  </span>
+                )}
+              </div>
+              <a
+                href={`/admin/leads/${dup.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 font-inter text-[11px] font-medium text-amber-700 dark:text-amber-400 underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200"
+              >
+                Ver lead →
+              </a>
+            </div>
+          ))}
+          <p className="font-inter text-[10px] text-amber-600 dark:text-amber-500">
+            Você pode continuar criando um novo lead ou acessar o existente para registrar um novo contato.
+          </p>
+        </div>
+      )}
 
       {serverError && (
         <p className="rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-4 py-3 font-inter text-sm text-red-600 dark:text-red-400">

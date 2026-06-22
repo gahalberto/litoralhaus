@@ -164,6 +164,58 @@ export async function createInteraction(raw: unknown): Promise<InteractionResult
   }
 }
 
+// ─── Duplicados por telefone ──────────────────────────────────────────────────
+
+export type DuplicateLead = {
+  id:         string;
+  name:       string;
+  phone:      string;
+  status:     LeadStatus;
+  createdAt:  Date;
+  interactions: {
+    id:          string;
+    channel:     string;
+    direction:   string;
+    summary:     string;
+    nextStep:    string | null;
+    nextStepAt:  Date   | null;
+    performedBy: string;
+    createdAt:   Date;
+    completedAt: Date | null;
+  }[];
+};
+
+export async function findLeadsByPhone(
+  phone: string,
+  excludeId?: string,
+): Promise<DuplicateLead[]> {
+  // usa os últimos 8 dígitos para tolerar variações de formatação
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 6) return [];
+  const tail = digits.slice(-8);
+
+  const leads = await prisma.lead.findMany({
+    where: {
+      phone:       { contains: tail },
+      ...(excludeId && { id: { not: excludeId } }),
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true, name: true, phone: true, status: true, createdAt: true,
+      interactions: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true, channel: true, direction: true, summary: true,
+          nextStep: true, nextStepAt: true, performedBy: true, createdAt: true,
+          completedAt: true,
+        },
+      },
+    },
+  });
+
+  return leads;
+}
+
 // ─── Excluir lead ─────────────────────────────────────────────────────────────
 
 export async function deleteLead(id: string): Promise<void> {

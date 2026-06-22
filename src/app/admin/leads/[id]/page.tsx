@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getLeadById, deleteLead } from "@/actions/leads";
+import { getLeadById, deleteLead, findLeadsByPhone } from "@/actions/leads";
 import { requireSession } from "@/lib/session";
 import { LeadEditForm } from "@/components/admin/LeadEditForm";
 import { AddInteractionForm } from "@/components/admin/AddInteractionForm";
@@ -39,6 +39,8 @@ export default async function LeadDetailPage({
   const { id } = await params;
   const [lead, session] = await Promise.all([getLeadById(id), requireSession()]);
   if (!lead) notFound();
+
+  const previousLeads = await findLeadsByPhone(lead.phone, id);
   const userName = session.name;
 
   const cfg = LEAD_STATUS_CONFIG[lead.status];
@@ -147,7 +149,7 @@ export default async function LeadDetailPage({
         </div>
 
         {/* Coluna lateral — histórico de interações */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="font-inter text-xs uppercase tracking-widest text-muted-foreground">
               Histórico de contatos
@@ -220,6 +222,98 @@ export default async function LeadDetailPage({
                     )}
                     <p className="font-inter text-[10px] text-muted-foreground/60">por {i.performedBy}</p>
                   </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Histórico de outros registros com o mesmo telefone */}
+          {previousLeads.length > 0 && (
+            <div className="space-y-3 border-t border-border pt-4">
+              <div className="flex items-center gap-2">
+                <h2 className="font-inter text-xs uppercase tracking-widest text-muted-foreground">
+                  Histórico anterior
+                </h2>
+                <span className="rounded-full bg-amber-100 dark:bg-amber-500/20 px-2 py-0.5 font-inter text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                  {previousLeads.reduce((sum, l) => sum + l.interactions.length, 0)} interações
+                </span>
+              </div>
+              <p className="font-inter text-[11px] text-muted-foreground">
+                Outros registros encontrados com o mesmo número de telefone.
+              </p>
+              {previousLeads.map((prev) => {
+                const prevCfg = LEAD_STATUS_CONFIG[prev.status];
+                return (
+                  <details key={prev.id} className="group rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50/40 dark:bg-amber-500/5">
+                    <summary className="flex cursor-pointer items-center justify-between px-4 py-3 list-none">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-inter text-xs font-medium text-foreground truncate">{prev.name}</span>
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-inter text-[10px] font-medium ${prevCfg.badge}`}>
+                          <span className={`h-1 w-1 rounded-full ${prevCfg.dot}`} />
+                          {prevCfg.label}
+                        </span>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3 ml-2">
+                        <span className="font-inter text-[10px] text-muted-foreground">
+                          {prev.interactions.length} interaç{prev.interactions.length === 1 ? "ão" : "ões"}
+                        </span>
+                        <Link
+                          href={`/admin/leads/${prev.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-inter text-[11px] text-amber-600 hover:text-amber-500 underline underline-offset-2"
+                        >
+                          Abrir
+                        </Link>
+                        <svg className="h-3.5 w-3.5 text-muted-foreground transition-transform group-open:rotate-180 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </div>
+                    </summary>
+                    {prev.interactions.length > 0 && (
+                      <div className="border-t border-amber-200 dark:border-amber-500/30 px-4 pb-3 pt-3 space-y-2">
+                        {prev.interactions.map((i) => {
+                          const CHAN_ICON: Record<string, string> = {
+                            WHATSAPP: "💬", EMAIL: "✉️", PHONE: "📞",
+                            VISIT: "🏠", VIDEO_CALL: "📹", NOTE: "📝",
+                          };
+                          const CHAN_LABEL: Record<string, string> = {
+                            WHATSAPP: "WhatsApp", EMAIL: "E-mail", PHONE: "Telefone",
+                            VISIT: "Visita", VIDEO_CALL: "Videochamada", NOTE: "Anotação",
+                          };
+                          const isTask      = !!i.nextStep && !!i.nextStepAt;
+                          const isCompleted = isTask && !!i.completedAt;
+                          return (
+                            <div key={i.id} className="rounded-lg border border-border bg-card px-3 py-2.5 space-y-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs">{CHAN_ICON[i.channel] ?? "📌"}</span>
+                                  <span className="font-inter text-xs font-medium text-foreground">{CHAN_LABEL[i.channel] ?? i.channel}</span>
+                                  {isTask && (
+                                    <span className={`ml-1 rounded-full px-1.5 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-widest ${
+                                      isCompleted
+                                        ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                                        : "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                                    }`}>
+                                      {isCompleted ? "✓ Concluída" : "Tarefa"}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="font-inter text-[10px] text-muted-foreground shrink-0">{fmt(i.createdAt)}</span>
+                              </div>
+                              <p className="font-inter text-xs leading-relaxed text-foreground">{i.summary}</p>
+                              {i.nextStep && (
+                                <p className="font-inter text-[11px] text-amber-600 dark:text-amber-400">→ {i.nextStep}</p>
+                              )}
+                              <p className="font-inter text-[10px] text-muted-foreground/60">por {i.performedBy}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {prev.interactions.length === 0 && (
+                      <p className="px-4 pb-3 font-inter text-xs text-muted-foreground">Nenhuma interação registrada.</p>
+                    )}
+                  </details>
                 );
               })}
             </div>
