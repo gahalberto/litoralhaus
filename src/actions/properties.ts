@@ -385,7 +385,9 @@ export type PropertyRow = {
   isIsca: boolean;
   featured: boolean;
   region: Region;
-  createdAt: Date;
+  createdAt:    Date;
+  viewCount:    number;
+  lastViewedAt: Date | null;
   _count: { interests: number };
 };
 
@@ -424,6 +426,7 @@ export async function getProperties(filters?: {
       id: true, refCode: true, title: true, type: true, status: true, active: true,
       city: true, neighborhood: true, region: true,
       priceAsk: true, isIsca: true, featured: true, createdAt: true,
+      viewCount: true, lastViewedAt: true,
       _count: { select: { interests: true } },
     },
   }) as unknown as PropertyRow[];

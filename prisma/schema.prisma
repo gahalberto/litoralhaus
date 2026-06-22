@@ -243,6 +243,10 @@ model Property {
   seoTitle       String?
   seoDescription String?
 
+  // Métricas de visualização
+  viewCount    Int       @default(0)
+  lastViewedAt DateTime?
+
   interests PropertyInterest[]
   visits    Visit[]
   logs      PropertyLog[]
@@ -257,6 +261,8 @@ model Property {
   @@index([featured])
   @@index([priceAsk])
   @@index([nextReviewAt])
+  @@index([viewCount])
+  @@index([lastViewedAt])
 }
 
 // ─── Categoria dinâmica de imóvel ─────────────────────────────────────────────

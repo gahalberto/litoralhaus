@@ -115,7 +115,7 @@ export default async function PropertiesPage({
           <table className="w-full min-w-215 border-collapse">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                {["Ref.", "Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Leads", ""].map((h) => (
+                {["Ref.", "Imóvel", "Tipo", "Localização", "Preço", "Status", "Isca", "Views", "Leads", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left font-inter text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
@@ -211,6 +211,20 @@ export default async function PropertiesPage({
                       ) : (
                         <span className="font-inter text-xs text-muted-foreground/40">—</span>
                       )}
+                    </td>
+
+                    {/* Views */}
+                    <td className="px-5 py-3">
+                      <div className="flex flex-col">
+                        <span className="font-inter text-xs tabular-nums text-muted-foreground">
+                          {p.viewCount > 0 ? p.viewCount.toLocaleString("pt-BR") : "—"}
+                        </span>
+                        {p.lastViewedAt && (
+                          <span className="font-inter text-[10px] text-muted-foreground/50">
+                            {new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(new Date(p.lastViewedAt))}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Leads */}

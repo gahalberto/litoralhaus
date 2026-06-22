@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getPostBySlug, getAllPostSlugs, estimateReadingTime } from "@/lib/blog";
 import { REGION_LABELS } from "@/lib/property-config";
 import { ArticleJsonLd } from "@/components/json-ld";
+import { ViewTracker } from "@/components/ViewTracker";
 import { PropertyShowcase } from "@/components/blog/PropertyShowcase";
 import { WhatsAppCTA } from "@/components/blog/WhatsAppCTA";
 import { WhatsAppGroupBanner } from "@/components/blog/WhatsAppGroupBanner";
@@ -99,6 +100,7 @@ export default async function BlogPostPage({
 
   return (
     <>
+      <ViewTracker type="blog" slug={post.slug} />
       <ArticleJsonLd
         slug={post.slug}
         title={post.title}

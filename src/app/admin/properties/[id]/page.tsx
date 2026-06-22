@@ -426,6 +426,21 @@ export default async function PropertyViewPage({
               </div>
             </div>
 
+            {/* Visualizações */}
+            <div className="rounded-xl border border-border bg-white p-4 dark:bg-zinc-900">
+              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Visualizações no site
+              </p>
+              <p className="font-cormorant text-3xl font-semibold text-foreground">
+                {property.viewCount.toLocaleString("pt-BR")}
+              </p>
+              {property.lastViewedAt && (
+                <p className="mt-1 font-inter text-[11px] text-muted-foreground">
+                  Último acesso: {fmt(property.lastViewedAt)}
+                </p>
+              )}
+            </div>
+
             {/* Leads */}
             <div className="rounded-xl border border-border bg-white p-4 dark:bg-zinc-900">
               <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">

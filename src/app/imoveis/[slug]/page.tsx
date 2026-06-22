@@ -5,6 +5,7 @@ import { Bed, Bath, Maximize, Car, MapPin } from "lucide-react";
 import { getPublicPropertyBySlug } from "@/lib/public-properties";
 import { PROPERTY_TYPE_LABELS, PROPERTY_TYPE_PLURAL, REGION_LABELS, formatPrice } from "@/lib/property-config";
 import { PropertyJsonLd, FaqJsonLd, type FaqItem } from "@/components/json-ld";
+import { ViewTracker } from "@/components/ViewTracker";
 import { PropertyGalleryWide } from "@/components/property-gallery-wide";
 import { PropertyMediaTabs } from "@/components/property-media-tabs";
 import { PropertyPricingCard } from "@/components/property-pricing-card";
@@ -148,6 +149,7 @@ export default async function PropertyPage({
 
   return (
     <>
+      <ViewTracker type="property" slug={p.slug} />
       <PropertyJsonLd
         slug={p.slug} title={p.title} description={p.description} type={p.type}
         city={p.city} neighborhood={p.neighborhood} region={p.region}
