@@ -259,7 +259,6 @@ export default async function LeadDetailPage({
                         </span>
                         <Link
                           href={`/admin/leads/${prev.id}`}
-                          onClick={(e) => e.stopPropagation()}
                           className="font-inter text-[11px] text-amber-600 hover:text-amber-500 underline underline-offset-2"
                         >
                           Abrir
