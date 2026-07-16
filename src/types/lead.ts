@@ -65,6 +65,8 @@ export const qualifyLeadSchema = z.object({
   incomeComposition: z.enum(["Sozinho(a)", "Com cônjuge", "Com filho(s)", "Outro"], {
     error: "Selecione uma opção",
   }),
+  firstProperty: z.boolean(),
+  coApplicantFirstProperty: z.boolean().nullable().optional(),
   birthYear: z
     .number()
     .int()

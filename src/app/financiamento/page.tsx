@@ -3,6 +3,11 @@
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
 import { ArrowRight, Check, Home, TrendingUp, Waves, Loader2, Plus, X } from "lucide-react";
 import { qualifyLead } from "@/actions/qualifyLead";
+import { analyzeCredit, type CreditAnalysisResult } from "@/lib/credit-analysis";
+
+function formatBRL(value: number): string {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 type Goal = "Sair do aluguel" | "Investir" | "Veraneio";
 type IncomeComposition = "Sozinho(a)" | "Com cônjuge" | "Com filho(s)" | "Outro";
@@ -45,6 +50,8 @@ interface Answers {
   goal: Goal | "";
   incomes: IncomeEntry[];
   incomeComposition: IncomeComposition | "";
+  firstProperty: boolean | null;
+  coApplicantFirstProperty: boolean | null;
   birthYear: string;
   downPayment: string;
 }
@@ -55,6 +62,8 @@ const INITIAL_ANSWERS: Answers = {
   goal: "",
   incomes: [{ id: 0, type: "", value: "" }],
   incomeComposition: "",
+  firstProperty: null,
+  coApplicantFirstProperty: null,
   birthYear: "",
   downPayment: "",
 };
@@ -77,8 +86,8 @@ const COMPOSITIONS: IncomeComposition[] = [
   "Outro",
 ];
 
-// steps: 0 = welcome, 1..7 = perguntas, 8 = enviando/sucesso
-const TOTAL_QUESTION_STEPS = 7;
+// steps: 0 = welcome, 1..8 = perguntas
+const TOTAL_QUESTION_STEPS = 8;
 
 function formatCurrencyInput(raw: string): string {
   const digits = raw.replace(/\D/g, "");
@@ -101,6 +110,7 @@ export default function QualificadorPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [analysis, setAnalysis] = useState<CreditAnalysisResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextIncomeId = useRef(1);
 
@@ -124,8 +134,14 @@ export default function QualificadorPage() {
       case 5:
         return answers.incomeComposition !== "";
       case 6:
-        return answers.birthYear.length === 4;
+        return (
+          answers.firstProperty !== null &&
+          (answers.incomeComposition === "Sozinho(a)" ||
+            answers.coApplicantFirstProperty !== null)
+        );
       case 7:
+        return answers.birthYear.length === 4;
+      case 8:
         return answers.downPayment !== "";
       default:
         return true;
@@ -144,11 +160,27 @@ export default function QualificadorPage() {
         income: answers.incomes.reduce((sum, i) => sum + currencyToNumber(i.value), 0),
         incomeTypes: answers.incomes.map((i) => i.type).filter(Boolean),
         incomeComposition: answers.incomeComposition,
+        firstProperty: answers.firstProperty as boolean,
+        coApplicantFirstProperty: answers.coApplicantFirstProperty,
         birthYear: Number(answers.birthYear),
         downPayment: currencyToNumber(answers.downPayment),
       });
       setSubmitting(false);
       if (result.success) {
+        const totalIncome = answers.incomes.reduce(
+          (sum, i) => sum + currencyToNumber(i.value),
+          0
+        );
+        setAnalysis(
+          analyzeCredit({
+            name: answers.name.trim(),
+            birthYear: Number(answers.birthYear),
+            income: totalIncome,
+            workRegime: answers.incomes[0]?.type ?? "",
+            firstProperty: answers.firstProperty as boolean,
+            downPayment: currencyToNumber(answers.downPayment),
+          })
+        );
         setSubmitted(true);
       } else {
         setError(result.error);
@@ -172,22 +204,12 @@ export default function QualificadorPage() {
 
   const progress = Math.min(100, (step / TOTAL_QUESTION_STEPS) * 100);
 
-  if (submitted) {
+  if (submitted && analysis) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#09090b] px-6">
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex max-w-md flex-col items-center text-center">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
-            <Check className="h-8 w-8 text-emerald-500" strokeWidth={2.5} />
-          </div>
-          <h1 className="text-2xl font-medium text-white sm:text-3xl">
-            Tudo certo, {answers.name.trim().split(" ")[0]}!
-          </h1>
-          <p className="mt-4 text-lg leading-relaxed text-zinc-400">
-            Recebi suas informações e vou analisar o seu perfil com cuidado. Te
-            chamo no WhatsApp em breve.
-          </p>
-        </div>
-      </div>
+      <CreditDevolutiva
+        firstName={answers.name.trim().split(" ")[0]}
+        analysis={analysis}
+      />
     );
   }
 
@@ -416,6 +438,79 @@ export default function QualificadorPage() {
 
           {step === 6 && (
             <Question
+              key="firstProperty"
+              label="Este seria o seu primeiro imóvel?"
+              hint="Importante: quem já tem outro imóvel no nome não pode participar do Minha Casa Minha Vida."
+            >
+              <div className="flex flex-col gap-6">
+                <div>
+                  <p className="mb-3 text-sm text-zinc-500">Você</p>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAnswers((a) => ({ ...a, firstProperty: true }))
+                      }
+                      className={optionClass(answers.firstProperty === true)}
+                    >
+                      Sim, seria o meu primeiro imóvel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAnswers((a) => ({ ...a, firstProperty: false }))
+                      }
+                      className={optionClass(answers.firstProperty === false)}
+                    >
+                      Não, já tenho outro imóvel no meu nome
+                    </button>
+                  </div>
+                </div>
+
+                {answers.incomeComposition !== "" &&
+                  answers.incomeComposition !== "Sozinho(a)" && (
+                    <div>
+                      <p className="mb-3 text-sm text-zinc-500">
+                        Pessoa que vai compor renda com você
+                      </p>
+                      <div className="flex flex-col gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAnswers((a) => ({
+                              ...a,
+                              coApplicantFirstProperty: true,
+                            }))
+                          }
+                          className={optionClass(
+                            answers.coApplicantFirstProperty === true
+                          )}
+                        >
+                          Sim, também seria o primeiro imóvel dela
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAnswers((a) => ({
+                              ...a,
+                              coApplicantFirstProperty: false,
+                            }))
+                          }
+                          className={optionClass(
+                            answers.coApplicantFirstProperty === false
+                          )}
+                        >
+                          Não, ela já tem outro imóvel no nome dela
+                        </button>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </Question>
+          )}
+
+          {step === 7 && (
+            <Question
               key="birthYear"
               label="Qual o ano de nascimento do comprador mais velho?"
               hint="Importante para o cálculo do financiamento (Caixa)."
@@ -439,7 +534,7 @@ export default function QualificadorPage() {
             </Question>
           )}
 
-          {step === 7 && (
+          {step === 8 && (
             <Question
               key="downPayment"
               label="Quanto você tem disponível para dar de entrada hoje?"
@@ -466,7 +561,7 @@ export default function QualificadorPage() {
 
           {step > 0 && (
             <div className="mt-10 flex items-center gap-4">
-              {step < TOTAL_QUESTION_STEPS + 1 && [1, 2, 4, 6, 7].includes(step) && (
+              {step < TOTAL_QUESTION_STEPS + 1 && [1, 2, 4, 6, 7, 8].includes(step) && (
                 <button
                   onClick={goNext}
                   disabled={!canAdvance() || submitting}
@@ -536,6 +631,148 @@ function Question({
       </h2>
       {hint && <p className="mt-2 text-sm text-zinc-500">{hint}</p>}
       <div className="mt-8">{children}</div>
+    </div>
+  );
+}
+
+const WHATSAPP_NUMBER = "5513955422935";
+
+function DevolutivaSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border-t border-zinc-800 pt-6">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-emerald-500">
+        {title}
+      </h2>
+      <div className="mt-3 text-base leading-relaxed text-zinc-300">{children}</div>
+    </section>
+  );
+}
+
+function CreditDevolutiva({
+  firstName,
+  analysis,
+}: {
+  firstName: string;
+  analysis: CreditAnalysisResult;
+}) {
+  const {
+    program,
+    faixa,
+    estimatedPropertyCeiling,
+    maxInstallment,
+    maxTermYears,
+    requiredDownPayment,
+    downPaymentGap,
+    registryDiscount,
+    documents,
+  } = analysis;
+
+  const hasEnoughDownPayment = downPaymentGap <= 0;
+  const whatsappMessage = encodeURIComponent(
+    `Olá! Sou ${firstName} e acabei de fazer a simulação de financiamento no site da Litoral Haus. Quero entender melhor as minhas opções!`
+  );
+
+  return (
+    <div className="flex min-h-screen justify-center bg-[#09090b] px-6 py-16">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full max-w-xl">
+        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10">
+          <Check className="h-7 w-7 text-emerald-500" strokeWidth={2.5} />
+        </div>
+
+        <h1 className="text-2xl font-medium leading-snug text-white sm:text-3xl">
+          {firstName}, sua Devolutiva de Crédito Personalizada está pronta!
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-zinc-400">
+          Parabéns pela iniciativa de buscar a casa própria — analisei o seu
+          perfil com carinho e já consigo te mostrar o caminho mais realista
+          até as chaves.
+        </p>
+
+        <div className="mt-8 flex flex-col gap-6">
+          <DevolutivaSection title="Seu diagnóstico de crédito">
+            <p>
+              Com base na sua renda familiar, você se encaixa em{" "}
+              <strong className="text-white">
+                {program === "MCMV"
+                  ? `Minha Casa, Minha Vida — ${faixa}`
+                  : "financiamento via bancos privados (SBPE)"}
+              </strong>
+              .
+            </p>
+            <p className="mt-2">
+              Considerando uma parcela de até 30% da sua renda e um prazo
+              estimado de até <strong className="text-white">{maxTermYears} anos</strong>,
+              você consegue buscar imóveis de até{" "}
+              <strong className="text-white">
+                {formatBRL(estimatedPropertyCeiling)}
+              </strong>
+              , com parcelas em torno de{" "}
+              <strong className="text-white">{formatBRL(maxInstallment)}</strong>
+              /mês.
+            </p>
+          </DevolutivaSection>
+
+          <DevolutivaSection title="Como funciona a sua entrada (a regra dos 20%)">
+            <p>
+              Os bancos costumam exigir pelo menos 20% do valor do imóvel como
+              entrada — no seu caso, isso é aproximadamente{" "}
+              <strong className="text-white">
+                {formatBRL(requiredDownPayment)}
+              </strong>
+              .
+            </p>
+            <p className="mt-2">
+              {hasEnoughDownPayment
+                ? "Pelo valor que você já tem disponível, essa entrada já está coberta — ótimo sinal!"
+                : `Considerando o valor que você já tem hoje, ainda falta juntar cerca de ${formatBRL(
+                    downPaymentGap
+                  )}. Isso pode vir do seu FGTS, de subsídio do governo (se você se enquadrar) ou parcelado direto com a construtora, no caso de imóvel na planta.`}
+            </p>
+            {registryDiscount && (
+              <p className="mt-2">
+                Por ser o seu primeiro imóvel, você ainda tem direito a um
+                desconto de até 50% nas taxas de cartório de registro.
+              </p>
+            )}
+          </DevolutivaSection>
+
+          {documents.length > 0 && (
+            <DevolutivaSection title="Documentos para o seu perfil">
+              <ul className="flex flex-col gap-2">
+                {documents.map((doc) => (
+                  <li key={doc} className="flex items-start gap-2">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-emerald-500" />
+                    <span>{doc}</span>
+                  </li>
+                ))}
+              </ul>
+            </DevolutivaSection>
+          )}
+
+          <DevolutivaSection title="Seu próximo passo">
+            <p>
+              Esses números já te dão uma direção clara, mas o valor exato
+              depende de uma simulação oficial junto ao banco. Vamos fazer
+              essa simulação juntos, sem compromisso?
+            </p>
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex w-fit items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-medium text-black transition hover:bg-emerald-400"
+            >
+              Falar com um especialista no WhatsApp
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </DevolutivaSection>
+        </div>
+      </div>
     </div>
   );
 }

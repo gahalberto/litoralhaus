@@ -17,8 +17,18 @@ export async function qualifyLead(formData: unknown): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0].message };
   }
 
-  const { name, whatsapp, goal, income, incomeTypes, incomeComposition, birthYear, downPayment } =
-    parsed.data;
+  const {
+    name,
+    whatsapp,
+    goal,
+    income,
+    incomeTypes,
+    incomeComposition,
+    firstProperty,
+    coApplicantFirstProperty,
+    birthYear,
+    downPayment,
+  } = parsed.data;
 
   try {
     await prisma.lead.create({
@@ -32,6 +42,8 @@ export async function qualifyLead(formData: unknown): Promise<ActionResult> {
         income,
         incomeTypes,
         incomeComposition,
+        firstProperty,
+        coApplicantFirstProperty,
         birthYear,
         downPayment,
       },
