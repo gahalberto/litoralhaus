@@ -149,6 +149,13 @@ model Lead {
   assignedUser   User?   @relation(fields: [assignedUserId], references: [id], onDelete: SetNull)
   score          Int     @default(0)
 
+  // Qualificação financeira (Fase 6 — Motor de Qualificação)
+  goal               String?
+  income             Decimal? @db.Decimal(15, 2)
+  incomeComposition  String?
+  birthYear          Int?
+  downPayment        Decimal? @db.Decimal(15, 2)
+
   interactions Interaction[]
   interests    PropertyInterest[]
   visits       Visit[]
