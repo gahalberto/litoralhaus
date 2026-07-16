@@ -1,17 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
-import { ArrowRight, Check, Home, TrendingUp, Waves, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Home, TrendingUp, Waves, Loader2, Plus, X } from "lucide-react";
 import { qualifyLead } from "@/actions/qualifyLead";
 
 type Goal = "Sair do aluguel" | "Investir" | "Veraneio";
 type IncomeComposition = "Sozinho(a)" | "Com cônjuge" | "Com filho(s)" | "Outro";
 
+interface IncomeEntry {
+  id: number;
+  value: string;
+}
+
 interface Answers {
   name: string;
   whatsapp: string;
   goal: Goal | "";
-  income: string;
+  incomes: IncomeEntry[];
   incomeComposition: IncomeComposition | "";
   birthYear: string;
   downPayment: string;
@@ -21,11 +26,16 @@ const INITIAL_ANSWERS: Answers = {
   name: "",
   whatsapp: "",
   goal: "",
-  income: "",
+  incomes: [{ id: 0, value: "" }],
   incomeComposition: "",
   birthYear: "",
   downPayment: "",
 };
+
+function incomeLabel(index: number): string {
+  if (index === 0) return "Sua renda";
+  return `Renda ${index + 1} (cônjuge, filho...)`;
+}
 
 const GOALS: { value: Goal; icon: typeof Home }[] = [
   { value: "Sair do aluguel", icon: Home },
@@ -65,6 +75,7 @@ export default function QualificadorPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const nextIncomeId = useRef(1);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -79,7 +90,7 @@ export default function QualificadorPage() {
       case 3:
         return answers.goal !== "";
       case 4:
-        return currencyToNumber(answers.income) > 0;
+        return answers.incomes.some((i) => currencyToNumber(i.value) > 0);
       case 5:
         return answers.incomeComposition !== "";
       case 6:
@@ -100,7 +111,7 @@ export default function QualificadorPage() {
         name: answers.name.trim(),
         whatsapp: answers.whatsapp.replace(/\D/g, ""),
         goal: answers.goal,
-        income: currencyToNumber(answers.income),
+        income: answers.incomes.reduce((sum, i) => sum + currencyToNumber(i.value), 0),
         incomeComposition: answers.incomeComposition,
         birthYear: Number(answers.birthYear),
         downPayment: currencyToNumber(answers.downPayment),
@@ -253,21 +264,68 @@ export default function QualificadorPage() {
           {step === 4 && (
             <Question
               key="income"
-              label="Qual é a sua renda mensal bruta aproximada?"
+              label="Qual é a renda mensal bruta familiar aproximada?"
+              hint="Some quantas rendas forem entrar no financiamento — a sua, do cônjuge, de um filho..."
               onNext={goNext}
               disabled={!canAdvance()}
             >
-              <input
-                ref={inputRef}
-                type="text"
-                inputMode="numeric"
-                value={answers.income}
-                onChange={(e) =>
-                  setAnswers((a) => ({ ...a, income: formatCurrencyInput(e.target.value) }))
-                }
-                placeholder="R$ 0,00"
-                className={inputClass}
-              />
+              <div className="flex flex-col gap-4">
+                {answers.incomes.map((entry, index) => (
+                  <div key={entry.id} className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <label className="mb-1 block text-sm text-zinc-500">
+                        {incomeLabel(index)}
+                      </label>
+                      <input
+                        ref={index === 0 ? inputRef : undefined}
+                        type="text"
+                        inputMode="numeric"
+                        value={entry.value}
+                        onChange={(e) => {
+                          const formatted = formatCurrencyInput(e.target.value);
+                          setAnswers((a) => ({
+                            ...a,
+                            incomes: a.incomes.map((i) =>
+                              i.id === entry.id ? { ...i, value: formatted } : i
+                            ),
+                          }));
+                        }}
+                        placeholder="R$ 0,00"
+                        className={inputClass}
+                      />
+                    </div>
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAnswers((a) => ({
+                            ...a,
+                            incomes: a.incomes.filter((i) => i.id !== entry.id),
+                          }))
+                        }
+                        aria-label="Remover renda"
+                        className="mb-3 text-zinc-500 transition hover:text-red-400"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAnswers((a) => ({
+                      ...a,
+                      incomes: [...a.incomes, { id: nextIncomeId.current++, value: "" }],
+                    }))
+                  }
+                  className="mt-1 flex w-fit items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:border-emerald-500 hover:text-white"
+                >
+                  <Plus className="h-4 w-4" />
+                  Adicionar mais uma renda (cônjuge, filho...)
+                </button>
+              </div>
             </Question>
           )}
 
