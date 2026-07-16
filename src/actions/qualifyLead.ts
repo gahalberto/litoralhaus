@@ -17,7 +17,7 @@ export async function qualifyLead(formData: unknown): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0].message };
   }
 
-  const { name, whatsapp, goal, income, incomeComposition, birthYear, downPayment } =
+  const { name, whatsapp, goal, income, incomeTypes, incomeComposition, birthYear, downPayment } =
     parsed.data;
 
   try {
@@ -30,6 +30,7 @@ export async function qualifyLead(formData: unknown): Promise<ActionResult> {
         status: computeStatus(income, downPayment),
         goal,
         income,
+        incomeTypes,
         incomeComposition,
         birthYear,
         downPayment,

@@ -6,10 +6,37 @@ import { qualifyLead } from "@/actions/qualifyLead";
 
 type Goal = "Sair do aluguel" | "Investir" | "Veraneio";
 type IncomeComposition = "Sozinho(a)" | "Com cônjuge" | "Com filho(s)" | "Outro";
+type IncomeType =
+  | "CLT"
+  | "PJ"
+  | "MEI"
+  | "Informal"
+  | "Autônomo"
+  | "Motorista/entregador de app"
+  | "Não trabalho"
+  | "Outro";
+
+const INCOME_TYPES: IncomeType[] = [
+  "CLT",
+  "PJ",
+  "MEI",
+  "Informal",
+  "Autônomo",
+  "Motorista/entregador de app",
+  "Não trabalho",
+  "Outro",
+];
 
 interface IncomeEntry {
   id: number;
+  type: IncomeType | "";
   value: string;
+}
+
+function isIncomeEntryValid(entry: IncomeEntry): boolean {
+  if (!entry.type) return false;
+  if (entry.type === "Não trabalho") return true;
+  return currencyToNumber(entry.value) > 0;
 }
 
 interface Answers {
@@ -26,7 +53,7 @@ const INITIAL_ANSWERS: Answers = {
   name: "",
   whatsapp: "",
   goal: "",
-  incomes: [{ id: 0, value: "" }],
+  incomes: [{ id: 0, type: "", value: "" }],
   incomeComposition: "",
   birthYear: "",
   downPayment: "",
@@ -90,7 +117,10 @@ export default function QualificadorPage() {
       case 3:
         return answers.goal !== "";
       case 4:
-        return answers.incomes.some((i) => currencyToNumber(i.value) > 0);
+        return (
+          answers.incomes.every(isIncomeEntryValid) &&
+          answers.incomes.some((i) => currencyToNumber(i.value) > 0)
+        );
       case 5:
         return answers.incomeComposition !== "";
       case 6:
@@ -112,6 +142,7 @@ export default function QualificadorPage() {
         whatsapp: answers.whatsapp.replace(/\D/g, ""),
         goal: answers.goal,
         income: answers.incomes.reduce((sum, i) => sum + currencyToNumber(i.value), 0),
+        incomeTypes: answers.incomes.map((i) => i.type).filter(Boolean),
         incomeComposition: answers.incomeComposition,
         birthYear: Number(answers.birthYear),
         downPayment: currencyToNumber(answers.downPayment),
@@ -183,7 +214,7 @@ export default function QualificadorPage() {
                 Litoral Haus
               </p>
               <h1 className="text-3xl font-medium leading-tight text-white sm:text-4xl">
-                Olá! Sou o Gabriel da Litoral Haus. Quero te ajudar a encontrar
+                Olá! Sou o Alberto da Litoral Haus. Quero te ajudar a encontrar
                 o imóvel ideal para você.
               </h1>
               <p className="mt-4 text-lg text-zinc-400">
@@ -271,11 +302,58 @@ export default function QualificadorPage() {
             >
               <div className="flex flex-col gap-4">
                 {answers.incomes.map((entry, index) => (
-                  <div key={entry.id} className="flex items-end gap-3">
-                    <div className="flex-1">
-                      <label className="mb-1 block text-sm text-zinc-500">
+                  <div
+                    key={entry.id}
+                    className="rounded-xl border border-zinc-800 p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm text-zinc-500">
                         {incomeLabel(index)}
                       </label>
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAnswers((a) => ({
+                              ...a,
+                              incomes: a.incomes.filter((i) => i.id !== entry.id),
+                            }))
+                          }
+                          aria-label="Remover renda"
+                          className="text-zinc-500 transition hover:text-red-400"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {INCOME_TYPES.map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() =>
+                            setAnswers((a) => ({
+                              ...a,
+                              incomes: a.incomes.map((i) =>
+                                i.id === entry.id
+                                  ? {
+                                      ...i,
+                                      type,
+                                      value: type === "Não trabalho" ? "" : i.value,
+                                    }
+                                  : i
+                              ),
+                            }))
+                          }
+                          className={chipClass(entry.type === type)}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+
+                    {entry.type && entry.type !== "Não trabalho" && (
                       <input
                         ref={index === 0 ? inputRef : undefined}
                         type="text"
@@ -291,23 +369,8 @@ export default function QualificadorPage() {
                           }));
                         }}
                         placeholder="R$ 0,00"
-                        className={inputClass}
+                        className={`${inputClass} mt-4`}
                       />
-                    </div>
-                    {index > 0 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setAnswers((a) => ({
-                            ...a,
-                            incomes: a.incomes.filter((i) => i.id !== entry.id),
-                          }))
-                        }
-                        aria-label="Remover renda"
-                        className="mb-3 text-zinc-500 transition hover:text-red-400"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
                     )}
                   </div>
                 ))}
@@ -317,7 +380,10 @@ export default function QualificadorPage() {
                   onClick={() =>
                     setAnswers((a) => ({
                       ...a,
-                      incomes: [...a.incomes, { id: nextIncomeId.current++, value: "" }],
+                      incomes: [
+                        ...a.incomes,
+                        { id: nextIncomeId.current++, type: "", value: "" },
+                      ],
                     }))
                   }
                   className="mt-1 flex w-fit items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:border-emerald-500 hover:text-white"
@@ -433,6 +499,15 @@ export default function QualificadorPage() {
 
 const inputClass =
   "w-full border-b border-zinc-700 bg-transparent pb-3 text-2xl text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none sm:text-3xl";
+
+function chipClass(active: boolean) {
+  return [
+    "rounded-full border px-3 py-1.5 text-sm transition",
+    active
+      ? "border-emerald-500 bg-emerald-500/10 text-white"
+      : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200",
+  ].join(" ");
+}
 
 function optionClass(active: boolean) {
   return [

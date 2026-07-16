@@ -61,6 +61,7 @@ export const qualifyLeadSchema = z.object({
     error: "Selecione um objetivo",
   }),
   income: z.number().positive("Informe uma renda válida"),
+  incomeTypes: z.array(z.string()).min(1, "Selecione o tipo de cada renda"),
   incomeComposition: z.enum(["Sozinho(a)", "Com cônjuge", "Com filho(s)", "Outro"], {
     error: "Selecione uma opção",
   }),
