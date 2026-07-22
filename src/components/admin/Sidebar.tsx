@@ -17,6 +17,8 @@ import {
   MessageSquare,
   BookOpen,
   CalendarClock,
+  Map,
+  MapPin,
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -44,6 +46,8 @@ const NAV_MAIN: NavItem[] = [
 
 const NAV_SETTINGS: NavItem[] = [
   { label: "Tipos de Imóvel", href: "/admin/property-types", icon: LayoutList,  adminOnly: true },
+  { label: "Cidades",         href: "/admin/cidades",        icon: Map,         adminOnly: true },
+  { label: "Bairros",         href: "/admin/bairros",        icon: MapPin,      adminOnly: true },
   { label: "Usuários",        href: "/admin/users",          icon: ShieldCheck, adminOnly: true },
 ];
 

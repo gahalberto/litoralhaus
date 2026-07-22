@@ -28,7 +28,7 @@ export async function generateMetadata({
 
   const title =
     p.seoTitle ||
-    `${PROPERTY_TYPE_LABELS[p.type]} em ${p.neighborhood}, ${p.city} | Litoral Haus`;
+    `${PROPERTY_TYPE_LABELS[p.type]} em ${p.neighborhood}, ${p.city}`;
 
   // Monta descrição estruturada com dados reais (não usa campo "Descrição" do imóvel,
   // que pode conter formatação interna imprópria para meta tags)
@@ -77,6 +77,9 @@ export default async function PropertyPage({
   const whatsappHref = `https://wa.me/5513955422935?text=${encodeURIComponent(
     `Olá! Tenho interesse no imóvel: ${p.title} — ${canonicalUrl}`
   )}`;
+  const bairroUrl = p.bairro?.ativo
+    ? `/regioes/${p.bairro.cidade.slug}/${p.bairro.slug}`
+    : null;
 
   // H1 dinâmico estilo portal
   const h1Parts = [
@@ -203,7 +206,12 @@ export default async function PropertyPage({
             <span className="select-none">/</span>
             <Link href={`/imoveis?type=${p.type}&region=${p.region}`} className="transition-colors hover:text-white">{REGION_LABELS[p.region]}</Link>
             <span className="select-none">/</span>
-            <Link href={`/imoveis?type=${p.type}&region=${p.region}&neighborhood=${encodeURIComponent(p.neighborhood)}`} className="transition-colors hover:text-white">{p.neighborhood}</Link>
+            <Link
+              href={bairroUrl ?? `/imoveis?type=${p.type}&region=${p.region}&neighborhood=${encodeURIComponent(p.neighborhood)}`}
+              className="transition-colors hover:text-white"
+            >
+              {p.neighborhood}
+            </Link>
             <span className="select-none">/</span>
             <span className="max-w-52 truncate text-white/60">{p.title}</span>
           </nav>
@@ -255,6 +263,11 @@ export default async function PropertyPage({
                       "SP",
                     ].filter(Boolean).join(", ")}
                   </span>
+                  {bairroUrl && (
+                    <Link href={bairroUrl} className="font-inter text-xs text-amber-600 hover:underline">
+                      Como é morar em {p.neighborhood} →
+                    </Link>
+                  )}
                 </div>
               </div>
 

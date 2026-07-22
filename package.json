@@ -7,6 +7,7 @@
     "build": "prisma db push --accept-data-loss && next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "postinstall": "prisma generate",
     "seed:local": "npx tsx prisma/seed.ts",
     "seed:prod": "node -e \"require('https').request({hostname:'litoralhaus.com.br',path:'/api/seed',method:'POST',headers:{'x-seed-secret':process.env.SEED_SECRET}},r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>console.log(JSON.parse(d)))}).end()\""
@@ -65,6 +66,7 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

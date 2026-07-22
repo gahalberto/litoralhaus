@@ -33,7 +33,7 @@ export async function generateMetadata({
   if (!post) return { title: "Artigo não encontrado" };
 
   const canonicalUrl = `${BASE}/blog/${slug}`;
-  const title = post.seoTitle ?? `${post.title} | Litoral Haus`;
+  const title = post.seoTitle ?? post.title;
   const rawDesc = post.seoDescription ?? post.excerpt;
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + "…" : rawDesc;
   const image = post.coverImage ?? "/og-image.jpg";

@@ -4,7 +4,7 @@ import { Footer } from "@/components/sections/Footer";
 import { ContactForm } from "@/components/contact-form";
 
 export const metadata: Metadata = {
-  title: "Contato | Litoral Haus",
+  title: "Contato",
   description:
     "Entre em contato com a Litoral Haus. Atendimento personalizado para compra, venda e locação de imóveis no litoral de São Paulo.",
 };

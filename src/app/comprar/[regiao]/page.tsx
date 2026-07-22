@@ -37,7 +37,7 @@ export async function generateMetadata({
   if (!region) return { title: "Página não encontrada" };
 
   const cidade = REGION_LABELS[region];
-  const title       = `Imóveis à venda ${cidade === "Guarujá" ? "no" : "em"} ${cidade} | Litoral Haus`;
+  const title       = `Imóveis à venda ${cidade === "Guarujá" ? "no" : "em"} ${cidade}`;
   const description = `Apartamentos, casas e coberturas de médio e alto padrão à venda ${cidade === "Guarujá" ? "no" : "em"} ${cidade}. Curadoria Litoral Haus — litoral de São Paulo.`;
   const url = `${BASE}/comprar/${regiao}`;
 

@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [
     { url: BASE,              lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
     { url: `${BASE}/imoveis`, lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/regioes`, lastModified: new Date(), changeFrequency: "weekly",  priority: 0.8 },
     { url: `${BASE}/blog`,    lastModified: new Date(), changeFrequency: "weekly",  priority: 0.85 },
     { url: `${BASE}/contato`,    lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/privacidade`, lastModified: new Date(), changeFrequency: "yearly",  priority: 0.3 },
@@ -60,6 +61,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority:        0.75,
   }));
 
+  // /regioes/[cidade] e /regioes/[cidade]/[bairro] — páginas editoriais de bairro (SEO)
+  const cidadesAtivas = await prisma.cidade.findMany({
+    where: { ativo: true },
+    select: { slug: true, updatedAt: true },
+  });
+  const regioesCidadeUrls: MetadataRoute.Sitemap = cidadesAtivas.map((c) => ({
+    url:             `${BASE}/regioes/${c.slug}`,
+    lastModified:    c.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority:        0.7,
+  }));
+
+  const bairrosAtivos = await prisma.bairro.findMany({
+    where: { ativo: true, cidade: { ativo: true } },
+    select: { slug: true, updatedAt: true, cidade: { select: { slug: true } } },
+  });
+  const regioesBairroUrls: MetadataRoute.Sitemap = bairrosAtivos.map((b) => ({
+    url:             `${BASE}/regioes/${b.cidade.slug}/${b.slug}`,
+    lastModified:    b.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority:        0.75,
+  }));
+
   // Páginas individuais de imóveis
   const propertyUrls: MetadataRoute.Sitemap = properties.map((p) => ({
     url:             `${BASE}/imoveis/${p.slug}`,
@@ -77,5 +101,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority:        0.75,
   }));
 
-  return [...staticUrls, ...regionUrls, ...typeUrls, ...neighborhoodUrls, ...propertyUrls, ...blogUrls];
+  return [
+    ...staticUrls, ...regionUrls, ...typeUrls, ...neighborhoodUrls,
+    ...regioesCidadeUrls, ...regioesBairroUrls,
+    ...propertyUrls, ...blogUrls,
+  ];
 }

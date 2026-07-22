@@ -321,6 +321,76 @@ export function ItemListJsonLd({
   );
 }
 
+// ─── BreadcrumbList (genérico) ────────────────────────────────────────────────
+
+export interface BreadcrumbItem {
+  name: string;
+  url:  string;
+}
+
+export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
+  if (items.length === 0) return null;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type":    "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type":  "ListItem",
+      position: i + 1,
+      name:     item.name,
+      item:     item.url,
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+// ─── Place (Página de Bairro/Cidade) ──────────────────────────────────────────
+
+interface PlaceSchemaProps {
+  name:         string;
+  addressLocality: string;
+  url:          string;
+  description?: string;
+  latitude?:    number | null;
+  longitude?:   number | null;
+}
+
+export function PlaceJsonLd(p: PlaceSchemaProps) {
+  const schema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type":    "Place",
+    name:        p.name,
+    url:         p.url,
+    ...(p.description && { description: p.description }),
+    address: {
+      "@type":         "PostalAddress",
+      addressLocality: p.addressLocality,
+      addressRegion:   "SP",
+      addressCountry:  "BR",
+    },
+    ...(p.latitude != null && p.longitude != null && {
+      geo: {
+        "@type":    "GeoCoordinates",
+        latitude:   p.latitude,
+        longitude:  p.longitude,
+      },
+    }),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 // ─── Article (Blog) ───────────────────────────────────────────────────────────
 
 export function ArticleJsonLd(p: ArticleSchemaProps) {

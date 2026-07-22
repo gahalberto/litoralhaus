@@ -113,12 +113,12 @@ export async function generateMetadata({
   const canonicalUrl = `https://litoralhaus.com.br/imoveis`;
 
   return {
-    title:       `${heading} | Litoral Haus`,
+    title:       heading,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       type: "website", locale: "pt_BR", url: canonicalUrl,
-      siteName: "Litoral Haus", title: `${heading} | Litoral Haus`, description,
+      siteName: "Litoral Haus", title: heading, description,
     },
     // Filtros via query param → noindex para evitar duplicação com as landing pages
     robots: hasQueryFilters

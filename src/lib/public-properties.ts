@@ -21,6 +21,7 @@ export type PublicProperty = {
 };
 
 export type PublicPropertyDetail = PublicProperty & {
+  bairro: { slug: string; ativo: boolean; cidade: { slug: string } } | null;
   description:       string | null;
   address:           string | null;
   addressNumber:     string | null;
@@ -130,6 +131,7 @@ export async function getPublicPropertyBySlug(slug: string): Promise<PublicPrope
       id: true, slug: true, title: true, type: true,
       region: true, city: true, neighborhood: true, address: true,
       addressNumber: true, showAddressNumber: true,
+      bairro: { select: { slug: true, ativo: true, cidade: { select: { slug: true } } } },
       bedrooms: true, bathrooms: true, suites: true, parkingSpots: true,
       areaTotal: true, areaUsable: true,
       priceAsk: true, priceRent: true, condoFee: true, iptu: true,

@@ -110,10 +110,10 @@ export async function generateMetadata({
   if (mode.kind === "type") {
     const label = TYPE_LABEL_PLURAL[mode.type];
     const loc   = locative(mode.cidade);
-    title       = `${label} à venda ${loc} | Litoral Haus`;
+    title       = `${label} à venda ${loc}`;
     description = `${label} de médio e alto padrão à venda ${loc}. Confira o portfólio curado da Litoral Haus no litoral paulista.`;
   } else {
-    title       = `Imóveis à venda no ${mode.neighborhood}, ${mode.cidade} | Litoral Haus`;
+    title       = `Imóveis à venda no ${mode.neighborhood}, ${mode.cidade}`;
     description = `Apartamentos, casas e imóveis à venda no bairro ${mode.neighborhood} em ${mode.cidade}. Curadoria Litoral Haus — litoral de São Paulo.`;
   }
 

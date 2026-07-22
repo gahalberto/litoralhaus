@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugify";
+import { getCidadeIdByRegion, resolverOuCriarBairro } from "@/lib/bairro";
 import { propertyFormSchema, type PropertyActionResult } from "@/types/property";
 import { PropertyStatus, PropertyType, PropertyPurpose, Region } from "@prisma/client";
 import { requireSession } from "@/lib/session";
@@ -22,6 +23,16 @@ function toNum(v?: string): number | undefined {
   if (!v || v.trim() === "") return undefined;
   const n = Number(v);
   return isNaN(n) ? undefined : n;
+}
+
+async function resolveBairroLink(
+  region: Region,
+  neighborhood: string
+): Promise<{ cidadeId: string | undefined; bairroId: string | undefined }> {
+  const cidadeId = await getCidadeIdByRegion(region);
+  if (!cidadeId) return { cidadeId: undefined, bairroId: undefined };
+  const bairroId = await resolverOuCriarBairro(neighborhood, cidadeId);
+  return { cidadeId, bairroId };
 }
 
 async function uniqueSlug(base: string): Promise<string> {
@@ -68,6 +79,7 @@ export async function createProperty(
     if (agent) prefixName = agent.name;
   }
   const refCode = await generateRefCode(nameInitials(prefixName));
+  const { cidadeId, bairroId } = await resolveBairroLink(d.region, d.neighborhood);
 
   try {
     const property = await prisma.property.create({
@@ -86,6 +98,8 @@ export async function createProperty(
         cep:          d.cep?.replace(/\D/g, "") || undefined,
         city:         d.city,
         neighborhood: d.neighborhood,
+        cidadeId,
+        bairroId,
         address:           d.address,
         addressNumber:     d.addressNumber || undefined,
         showAddressNumber: d.showAddressNumber,
@@ -256,6 +270,8 @@ export async function updateProperty(
     },
   });
 
+  const { cidadeId, bairroId } = await resolveBairroLink(d.region, d.neighborhood);
+
   const newData = {
     title:              d.title,
     slug:               d.slug || slugify(d.title),
@@ -269,6 +285,8 @@ export async function updateProperty(
     region:             d.region,
     city:               d.city,
     neighborhood:       d.neighborhood,
+    cidadeId:           cidadeId ?? null,
+    bairroId:           bairroId ?? null,
     address:            d.address ?? null,
     addressNumber:      d.addressNumber || null,
     bedrooms:           toNum(d.bedrooms) ?? null,
