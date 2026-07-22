@@ -8,6 +8,8 @@ import { Loader2, X, Upload } from "lucide-react";
 interface CoverImageUploaderProps {
   value: string;
   onChange: (url: string) => void;
+  folder?: string;
+  label?: string;
 }
 
 function cloudinaryThumb(url: string, w = 800): string {
@@ -15,7 +17,7 @@ function cloudinaryThumb(url: string, w = 800): string {
   return url.replace("/upload/", `/upload/c_fill,f_auto,q_auto,w_${w}/`);
 }
 
-export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps) {
+export function CoverImageUploader({ value, onChange, folder = "litoralhaus/blog", label = "Capa do artigo" }: CoverImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver]   = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +26,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
     if (!file.type.startsWith("image/")) return;
     setUploading(true);
     try {
-      const sig = await getUploadSignature("litoralhaus/blog");
+      const sig = await getUploadSignature(folder);
       const body = new FormData();
       body.append("file",      file);
       body.append("signature", sig.signature);
@@ -56,7 +58,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={cloudinaryThumb(value)}
-          alt="Capa do artigo"
+          alt={label}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 transition-opacity hover:opacity-100">
@@ -85,7 +87,7 @@ export function CoverImageUploader({ value, onChange }: CoverImageUploaderProps)
           onChange={(e) => handleFiles(e.target.files)}
         />
         <span className="absolute left-2 top-2 rounded bg-amber-400 px-1.5 py-0.5 font-inter text-[9px] font-bold uppercase tracking-wider text-black">
-          Capa
+          {label}
         </span>
       </div>
     );

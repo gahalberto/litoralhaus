@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
@@ -57,41 +58,58 @@ export default async function RegioesPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-5xl px-6 py-12 space-y-12">
+        <div className="mx-auto max-w-5xl px-6 py-12">
           {cidades.length === 0 ? (
             <p className="py-20 text-center font-cormorant text-2xl font-light text-muted-foreground">
               Em breve novas regiões.
             </p>
           ) : (
-            cidades.map((cidade) => (
-              <section key={cidade.id}>
-                <div className="mb-4 flex items-baseline justify-between gap-4">
-                  <h2 className="font-cormorant text-2xl font-light">
-                    <Link href={`/regioes/${cidade.slug}`} className="hover:text-amber-500 transition-colors">
-                      {cidade.nome}/{cidade.uf}
-                    </Link>
-                  </h2>
-                  <span className="font-inter text-xs text-muted-foreground">
-                    {cidade.bairros.length} {cidade.bairros.length === 1 ? "bairro" : "bairros"}
-                  </span>
-                </div>
-                {cidade.bairros.length === 0 ? (
-                  <p className="font-inter text-sm text-muted-foreground">Bairros em breve.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {cidade.bairros.map((b) => (
-                      <Link
-                        key={b.slug}
-                        href={`/regioes/${cidade.slug}/${b.slug}`}
-                        className="rounded-full border border-border px-3.5 py-1.5 font-inter text-xs text-foreground transition-colors hover:border-amber-400 hover:text-amber-600"
-                      >
-                        {b.nome}
-                      </Link>
-                    ))}
+            <div className="grid gap-6 sm:grid-cols-2">
+              {cidades.map((cidade) => (
+                <div key={cidade.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <Link href={`/regioes/${cidade.slug}`} className="group relative block aspect-video overflow-hidden bg-stone-950">
+                    {cidade.imagemUrl ? (
+                      <Image
+                        src={cidade.imagemUrl}
+                        alt={cidade.nome}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-linear-to-br from-stone-950 via-stone-900 to-amber-950" />
+                    )}
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-stone-950/85 via-stone-950/10 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <h2 className="font-cormorant text-2xl font-light text-stone-50">
+                        {cidade.nome}/{cidade.uf}
+                      </h2>
+                      <span className="font-inter text-xs text-stone-300">
+                        {cidade.bairros.length} {cidade.bairros.length === 1 ? "bairro" : "bairros"}
+                      </span>
+                    </div>
+                  </Link>
+
+                  <div className="p-5">
+                    {cidade.bairros.length === 0 ? (
+                      <p className="font-inter text-sm text-muted-foreground">Bairros em breve.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {cidade.bairros.map((b) => (
+                          <Link
+                            key={b.slug}
+                            href={`/regioes/${cidade.slug}/${b.slug}`}
+                            className="rounded-full border border-border px-3.5 py-1.5 font-inter text-xs text-foreground transition-colors hover:border-amber-400 hover:text-amber-600"
+                          >
+                            {b.nome}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </section>
-            ))
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

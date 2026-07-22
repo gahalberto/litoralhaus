@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { CoverImageUploader } from "@/components/admin/CoverImageUploader";
 import { slugify } from "@/lib/slugify";
 
 const inputCls =
@@ -42,7 +43,7 @@ export function CidadeForm({ initialData }: Props) {
   const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<CidadeFormData>({
     resolver: zodResolver(cidadeSchema),
     defaultValues: initialData ?? {
-      nome: "", slug: "", uf: "SP", textoIntro: "", metaDescription: "",
+      nome: "", slug: "", uf: "SP", imagemUrl: "", textoIntro: "", metaDescription: "",
       latitude: "", longitude: "", ativo: true,
     },
   });
@@ -106,6 +107,21 @@ export function CidadeForm({ initialData }: Props) {
           <input {...register("longitude")} placeholder="-46.2564" className={inputCls} />
         </Field>
       </div>
+
+      <Field label="Foto principal da cidade" error={errors.imagemUrl?.message} hint="Usada como fundo da página /regioes/[cidade]. Proporção larga (16:9) recomendada.">
+        <Controller
+          name="imagemUrl"
+          control={control}
+          render={({ field }) => (
+            <CoverImageUploader
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              folder="litoralhaus/cidades"
+              label="Foto da cidade"
+            />
+          )}
+        />
+      </Field>
 
       <Field label={`Texto de introdução (${nome || "cidade"})`} error={errors.textoIntro?.message}>
         <Controller

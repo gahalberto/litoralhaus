@@ -4,6 +4,7 @@ export const cidadeSchema = z.object({
   nome:            z.string().min(2, "Nome obrigatório"),
   slug:            z.string().min(2, "Slug obrigatório").regex(/^[a-z0-9-]+$/, "Use apenas letras minúsculas, números e hífen"),
   uf:              z.string().min(2, "UF obrigatória").max(2),
+  imagemUrl:       z.string().optional(),
   textoIntro:      z.string().optional(),
   metaDescription: z.string().optional(),
   latitude:        z.string().optional(),

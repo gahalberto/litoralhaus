@@ -20,6 +20,7 @@ export default async function EditCidadePage({
     nome:            cidade.nome,
     slug:            cidade.slug,
     uf:              cidade.uf,
+    imagemUrl:       cidade.imagemUrl ?? "",
     textoIntro:      cidade.textoIntro ?? "",
     metaDescription: cidade.metaDescription ?? "",
     latitude:        cidade.latitude  != null ? String(cidade.latitude)  : "",

@@ -292,6 +292,7 @@ model Cidade {
   nome            String
   slug            String  @unique
   uf              String  @default("SP")
+  imagemUrl       String?
   textoIntro      String? @db.Text
   metaDescription String?
   latitude        Decimal? @db.Decimal(10, 8)

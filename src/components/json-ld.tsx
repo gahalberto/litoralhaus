@@ -357,6 +357,7 @@ interface PlaceSchemaProps {
   addressLocality: string;
   url:          string;
   description?: string;
+  image?:       string | null;
   latitude?:    number | null;
   longitude?:   number | null;
 }
@@ -368,6 +369,7 @@ export function PlaceJsonLd(p: PlaceSchemaProps) {
     name:        p.name,
     url:         p.url,
     ...(p.description && { description: p.description }),
+    ...(p.image && { image: p.image }),
     address: {
       "@type":         "PostalAddress",
       addressLocality: p.addressLocality,

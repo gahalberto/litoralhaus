@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -41,7 +42,10 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", locale: "pt_BR" },
+    openGraph: {
+      title, description, url, type: "website", locale: "pt_BR",
+      ...(cidade.imagemUrl && { images: [{ url: cidade.imagemUrl, width: 1200, height: 630, alt: cidade.nome }] }),
+    },
   };
 }
 
@@ -67,21 +71,50 @@ export default async function CidadePage({
       />
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
-        <div className="border-b border-border px-6 pt-28 pb-10">
-          <div className="mx-auto max-w-5xl">
-            <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 font-inter text-xs text-muted-foreground">
-              <Link href="/" className="hover:text-foreground">Início</Link>
-              <span>/</span>
-              <Link href="/regioes" className="hover:text-foreground">Regiões</Link>
-              <span>/</span>
-              <span className="text-foreground">{cidade.nome}</span>
-            </nav>
-            <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
-              {cidade.uf}
-            </p>
-            <h1 className="font-cormorant text-4xl font-light sm:text-5xl">
-              Bairros de {cidade.nome}
-            </h1>
+        {/* Hero com foto da cidade */}
+        <div className="relative flex min-h-105 items-end overflow-hidden sm:min-h-120">
+          {cidade.imagemUrl ? (
+            <Image
+              src={cidade.imagemUrl}
+              alt={cidade.nome}
+              fill
+              priority
+              sizes="100vw"
+              quality={85}
+              className="object-cover"
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-linear-to-br from-stone-950 via-stone-900 to-amber-950"
+            />
+          )}
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-stone-950/60" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-linear-to-b from-stone-950/50 via-transparent to-stone-950/85"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(180,140,80,0.15),transparent)]"
+          />
+
+          <div className="relative z-10 w-full px-6 pb-10 pt-28">
+            <div className="mx-auto max-w-5xl">
+              <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 font-inter text-xs text-white/50">
+                <Link href="/" className="transition-colors hover:text-white">Início</Link>
+                <span>/</span>
+                <Link href="/regioes" className="transition-colors hover:text-white">Regiões Atendidas</Link>
+                <span>/</span>
+                <span className="font-medium text-white">{cidade.nome}</span>
+              </nav>
+              <p className="mb-2 font-inter text-xs font-medium uppercase tracking-[0.3em] text-amber-400/90">
+                {cidade.uf} · Baixada Santista
+              </p>
+              <h1 className="font-cormorant text-4xl font-light text-stone-50 sm:text-5xl md:text-6xl">
+                Bairros de {cidade.nome}
+              </h1>
+            </div>
           </div>
         </div>
 

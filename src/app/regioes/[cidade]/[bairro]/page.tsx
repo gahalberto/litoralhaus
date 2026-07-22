@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -52,7 +53,10 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", locale: "pt_BR" },
+    openGraph: {
+      title, description, url, type: "website", locale: "pt_BR",
+      ...(found.cidade.imagemUrl && { images: [{ url: found.cidade.imagemUrl, width: 1200, height: 630, alt: bairro.nome }] }),
+    },
   };
 }
 
@@ -94,36 +98,83 @@ export default async function BairroPage({
         addressLocality={cidade.nome}
         url={pageUrl}
         description={bairro.metaDescription ?? undefined}
+        image={cidade.imagemUrl}
         latitude={bairro.latitude != null ? Number(bairro.latitude) : null}
         longitude={bairro.longitude != null ? Number(bairro.longitude) : null}
       />
       <Navbar />
       <div className="min-h-screen bg-background text-foreground">
-        {/* Header */}
-        <div className="border-b border-border px-6 pt-28 pb-10">
-          <div className="mx-auto max-w-5xl">
-            <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-1.5 font-inter text-xs text-muted-foreground">
-              <Link href="/" className="hover:text-foreground">Início</Link>
-              <span>/</span>
-              <Link href="/regioes" className="hover:text-foreground">Regiões</Link>
-              <span>/</span>
-              <Link href={`/regioes/${cidadeSlug}`} className="hover:text-foreground">{cidade.nome}</Link>
-              <span>/</span>
-              <span className="text-foreground">{bairro.nome}</span>
-            </nav>
-            <p className="mb-2 font-inter text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
-              {cidade.nome}, São Paulo
-            </p>
-            <h1 className="font-cormorant text-4xl font-light sm:text-5xl">
-              Como é morar em {bairro.nome}
-            </h1>
+        {/* Hero */}
+        <div className="relative flex min-h-105 items-center overflow-hidden sm:min-h-130">
+          {cidade.imagemUrl ? (
+            <Image
+              src={cidade.imagemUrl}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              quality={85}
+              className="object-cover"
+              aria-hidden
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-linear-to-br from-stone-950 via-stone-900 to-amber-950"
+            />
+          )}
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-stone-950/75" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-linear-to-b from-stone-950/40 via-stone-950/60 to-stone-950/90"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_20%_20%,rgba(217,159,60,0.25),transparent)]"
+          />
+
+          <div className="relative z-10 w-full px-6 pb-12 pt-28">
+            <div className="mx-auto max-w-5xl">
+              <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 font-inter text-xs text-white/50">
+                <Link href="/" className="transition-colors hover:text-white">Início</Link>
+                <span>/</span>
+                <Link href="/regioes" className="transition-colors hover:text-white">Regiões Atendidas</Link>
+                <span>/</span>
+                <Link href={`/regioes/${cidadeSlug}`} className="transition-colors hover:text-white">{cidade.nome}</Link>
+                <span>/</span>
+                <span className="font-medium text-white">{bairro.nome}</span>
+              </nav>
+
+              <h1 className="font-cormorant text-5xl font-light leading-[1.05] text-stone-50 sm:text-6xl md:text-7xl">
+                Como é morar em{" "}
+                <em className="font-light not-italic text-amber-300">{bairro.nome}</em>
+              </h1>
+              <p className="mt-4 font-inter text-lg font-medium text-stone-300 sm:text-xl">
+                {cidade.nome}, São Paulo
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                <a
+                  href="#morar"
+                  className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 font-inter text-sm font-semibold text-stone-950 shadow-lg shadow-amber-950/30 transition hover:bg-amber-300"
+                >
+                  Conhecer o bairro
+                </a>
+                <a
+                  href="#imoveis"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 font-inter text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"
+                >
+                  Imóveis no bairro
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="mx-auto max-w-5xl px-6 py-12 space-y-14">
           {/* Morar no bairro */}
           {bairro.textoMorar && (
-            <section>
+            <section id="morar" className="scroll-mt-24">
               <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
                 Morar em {bairro.nome}
               </h2>
@@ -163,7 +214,7 @@ export default async function BairroPage({
           )}
 
           {/* Imóveis no bairro */}
-          <section>
+          <section id="imoveis" className="scroll-mt-24">
             <div className="mb-6 flex items-baseline justify-between gap-4">
               <h2 className="font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
                 Imóveis em {bairro.nome}
