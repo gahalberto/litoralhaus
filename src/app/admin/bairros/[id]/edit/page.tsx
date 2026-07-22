@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 import { getBairroById, deleteBairro } from "@/actions/bairros";
 import { getCidades } from "@/actions/cidades";
 import { BairroForm } from "@/components/admin/BairroForm";
@@ -40,12 +41,33 @@ export default async function EditBairroPage({
         <span className="text-foreground truncate max-w-xs">{bairro.nome}</span>
       </nav>
 
-      <div>
-        <h1 className="font-cormorant text-2xl font-light text-foreground">{bairro.nome}</h1>
-        <p className="mt-1 font-inter text-xs text-muted-foreground">
-          {bairro.cidade.nome} · {bairro._count.properties} imóve{bairro._count.properties !== 1 ? "is" : "l"} vinculado{bairro._count.properties !== 1 ? "s" : ""}
-          {bairro.criadoAutomaticamente && " · Criado automaticamente"}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-cormorant text-2xl font-light text-foreground">{bairro.nome}</h1>
+          <p className="mt-1 font-inter text-xs text-muted-foreground">
+            {bairro.cidade.nome} · {bairro._count.properties} imóve{bairro._count.properties !== 1 ? "is" : "l"} vinculado{bairro._count.properties !== 1 ? "s" : ""}
+            {bairro.criadoAutomaticamente && " · Criado automaticamente"}
+          </p>
+        </div>
+        {bairro.ativo ? (
+          <Link
+            href={`/regioes/${bairro.cidade.slug}/${bairro.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-inter text-xs text-foreground transition-colors hover:border-amber-400 hover:text-amber-600"
+          >
+            <ExternalLink size={13} />
+            Ver página
+          </Link>
+        ) : (
+          <span
+            title="Ative o bairro para visualizar a página pública"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-inter text-xs text-muted-foreground/40"
+          >
+            <ExternalLink size={13} />
+            Ver página
+          </span>
+        )}
       </div>
 
       <BairroForm cidades={cidades.map((c) => ({ id: c.id, nome: c.nome }))} initialData={initialData} />

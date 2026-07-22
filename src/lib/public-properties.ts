@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { PropertyType, Region } from "@prisma/client";
+import { PropertyType, PropertyPurpose, Region } from "@prisma/client";
 
 export type PublicProperty = {
   id:           string;
@@ -122,6 +122,39 @@ export async function getAvailableRegions(): Promise<Region[]> {
     orderBy:  { region: "asc" },
   });
   return rows.map((r) => r.region);
+}
+
+// ─── Carrossel "Imóveis mais desejados" (páginas de bairro) ──────────────────
+
+export type BairroCarouselProperty = {
+  id:           string;
+  slug:         string;
+  title:        string;
+  images:       string[];
+  purposes:     PropertyPurpose[];
+  priceAsk:     string | null;
+  priceRent:    string | null;
+  condoFee:     string | null;
+  bedrooms:     number | null;
+  parkingSpots: number | null;
+  areaTotal:    string | null;
+  neighborhood: string;
+  city:         string;
+  exclusive:    boolean;
+  createdAt:    Date;
+};
+
+export async function getBairroCarouselProperties(neighborhood: string): Promise<BairroCarouselProperty[]> {
+  return prisma.property.findMany({
+    where: { status: "DISPONIVEL", neighborhood: { contains: neighborhood, mode: "insensitive" } },
+    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+    select: {
+      id: true, slug: true, title: true, images: true, purposes: true,
+      priceAsk: true, priceRent: true, condoFee: true,
+      bedrooms: true, parkingSpots: true, areaTotal: true,
+      neighborhood: true, city: true, exclusive: true, createdAt: true,
+    },
+  }) as unknown as BairroCarouselProperty[];
 }
 
 export async function getPublicPropertyBySlug(slug: string): Promise<PublicPropertyDetail | null> {

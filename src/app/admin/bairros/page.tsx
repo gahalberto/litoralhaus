@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import { getBairros } from "@/actions/bairros";
 import { getCidades } from "@/actions/cidades";
 
@@ -106,8 +107,8 @@ export default async function BairrosPage({
           <table className="w-full font-inter text-sm">
             <thead className="border-b border-border bg-muted/40">
               <tr>
-                {["Bairro", "Cidade", "Status", "Origem", "Imóveis", ""].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                {["Bairro", "Cidade", "Status", "Origem", "Imóveis", "", ""].map((h, i) => (
+                  <th key={`${h}-${i}`} className="px-5 py-3 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
                     {h}
                   </th>
                 ))}
@@ -133,6 +134,27 @@ export default async function BairrosPage({
                     {b.criadoAutomaticamente ? "Automático" : "Manual"}
                   </td>
                   <td className="px-5 py-3 text-muted-foreground">{b._count.properties}</td>
+                  <td className="px-5 py-3">
+                    {b.ativo ? (
+                      <Link
+                        href={`/regioes/${b.cidade.slug}/${b.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-inter text-xs text-muted-foreground transition-colors hover:text-amber-600"
+                      >
+                        <ExternalLink size={12} />
+                        Ver
+                      </Link>
+                    ) : (
+                      <span
+                        title="Ative o bairro para visualizar a página pública"
+                        className="inline-flex items-center gap-1 font-inter text-xs text-muted-foreground/40"
+                      >
+                        <ExternalLink size={12} />
+                        Ver
+                      </span>
+                    )}
+                  </td>
                   <td className="px-5 py-3">
                     <Link href={`/admin/bairros/${b.id}/edit`} className="font-inter text-xs text-amber-600 hover:text-amber-500 transition-colors">
                       Editar

@@ -2,17 +2,24 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Home, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getPublicProperties } from "@/lib/public-properties";
+import { getBairroCarouselProperties } from "@/lib/public-properties";
 import { formatPrice } from "@/lib/property-config";
-import { PropertyCard } from "@/components/property-card";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/Footer";
 import { BreadcrumbJsonLd, PlaceJsonLd } from "@/components/json-ld";
+import { BairroNav } from "@/components/regioes/BairroNav";
+import { ImoveisCarousel } from "@/components/regioes/ImoveisCarousel";
 
 const BASE = "https://litoralhaus.com.br";
-const PAGE_SIZE = 9;
 const WA_PHONE = "5513955422935";
+
+const CARD_COLORS = [
+  "bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-300",
+  "bg-stone-100 text-stone-900 dark:bg-stone-800 dark:text-stone-200",
+  "bg-emerald-100 text-emerald-900 dark:bg-emerald-400/15 dark:text-emerald-300",
+];
 
 async function getBairro(cidadeSlug: string, bairroSlug: string) {
   const cidade = await prisma.cidade.findUnique({ where: { slug: cidadeSlug } });
@@ -62,13 +69,10 @@ export async function generateMetadata({
 
 export default async function BairroPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ cidade: string; bairro: string }>;
-  searchParams: Promise<Record<string, string>>;
 }) {
   const { cidade: cidadeSlug, bairro: bairroSlug } = await params;
-  const sp = await searchParams;
   const found = await getBairro(cidadeSlug, bairroSlug);
   if (!found || !found.bairro.ativo || !found.cidade.ativo) notFound();
 
@@ -78,10 +82,24 @@ export default async function BairroPage({
     `Olá! Quero saber mais sobre imóveis no bairro ${bairro.nome}, ${cidade.nome} — ${pageUrl}`
   )}`;
 
-  const imoveisNoBairro = await getPublicProperties({ neighborhood: bairro.nome });
-  const pagina = Math.max(1, Number(sp.pagina) || 1);
-  const totalPaginas = Math.max(1, Math.ceil(imoveisNoBairro.length / PAGE_SIZE));
-  const imoveis = imoveisNoBairro.slice((pagina - 1) * PAGE_SIZE, pagina * PAGE_SIZE);
+  const imoveis = await getBairroCarouselProperties(bairro.nome);
+
+  const precosAluguel = imoveis.filter((p) => p.priceRent).map((p) => Number(p.priceRent));
+  const precosVenda   = imoveis.filter((p) => p.priceAsk).map((p) => Number(p.priceAsk));
+  const aluguelDestaque = bairro.aluguelMedio != null
+    ? Number(bairro.aluguelMedio)
+    : precosAluguel.length > 0
+    ? precosAluguel.reduce((a, b) => a + b, 0) / precosAluguel.length
+    : null;
+  const vendaDestaque = bairro.vendaMedia != null
+    ? Number(bairro.vendaMedia)
+    : precosVenda.length > 0
+    ? precosVenda.reduce((a, b) => a + b, 0) / precosVenda.length
+    : null;
+  const aluguelMin = precosAluguel.length ? Math.min(...precosAluguel) : null;
+  const aluguelMax = precosAluguel.length ? Math.max(...precosAluguel) : null;
+
+  const nomesProximos = bairro.bairrosProximos.map((b) => b.nome).join(", ");
 
   return (
     <>
@@ -171,109 +189,148 @@ export default async function BairroPage({
           </div>
         </div>
 
-        <div className="mx-auto max-w-5xl px-6 py-12 space-y-14">
-          {/* Morar no bairro */}
-          {bairro.textoMorar && (
-            <section id="morar" className="scroll-mt-24">
-              <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
-                Morar em {bairro.nome}
-              </h2>
-              <div
-                className="article-content max-w-none"
-                dangerouslySetInnerHTML={{ __html: bairro.textoMorar }}
-              />
-            </section>
-          )}
+        {/* Navegação sticky */}
+        <BairroNav />
 
-          {/* Quanto custa */}
-          {(bairro.aluguelMedio || bairro.vendaMedia) && (
-            <section>
-              <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
-                Quanto custa morar em {bairro.nome}
-              </h2>
-              <div className="flex flex-wrap gap-8">
-                {bairro.aluguelMedio && (
-                  <div>
-                    <p className="font-cormorant text-3xl font-light text-foreground">
-                      {formatPrice(bairro.aluguelMedio.toString())}
-                      <span className="ml-1 font-inter text-sm text-muted-foreground">/mês</span>
-                    </p>
-                    <p className="font-inter text-xs uppercase tracking-wide text-muted-foreground">Aluguel médio</p>
-                  </div>
+        <div className="mx-auto max-w-5xl px-6 py-14 space-y-20">
+          {/* Morar */}
+          <section id="morar" className="scroll-mt-32">
+            <div className="grid gap-10 md:grid-cols-2 md:items-center">
+              <div>
+                <span className="mb-3 inline-flex items-center gap-2 font-inter text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                  <Home size={14} />
+                  Morar
+                </span>
+                <h2 className="font-inter text-3xl font-bold text-foreground sm:text-4xl">
+                  Morar em {bairro.nome}
+                </h2>
+                {nomesProximos && (
+                  <p className="mt-4 font-inter text-base leading-relaxed text-muted-foreground">
+                    O bairro {bairro.nome} fica localizado em {cidade.nome}, próximo aos bairros {nomesProximos}. Confira mais informações abaixo!
+                  </p>
                 )}
-                {bairro.vendaMedia && (
-                  <div>
-                    <p className="font-cormorant text-3xl font-light text-foreground">
-                      {formatPrice(bairro.vendaMedia.toString())}
-                    </p>
-                    <p className="font-inter text-xs uppercase tracking-wide text-muted-foreground">Venda média</p>
+                {bairro.textoMorar && (
+                  <div
+                    className="article-content mt-4 max-w-none"
+                    dangerouslySetInnerHTML={{ __html: bairro.textoMorar }}
+                  />
+                )}
+              </div>
+
+              <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
+                {cidade.imagemUrl ? (
+                  <Image
+                    src={cidade.imagemUrl}
+                    alt={`${bairro.nome}, ${cidade.nome}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-amber-100 to-amber-300 dark:from-stone-800 dark:to-stone-900">
+                    <Home size={64} className="text-amber-600/40 dark:text-amber-400/30" />
                   </div>
                 )}
               </div>
-            </section>
-          )}
-
-          {/* Imóveis no bairro */}
-          <section id="imoveis" className="scroll-mt-24">
-            <div className="mb-6 flex items-baseline justify-between gap-4">
-              <h2 className="font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
-                Imóveis em {bairro.nome}
-              </h2>
-              <span className="font-inter text-xs text-muted-foreground">
-                {imoveisNoBairro.length} {imoveisNoBairro.length === 1 ? "imóvel" : "imóveis"}
-              </span>
             </div>
+          </section>
+
+          {/* Custo & Valores */}
+          <section id="custo" className="scroll-mt-32">
+            <h2 className="mb-6 font-inter text-3xl font-bold text-foreground sm:text-4xl">
+              Quanto custa morar em {bairro.nome}?
+            </h2>
+
+            {!aluguelDestaque && !vendaDestaque ? (
+              <p className="font-inter text-sm text-muted-foreground">
+                Ainda não temos dados de preço para {bairro.nome}. Fale com a gente para saber mais.
+              </p>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2">
+                {aluguelDestaque && (
+                  <div className="rounded-2xl border border-amber-400/30 bg-amber-50/60 p-8 dark:bg-amber-400/5">
+                    <p className="font-cormorant text-5xl font-bold text-foreground">
+                      {formatPrice(aluguelDestaque)}
+                    </p>
+                    <p className="mt-2 font-inter text-sm text-muted-foreground">
+                      É o valor médio para alugar em {bairro.nome}
+                    </p>
+                    {aluguelMin != null && aluguelMax != null && aluguelMin !== aluguelMax && (
+                      <p className="mt-3 font-inter text-xs text-muted-foreground/70">
+                        Valores variam entre {formatPrice(aluguelMin)} e {formatPrice(aluguelMax)}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {vendaDestaque && (
+                  <div className="rounded-2xl border border-border bg-card p-8">
+                    <p className="font-cormorant text-4xl font-bold text-foreground">
+                      {formatPrice(vendaDestaque)}
+                    </p>
+                    <p className="mt-2 font-inter text-sm text-muted-foreground">
+                      É o valor médio para comprar em {bairro.nome}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Imóveis mais desejados */}
+          <section id="imoveis" className="scroll-mt-32">
+            <div className="mb-6 flex items-baseline justify-between gap-4">
+              <h2 className="font-inter text-3xl font-bold text-foreground sm:text-4xl">
+                Imóveis mais desejados em {bairro.nome}
+              </h2>
+            </div>
+
             {imoveis.length === 0 ? (
               <p className="rounded-xl border border-dashed border-border py-16 text-center font-cormorant text-xl font-light text-muted-foreground">
                 Nenhum imóvel disponível em {bairro.nome} no momento.
               </p>
             ) : (
               <>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {imoveis.map((p) => (
-                    <PropertyCard key={p.id} p={p} />
-                  ))}
-                </div>
-                {totalPaginas > 1 && (
-                  <div className="mt-8 flex justify-center gap-2">
-                    {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
-                      <Link
-                        key={n}
-                        href={`${pageUrl}${n > 1 ? `?pagina=${n}` : ""}`}
-                        className={`rounded-full border px-3.5 py-1.5 font-inter text-xs transition-colors ${
-                          n === pagina
-                            ? "border-amber-400 bg-amber-100 text-amber-700 dark:bg-amber-400/15 dark:text-amber-400"
-                            : "border-border text-muted-foreground hover:border-amber-300"
-                        }`}
-                      >
-                        {n}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                <ImoveisCarousel properties={imoveis} />
+                <Link
+                  href={`/imoveis?neighborhood=${encodeURIComponent(bairro.nome)}`}
+                  className="mt-6 inline-flex items-center gap-1.5 font-inter text-sm font-medium text-amber-600 transition-colors hover:text-amber-500"
+                >
+                  Ver todos os imóveis em {bairro.nome}
+                  <ArrowRight size={14} />
+                </Link>
               </>
             )}
           </section>
 
           {/* Bairros próximos */}
-          {bairro.bairrosProximos.length > 0 && (
-            <section>
-              <h2 className="mb-4 font-inter text-[11px] uppercase tracking-widest text-muted-foreground">
-                Bairros próximos
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {bairro.bairrosProximos.map((b) => (
-                  <Link
-                    key={b.slug}
-                    href={`/regioes/${cidadeSlug}/${b.slug}`}
-                    className="rounded-full border border-border px-3.5 py-1.5 font-inter text-xs text-foreground transition-colors hover:border-amber-400 hover:text-amber-600"
-                  >
-                    {b.nome}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          <section id="proximos" className="scroll-mt-32">
+            <h2 className="font-inter text-3xl font-bold text-foreground sm:text-4xl">
+              Quais são os bairros próximos de {bairro.nome}?
+            </h2>
+            {bairro.bairrosProximos.length === 0 ? (
+              <p className="mt-4 font-inter text-sm text-muted-foreground">
+                Em breve mais bairros vizinhos por aqui.
+              </p>
+            ) : (
+              <>
+                <p className="mt-3 font-inter text-base text-muted-foreground">
+                  {bairro.nome} fica perto de {nomesProximos}.
+                </p>
+                <div className="mt-6 flex gap-4 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible">
+                  {bairro.bairrosProximos.map((b, i) => (
+                    <Link
+                      key={b.slug}
+                      href={`/regioes/${cidadeSlug}/${b.slug}`}
+                      className={`group flex w-48 shrink-0 items-center justify-between gap-3 rounded-2xl p-6 transition-transform hover:-translate-y-0.5 sm:w-auto ${CARD_COLORS[i % CARD_COLORS.length]}`}
+                    >
+                      <span className="font-cormorant text-xl font-semibold">{b.nome}</span>
+                      <ArrowRight size={18} className="shrink-0 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
 
           {/* CTA */}
           <section className="rounded-2xl border border-amber-400/30 bg-amber-50/50 p-8 text-center dark:bg-amber-400/5">
